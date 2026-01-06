@@ -1,0 +1,33 @@
+{
+  "name": "modpack-lock",
+  "version": "1.0.0",
+  "description": "Create a modpack lockfile for files hosted on Modrinth (mods, resource packs, shaders and datapacks)",
+  "homepage": "https://github.com/nickesc/modpack-lock#readme",
+  "bugs": {
+    "url": "https://github.com/nickesc/modpack-lock/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nickesc/modpack-lock.git"
+  },
+  "license": "MIT",
+  "author": "N. Escobar <nick@nescobar.media> (https://nickesc.github.io/)",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "modpack-lock": "./index.js"
+  },
+  "keywords": [
+    "modrinth",
+    "minecraft",
+    "modpack",
+    "lockfile"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "node index.js",
+    "start": "node index.js"
+  }
+}
