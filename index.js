@@ -12,6 +12,19 @@ const MODRINTH_VERSION_FILES_ENDPOINT = `${MODRINTH_API_BASE}/version_files`;
 // Get the workspace root from the current working directory
 const WORKSPACE_ROOT = process.cwd();
 
+/**
+ * Parse command-line arguments
+ */
+function parseArgs() {
+  const args = process.argv.slice(2);
+  return {
+    dryRun: args.includes('--dry-run') || args.includes('-d'),
+    quiet: args.includes('--quiet') || args.includes('-q'),
+    gitignore: args.includes('--gitignore') || args.includes('-g'),
+  };
+}
+
+
 const DIRECTORIES_TO_SCAN = [
   { name: 'mods', path: path.join(WORKSPACE_ROOT, 'mods') },
   { name: 'resourcepacks', path: path.join(WORKSPACE_ROOT, 'resourcepacks') },
