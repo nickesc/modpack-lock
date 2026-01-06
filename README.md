@@ -95,6 +95,15 @@ The `modpack.lock` file has the following structure:
 - [ ] Add CLI option for verbose output
 - [ ] Add CLI option for quiet output
 - [ ] Add CLI option for printout of rules to add to .gitignore (the files that are not hosted)
+- [ ] create a modpack.json counterpart to the modpack.lock file
+  - [ ] add a field for version
+  - [ ] add a field for author
+  - [ ] add a field for description
+  - [ ] add a field for license
+  - [ ] add a field for dependencies
+  - [ ] add a field for tags
+  - [ ] add a field for categories
+- [ ] build create-modpack-json npx script to create a modpack.json file from the modpack.lock file and user input
 
 Feel free to submit a pull request working on any of the above, or open an issue for any feature requests or bug reports.
 
