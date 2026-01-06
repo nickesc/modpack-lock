@@ -87,6 +87,11 @@ The `modpack.lock` file has the following structure:
 }
 ```
 
+## Future Plans
+
+- [ ] Add support for CurseForge
+- [ ] Add support for restoring modpack contents using the lockfile
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for more details.
