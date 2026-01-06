@@ -187,6 +187,10 @@ async function main() {
   const config = parseArgs();
   const log = createLogger(config.quiet);
 
+  if (config.dryRun) {
+    log('[DRY RUN] Preview mode - no files will be written');
+  }
+
   log('Scanning directories for modpack files...');
 
   // Scan all directories
@@ -201,7 +205,11 @@ async function main() {
   if (allFileEntries.length === 0) {
     log('No files found. Creating empty lockfile.');
     const outputPath = path.join(WORKSPACE_ROOT, MODPACK_LOCKFILE_NAME);
-    await writeLockfile(createEmptyLockfile(), outputPath);
+    if (config.dryRun) {
+      log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
+    } else {
+      await writeLockfile(createEmptyLockfile(), outputPath, log);
+    }
     return;
   }
 
@@ -221,7 +229,11 @@ async function main() {
 
   // Write lockfile
   const outputPath = path.join(WORKSPACE_ROOT, MODPACK_LOCKFILE_NAME);
-  await writeLockfile(lockfile, outputPath);
+  if (config.dryRun) {
+    log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
+  } else {
+    await writeLockfile(lockfile, outputPath, log);
+  }
 
   // Summary
   log('\n=== Summary ===');
