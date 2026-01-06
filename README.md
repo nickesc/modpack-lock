@@ -10,19 +10,7 @@ Create a modpack lockfile for files hosted on Modrinth (mods, resource packs, sh
 npm install -g modpack-lock
 ```
 
-After global installation, you can run it from any directory:
-
-```bash
-modpack-lock
-```
-
-### Local Installation
-
-```bash
-npm install modpack-lock
-```
-
-Then run it using `npx`:
+Alternatively, you can run it using `npx`:
 
 ```bash
 npx modpack-lock
@@ -67,4 +55,4 @@ The `modpack.lock` file has the following structure:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for more details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for more details.
