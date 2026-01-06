@@ -20,6 +20,7 @@ function parseArgs() {
   return {
     dryRun: args.includes('--dry-run') || args.includes('-d'),
     quiet: args.includes('--quiet') || args.includes('-q'),
+    silent: args.includes('--silent') || args.includes('-s'),
     gitignore: args.includes('--gitignore') || args.includes('-g'),
   };
 }
@@ -32,6 +33,16 @@ function createLogger(quiet) {
     return () => {}; // No-op function when quiet
   }
   return (...args) => console.log(...args);
+}
+
+/**
+ * Silence all console.log output
+ */
+function silenceConsole() {
+  console.log = () => {};
+  console.warn = () => {};
+  console.error = () => {};
+  console.info = () => {};
 }
 
 const DIRECTORIES_TO_SCAN = [
@@ -220,6 +231,10 @@ function generateGitignoreRules(lockfile) {
 async function main() {
   const config = parseArgs();
   const log = createLogger(config.quiet);
+
+  if (config.silent) {
+    silenceConsole();
+  }
 
   if (config.dryRun) {
     log('[DRY RUN] Preview mode - no files will be written');
