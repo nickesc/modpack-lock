@@ -24,6 +24,15 @@ function parseArgs() {
   };
 }
 
+/**
+ * Create a logger function that respects quiet mode
+ */
+function createLogger(quiet) {
+  if (quiet) {
+    return () => {}; // No-op function when quiet
+  }
+  return (...args) => console.log(...args);
+}
 
 const DIRECTORIES_TO_SCAN = [
   { name: 'mods', path: path.join(WORKSPACE_ROOT, 'mods') },
