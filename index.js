@@ -174,36 +174,39 @@ function createLockfile(fileEntries, versionData) {
 /**
  * Write lockfile to disk
  */
-async function writeLockfile(lockfile, outputPath) {
+async function writeLockfile(lockfile, outputPath, log) {
   const content = JSON.stringify(lockfile, null, 2);
   await fs.writeFile(outputPath, content, 'utf-8');
-  console.log(`Lockfile written to: ${outputPath}`);
+  log(`Lockfile written to: ${outputPath}`);
 }
 
 /**
  * Main execution function
  */
 async function main() {
-  console.log('Scanning directories for modpack files...');
+  const config = parseArgs();
+  const log = createLogger(config.quiet);
+
+  log('Scanning directories for modpack files...');
 
   // Scan all directories
   const allFileEntries = [];
   for (const dirInfo of DIRECTORIES_TO_SCAN) {
-    console.log(`Scanning ${dirInfo.name}...`);
+    log(`Scanning ${dirInfo.name}...`);
     const fileEntries = await scanDirectory(dirInfo);
-    console.log(`  Found ${fileEntries.length} file(s)`);
+    log(`  Found ${fileEntries.length} file(s)`);
     allFileEntries.push(...fileEntries);
   }
 
   if (allFileEntries.length === 0) {
-    console.log('No files found. Creating empty lockfile.');
+    log('No files found. Creating empty lockfile.');
     const outputPath = path.join(WORKSPACE_ROOT, MODPACK_LOCKFILE_NAME);
     await writeLockfile(createEmptyLockfile(), outputPath);
     return;
   }
 
-  console.log(`\nTotal files found: ${allFileEntries.length}`);
-  console.log('\nQuerying Modrinth API...');
+  log(`\nTotal files found: ${allFileEntries.length}`);
+  log('\nQuerying Modrinth API...');
 
   // Extract all hashes
   const hashes = allFileEntries.map(info => info.hash);
@@ -211,7 +214,7 @@ async function main() {
   // Query Modrinth API
   const versionData = await getVersionsFromHashes(hashes);
 
-  console.log(`\nFound version information for ${Object.keys(versionData).length} out of ${hashes.length} files`);
+  log(`\nFound version information for ${Object.keys(versionData).length} out of ${hashes.length} files`);
 
   // Create lockfile
   const lockfile = createLockfile(allFileEntries, versionData);
@@ -221,11 +224,11 @@ async function main() {
   await writeLockfile(lockfile, outputPath);
 
   // Summary
-  console.log('\n=== Summary ===');
+  log('\n=== Summary ===');
   for (const [category, entries] of Object.entries(lockfile.dependencies)) {
     const withVersion = entries.filter(e => e.version !== null).length;
     const withoutVersion = entries.length - withVersion;
-    console.log(`${category}: ${entries.length} file(s) (${withVersion} found on Modrinth, ${withoutVersion} unknown)`);
+    log(`${category}: ${entries.length} file(s) (${withVersion} found on Modrinth, ${withoutVersion} unknown)`);
   }
 }
 
