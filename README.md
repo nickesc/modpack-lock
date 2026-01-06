@@ -4,6 +4,8 @@
 
 # modpack-lock
 
+###### by nickesc - [GitHub](https://github.com/nickesc) | [Modrinth](https://modrinth.com/user/nickesc)
+
 Creates a modpack lockfile for files hosted on Modrinth (mods, resource packs, shaders and datapacks).
 
 
