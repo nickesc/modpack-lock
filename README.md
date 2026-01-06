@@ -91,6 +91,12 @@ The `modpack.lock` file has the following structure:
 
 - [ ] Add support for CurseForge
 - [ ] Add support for restoring modpack contents using the lockfile
+- [ ] Add CLI option for dry-run
+- [ ] Add CLI option for verbose output
+- [ ] Add CLI option for quiet output
+- [ ] Add CLI option for printout of rules to add to .gitignore (the files that are not hosted)
+
+Feel free to submit a pull request working on any of the above, or open an issue for any feature requests or bug reports.
 
 ## License
 
