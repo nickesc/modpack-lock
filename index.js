@@ -181,6 +181,40 @@ async function writeLockfile(lockfile, outputPath, log) {
 }
 
 /**
+ * Generate .gitignore rules for files not hosted on Modrinth
+ */
+function generateGitignoreRules(lockfile) {
+  const rules = [];
+  const exceptions = [];
+
+  // Base ignore patterns for each category
+  rules.push('mods/*.jar');
+  rules.push('resourcepacks/*.zip');
+  rules.push('datapacks/*.zip');
+  rules.push('shaderpacks/*.zip');
+  rules.push('');
+  rules.push('## Exceptions');
+
+  // Find files not hosted on Modrinth
+  for (const [category, entries] of Object.entries(lockfile.dependencies)) {
+    for (const entry of entries) {
+      if (entry.version === null) {
+        exceptions.push(`!${entry.path}`);
+      }
+    }
+  }
+
+  // Add exceptions if any
+  if (exceptions.length > 0) {
+    rules.push(...exceptions);
+  } else {
+    rules.push('# No exceptions needed - all files are hosted on Modrinth');
+  }
+
+  return rules.join('\n');
+}
+
+/**
  * Main execution function
  */
 async function main() {
@@ -241,6 +275,12 @@ async function main() {
     const withVersion = entries.filter(e => e.version !== null).length;
     const withoutVersion = entries.length - withVersion;
     log(`${category}: ${entries.length} file(s) (${withVersion} found on Modrinth, ${withoutVersion} unknown)`);
+  }
+
+  // Generate .gitignore rules if requested
+  if (config.gitignore) {
+    log('\n=== .gitignore Rules ===');
+    log(generateGitignoreRules(lockfile));
   }
 }
 
