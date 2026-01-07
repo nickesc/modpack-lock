@@ -47,6 +47,7 @@ Flags:
 - `--quiet` or `-q`: Print only errors and warnings
 - `--silent` or `-s`: Print nothing
 - `--gitignore` or `-g`: Print the rules to add to your `.gitignore` file
+- `--readme` or `-r`: Generate README.md files with lists of all content for each category inside their directories
 
 The script will:
 
