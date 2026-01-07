@@ -8,6 +8,9 @@ const LOCKFILE_VERSION = '1.0.1';
 const MODPACK_LOCKFILE_NAME = 'modpack.lock';
 const MODRINTH_API_BASE = 'https://api.modrinth.com/v2';
 const MODRINTH_VERSION_FILES_ENDPOINT = `${MODRINTH_API_BASE}/version_files`;
+const MODRINTH_PROJECTS_ENDPOINT = `${MODRINTH_API_BASE}/projects`;
+const MODRINTH_USERS_ENDPOINT = `${MODRINTH_API_BASE}/users`;
+const BATCH_SIZE = 100; // Safe limit for URL length
 
 // Get the workspace root from the current working directory
 const WORKSPACE_ROOT = process.cwd();
@@ -22,6 +25,7 @@ function parseArgs() {
     quiet: args.includes('--quiet') || args.includes('-q'),
     silent: args.includes('--silent') || args.includes('-s'),
     gitignore: args.includes('--gitignore') || args.includes('-g'),
+    readme: args.includes('--readme') || args.includes('-r'),
   };
 }
 
@@ -143,6 +147,81 @@ async function getVersionsFromHashes(hashes) {
   }
 }
 
+/**
+ * Split an array into chunks of specified size
+ */
+function chunkArray(array, size) {
+  const chunks = [];
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + size));
+  }
+  return chunks;
+}
+
+/**
+ * Fetch multiple projects by their IDs (batched to avoid URL length limits)
+ */
+async function getProjects(projectIds) {
+  if (projectIds.length === 0) {
+    return [];
+  }
+
+  const chunks = chunkArray(projectIds, BATCH_SIZE);
+  const results = [];
+
+  for (const chunk of chunks) {
+    try {
+      const url = `${MODRINTH_PROJECTS_ENDPOINT}?ids=${encodeURIComponent(JSON.stringify(chunk))}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Modrinth API error (${response.status}): ${errorText}`);
+      }
+
+      const data = await response.json();
+      results.push(...data);
+    } catch (error) {
+      console.error(`Error fetching projects: ${error.message}`);
+      throw error;
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Fetch multiple users by their IDs (batched to avoid URL length limits)
+ */
+async function getUsers(userIds) {
+  if (userIds.length === 0) {
+    return [];
+  }
+
+  const chunks = chunkArray(userIds, BATCH_SIZE);
+  const results = [];
+
+  for (const chunk of chunks) {
+    try {
+      const url = `${MODRINTH_USERS_ENDPOINT}?ids=${encodeURIComponent(JSON.stringify(chunk))}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Modrinth API error (${response.status}): ${errorText}`);
+      }
+
+      const data = await response.json();
+      results.push(...data);
+    } catch (error) {
+      console.error(`Error fetching users: ${error.message}`);
+      throw error;
+    }
+  }
+
+  return results;
+}
+
 
 /**
  * Create empty lockfile structure
@@ -199,6 +278,79 @@ async function writeLockfile(lockfile, outputPath, log) {
   const content = JSON.stringify(lockfile, null, 2);
   await fs.writeFile(outputPath, content, 'utf-8');
   log(`Lockfile written to: ${outputPath}`);
+}
+
+/**
+ * Generate README.md content for a category
+ */
+function generateCategoryReadme(category, entries, projectsMap, usersMap) {
+  const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
+  const lines = [`# ${categoryTitle}`, '', '| Name | Author | Version |', '|-|-|-|'];
+
+  // Map category to Modrinth URL path segment
+  const categoryPathMap = {
+    mods: 'mod',
+    resourcepacks: 'resourcepack',
+    shaderpacks: 'shader',
+    datapacks: 'datapack',
+  };
+  const categoryPath = categoryPathMap[category] || 'project';
+
+  for (const entry of entries) {
+    const version = entry.version;
+    let nameCell = '';
+    let authorCell = '';
+    let versionCell = '';
+
+    if (version && version.project_id) {
+      const project = projectsMap[version.project_id];
+      const author = version.author_id ? usersMap[version.author_id] : null;
+
+      // Name column with icon and link
+      if (project) {
+        const projectName = project.title || project.slug || 'Unknown';
+        const projectSlug = project.slug || project.id;
+        const projectUrl = `https://modrinth.com/${categoryPath}/${projectSlug}`;
+
+        if (project.icon_url) {
+          nameCell = `<img alt="Icon" src="${project.icon_url}" height="20px"> [${projectName}](${projectUrl})`;
+        } else {
+          nameCell = `[${projectName}](${projectUrl})`;
+        }
+      } else {
+        // Project not found, use filename
+        const fileName = path.basename(entry.path);
+        nameCell = fileName;
+      }
+
+      // Author column with avatar and link
+      if (author) {
+        const authorName = author.username || 'Unknown';
+        const authorUrl = `https://modrinth.com/user/${authorName}`;
+
+        if (author.avatar_url) {
+          authorCell = `<img alt="Avatar" src="${author.avatar_url}" height="20px"> [${authorName}](${authorUrl})`;
+        } else {
+          authorCell = `[${authorName}](${authorUrl})`;
+        }
+      } else {
+        authorCell = 'Unknown';
+      }
+
+      // Version column
+      versionCell = version.version_number || 'Unknown';
+    } else {
+      // File not found on Modrinth
+      const fileName = path.basename(entry.path);
+      nameCell = fileName;
+      authorCell = 'Unknown';
+      versionCell = '-';
+    }
+
+    lines.push(`| ${nameCell} | ${authorCell} | ${versionCell} |`);
+  }
+
+  return lines.join('\n') + '\n';
 }
 
 /**
@@ -306,6 +458,72 @@ async function main() {
   if (config.gitignore) {
     log('\n=== .gitignore Rules ===');
     log(generateGitignoreRules(lockfile));
+  }
+
+  // Generate README files if requested
+  if (config.readme) {
+    log('\nGenerating README files...');
+
+    // Collect unique project IDs and author IDs from version data
+    const projectIds = new Set();
+    const authorIds = new Set();
+
+    for (const [category, entries] of Object.entries(lockfile.dependencies)) {
+      for (const entry of entries) {
+        if (entry.version && entry.version.project_id) {
+          projectIds.add(entry.version.project_id);
+        }
+        if (entry.version && entry.version.author_id) {
+          authorIds.add(entry.version.author_id);
+        }
+      }
+    }
+
+    // Fetch projects and users in parallel
+    log(`Fetching data for ${projectIds.size} project(s) and ${authorIds.size} user(s)...`);
+
+    const [projects, users] = await Promise.all([
+      getProjects(Array.from(projectIds)),
+      getUsers(Array.from(authorIds)),
+    ]);
+
+    // Create maps for easy lookup
+    const projectsMap = {};
+    for (const project of projects) {
+      projectsMap[project.id] = project;
+    }
+
+    const usersMap = {};
+    for (const user of users) {
+      usersMap[user.id] = user;
+    }
+
+    // Generate README for each category
+    for (const [category, entries] of Object.entries(lockfile.dependencies)) {
+      if (entries.length === 0) {
+        continue; // Skip empty categories
+      }
+
+      const readmeContent = generateCategoryReadme(category, entries, projectsMap, usersMap);
+      const categoryDir = DIRECTORIES_TO_SCAN.find(d => d.name === category);
+
+      if (categoryDir) {
+        const readmePath = path.join(categoryDir.path, 'README.md');
+
+        if (config.dryRun) {
+          log(`[DRY RUN] Would write README to: ${readmePath}`);
+        } else {
+          try {
+            await fs.writeFile(readmePath, readmeContent, 'utf-8');
+            log(`Generated README: ${readmePath}`);
+          } catch (error) {
+            console.warn(`Warning: Could not write README to ${readmePath}: ${error.message}`);
+          }
+        }
+      }
+    }
+
+    log('README generation complete.');
   }
 }
 
