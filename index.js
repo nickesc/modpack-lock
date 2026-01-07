@@ -25,6 +25,7 @@ function parseArgs() {
     quiet: args.includes('--quiet') || args.includes('-q'),
     silent: args.includes('--silent') || args.includes('-s'),
     gitignore: args.includes('--gitignore') || args.includes('-g'),
+    readme: args.includes('--readme') || args.includes('-r'),
   };
 }
 
@@ -457,6 +458,72 @@ async function main() {
   if (config.gitignore) {
     log('\n=== .gitignore Rules ===');
     log(generateGitignoreRules(lockfile));
+  }
+
+  // Generate README files if requested
+  if (config.readme) {
+    log('\nGenerating README files...');
+
+    // Collect unique project IDs and author IDs from version data
+    const projectIds = new Set();
+    const authorIds = new Set();
+
+    for (const [category, entries] of Object.entries(lockfile.dependencies)) {
+      for (const entry of entries) {
+        if (entry.version && entry.version.project_id) {
+          projectIds.add(entry.version.project_id);
+        }
+        if (entry.version && entry.version.author_id) {
+          authorIds.add(entry.version.author_id);
+        }
+      }
+    }
+
+    // Fetch projects and users in parallel
+    log(`Fetching data for ${projectIds.size} project(s) and ${authorIds.size} user(s)...`);
+
+    const [projects, users] = await Promise.all([
+      getProjects(Array.from(projectIds)),
+      getUsers(Array.from(authorIds)),
+    ]);
+
+    // Create maps for easy lookup
+    const projectsMap = {};
+    for (const project of projects) {
+      projectsMap[project.id] = project;
+    }
+
+    const usersMap = {};
+    for (const user of users) {
+      usersMap[user.id] = user;
+    }
+
+    // Generate README for each category
+    for (const [category, entries] of Object.entries(lockfile.dependencies)) {
+      if (entries.length === 0) {
+        continue; // Skip empty categories
+      }
+
+      const readmeContent = generateCategoryReadme(category, entries, projectsMap, usersMap);
+      const categoryDir = DIRECTORIES_TO_SCAN.find(d => d.name === category);
+
+      if (categoryDir) {
+        const readmePath = path.join(categoryDir.path, 'README.md');
+
+        if (config.dryRun) {
+          log(`[DRY RUN] Would write README to: ${readmePath}`);
+        } else {
+          try {
+            await fs.writeFile(readmePath, readmeContent, 'utf-8');
+            log(`Generated README: ${readmePath}`);
+          } catch (error) {
+            console.warn(`Warning: Could not write README to ${readmePath}: ${error.message}`);
+          }
+        }
+      }
+    }
+
+    log('README generation complete.');
   }
 }
 
