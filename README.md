@@ -79,8 +79,15 @@ The `modpack.lock` file has the following structure:
 
 ```json
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "generated": "2026-01-06T03:00:00.000Z",
+  "total": 7,
+  "counts": {
+    "mods": 1,
+    "resourcepacks": 3,
+    "datapacks": 1,
+    "shaderpacks": 2
+  },
   "dependencies": {
     "mods": [
       {

@@ -4,7 +4,7 @@ import fs from 'fs/promises';
 import crypto from 'crypto';
 import path from 'path';
 
-const LOCKFILE_VERSION = '1.0.0';
+const LOCKFILE_VERSION = '1.0.1';
 const MODPACK_LOCKFILE_NAME = 'modpack.lock';
 const MODRINTH_API_BASE = 'https://api.modrinth.com/v2';
 const MODRINTH_VERSION_FILES_ENDPOINT = `${MODRINTH_API_BASE}/version_files`;
@@ -151,6 +151,8 @@ function createEmptyLockfile() {
   return {
     version: LOCKFILE_VERSION,
     generated: new Date().toISOString(),
+    total: 0,
+    counts: {},
     dependencies: {},
   };
 }
@@ -178,6 +180,14 @@ function createLockfile(fileEntries, versionData) {
 
     lockfile.dependencies[fileInfo.category].push(entry);
   }
+
+  // Calculate counts for each category
+  for (const [category, entries] of Object.entries(lockfile.dependencies)) {
+    lockfile.counts[category] = entries.length;
+  }
+
+  // Calculate total count
+  lockfile.total = fileEntries.length;
 
   return lockfile;
 }
