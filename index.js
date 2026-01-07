@@ -8,6 +8,8 @@ const LOCKFILE_VERSION = '1.0.1';
 const MODPACK_LOCKFILE_NAME = 'modpack.lock';
 const MODRINTH_API_BASE = 'https://api.modrinth.com/v2';
 const MODRINTH_VERSION_FILES_ENDPOINT = `${MODRINTH_API_BASE}/version_files`;
+const MODRINTH_PROJECTS_ENDPOINT = `${MODRINTH_API_BASE}/projects`;
+const MODRINTH_USERS_ENDPOINT = `${MODRINTH_API_BASE}/users`;
 
 // Get the workspace root from the current working directory
 const WORKSPACE_ROOT = process.cwd();
