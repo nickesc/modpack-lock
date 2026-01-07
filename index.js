@@ -4,7 +4,7 @@ import fs from 'fs/promises';
 import crypto from 'crypto';
 import path from 'path';
 
-const LOCKFILE_VERSION = '1.0.0';
+const LOCKFILE_VERSION = '1.0.1';
 const MODPACK_LOCKFILE_NAME = 'modpack.lock';
 const MODRINTH_API_BASE = 'https://api.modrinth.com/v2';
 const MODRINTH_VERSION_FILES_ENDPOINT = `${MODRINTH_API_BASE}/version_files`;
