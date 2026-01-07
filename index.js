@@ -151,6 +151,8 @@ function createEmptyLockfile() {
   return {
     version: LOCKFILE_VERSION,
     generated: new Date().toISOString(),
+    total: 0,
+    counts: {},
     dependencies: {},
   };
 }
@@ -178,6 +180,14 @@ function createLockfile(fileEntries, versionData) {
 
     lockfile.dependencies[fileInfo.category].push(entry);
   }
+
+  // Calculate counts for each category
+  for (const [category, entries] of Object.entries(lockfile.dependencies)) {
+    lockfile.counts[category] = entries.length;
+  }
+
+  // Calculate total count
+  lockfile.total = fileEntries.length;
 
   return lockfile;
 }
