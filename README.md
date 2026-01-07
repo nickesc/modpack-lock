@@ -41,6 +41,13 @@ Navigate to your Minecraft profile directory (the folder containing `mods`, `res
 modpack-lock
 ```
 
+Flags:
+
+- `--dry-run` or `-d`: Print the files that would be scanned, but don't actually scan them
+- `--quiet` or `-q`: Print only errors and warnings
+- `--silent` or `-s`: Print nothing
+- `--gitignore` or `-g`: Print the rules to add to your `.gitignore` file
+
 The script will:
 
 1. Scan the `mods`, `resourcepacks`, `datapacks`, and `shaderpacks` directories for `.jar` and `.zip` files
@@ -51,6 +58,7 @@ The script will:
 Then, commit the `modpack.lock` file to your repository and push it to your remote.
 
 > [!TIP]
+>
 > You can run this script as a pre-commit hook to ensure that the modpack lockfile is up to date before committing your changes to your repository.
 >
 > Also, consider adding these rules to your `.gitignore` to ensure you don't commit the modpack contents to your repository, with exceptions for any files that are not Modrinth-hosted:
@@ -86,17 +94,6 @@ The `modpack.lock` file has the following structure:
   }
 }
 ```
-
-## Future Plans
-
-- [ ] Add support for CurseForge
-- [ ] Add support for restoring modpack contents using the lockfile
-- [ ] Add CLI option for dry-run
-- [ ] Add CLI option for verbose output
-- [ ] Add CLI option for quiet output
-- [ ] Add CLI option for printout of rules to add to .gitignore (the files that are not hosted)
-
-Feel free to submit a pull request working on any of the above, or open an issue for any feature requests or bug reports.
 
 ## License
 

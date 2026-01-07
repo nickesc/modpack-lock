@@ -12,6 +12,39 @@ const MODRINTH_VERSION_FILES_ENDPOINT = `${MODRINTH_API_BASE}/version_files`;
 // Get the workspace root from the current working directory
 const WORKSPACE_ROOT = process.cwd();
 
+/**
+ * Parse command-line arguments
+ */
+function parseArgs() {
+  const args = process.argv.slice(2);
+  return {
+    dryRun: args.includes('--dry-run') || args.includes('-d'),
+    quiet: args.includes('--quiet') || args.includes('-q'),
+    silent: args.includes('--silent') || args.includes('-s'),
+    gitignore: args.includes('--gitignore') || args.includes('-g'),
+  };
+}
+
+/**
+ * Create a logger function that respects quiet mode
+ */
+function createLogger(quiet) {
+  if (quiet) {
+    return () => {}; // No-op function when quiet
+  }
+  return (...args) => console.log(...args);
+}
+
+/**
+ * Silence all console.log output
+ */
+function silenceConsole() {
+  console.log = () => {};
+  console.warn = () => {};
+  console.error = () => {};
+  console.info = () => {};
+}
+
 const DIRECTORIES_TO_SCAN = [
   { name: 'mods', path: path.join(WORKSPACE_ROOT, 'mods') },
   { name: 'resourcepacks', path: path.join(WORKSPACE_ROOT, 'resourcepacks') },
@@ -152,36 +185,85 @@ function createLockfile(fileEntries, versionData) {
 /**
  * Write lockfile to disk
  */
-async function writeLockfile(lockfile, outputPath) {
+async function writeLockfile(lockfile, outputPath, log) {
   const content = JSON.stringify(lockfile, null, 2);
   await fs.writeFile(outputPath, content, 'utf-8');
-  console.log(`Lockfile written to: ${outputPath}`);
+  log(`Lockfile written to: ${outputPath}`);
+}
+
+/**
+ * Generate .gitignore rules for files not hosted on Modrinth
+ */
+function generateGitignoreRules(lockfile) {
+  const rules = [];
+  const exceptions = [];
+
+  // Base ignore patterns for each category
+  rules.push('mods/*.jar');
+  rules.push('resourcepacks/*.zip');
+  rules.push('datapacks/*.zip');
+  rules.push('shaderpacks/*.zip');
+  rules.push('');
+  rules.push('## Exceptions');
+
+  // Find files not hosted on Modrinth
+  for (const [category, entries] of Object.entries(lockfile.dependencies)) {
+    for (const entry of entries) {
+      if (entry.version === null) {
+        exceptions.push(`!${entry.path}`);
+      }
+    }
+  }
+
+  // Add exceptions if any
+  if (exceptions.length > 0) {
+    rules.push(...exceptions);
+  } else {
+    rules.push('# No exceptions needed - all files are hosted on Modrinth');
+  }
+
+  return rules.join('\n');
 }
 
 /**
  * Main execution function
  */
 async function main() {
-  console.log('Scanning directories for modpack files...');
+  const config = parseArgs();
+  const log = createLogger(config.quiet);
+
+  if (config.silent) {
+    silenceConsole();
+  }
+
+  if (config.dryRun) {
+    log('[DRY RUN] Preview mode - no files will be written');
+  }
+
+  log('Scanning directories for modpack files...');
 
   // Scan all directories
   const allFileEntries = [];
   for (const dirInfo of DIRECTORIES_TO_SCAN) {
-    console.log(`Scanning ${dirInfo.name}...`);
+    log(`Scanning ${dirInfo.name}...`);
     const fileEntries = await scanDirectory(dirInfo);
-    console.log(`  Found ${fileEntries.length} file(s)`);
+    log(`  Found ${fileEntries.length} file(s)`);
     allFileEntries.push(...fileEntries);
   }
 
   if (allFileEntries.length === 0) {
-    console.log('No files found. Creating empty lockfile.');
+    log('No files found. Creating empty lockfile.');
     const outputPath = path.join(WORKSPACE_ROOT, MODPACK_LOCKFILE_NAME);
-    await writeLockfile(createEmptyLockfile(), outputPath);
+    if (config.dryRun) {
+      log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
+    } else {
+      await writeLockfile(createEmptyLockfile(), outputPath, log);
+    }
     return;
   }
 
-  console.log(`\nTotal files found: ${allFileEntries.length}`);
-  console.log('\nQuerying Modrinth API...');
+  log(`\nTotal files found: ${allFileEntries.length}`);
+  log('\nQuerying Modrinth API...');
 
   // Extract all hashes
   const hashes = allFileEntries.map(info => info.hash);
@@ -189,21 +271,31 @@ async function main() {
   // Query Modrinth API
   const versionData = await getVersionsFromHashes(hashes);
 
-  console.log(`\nFound version information for ${Object.keys(versionData).length} out of ${hashes.length} files`);
+  log(`\nFound version information for ${Object.keys(versionData).length} out of ${hashes.length} files`);
 
   // Create lockfile
   const lockfile = createLockfile(allFileEntries, versionData);
 
   // Write lockfile
   const outputPath = path.join(WORKSPACE_ROOT, MODPACK_LOCKFILE_NAME);
-  await writeLockfile(lockfile, outputPath);
+  if (config.dryRun) {
+    log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
+  } else {
+    await writeLockfile(lockfile, outputPath, log);
+  }
 
   // Summary
-  console.log('\n=== Summary ===');
+  log('\n=== Summary ===');
   for (const [category, entries] of Object.entries(lockfile.dependencies)) {
     const withVersion = entries.filter(e => e.version !== null).length;
     const withoutVersion = entries.length - withVersion;
-    console.log(`${category}: ${entries.length} file(s) (${withVersion} found on Modrinth, ${withoutVersion} unknown)`);
+    log(`${category}: ${entries.length} file(s) (${withVersion} found on Modrinth, ${withoutVersion} unknown)`);
+  }
+
+  // Generate .gitignore rules if requested
+  if (config.gitignore) {
+    log('\n=== .gitignore Rules ===');
+    log(generateGitignoreRules(lockfile));
   }
 }
 
