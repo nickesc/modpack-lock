@@ -280,6 +280,79 @@ async function writeLockfile(lockfile, outputPath, log) {
 }
 
 /**
+ * Generate README.md content for a category
+ */
+function generateCategoryReadme(category, entries, projectsMap, usersMap) {
+  const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
+  const lines = [`# ${categoryTitle}`, '', '| Name | Author | Version |', '|-|-|-|'];
+
+  // Map category to Modrinth URL path segment
+  const categoryPathMap = {
+    mods: 'mod',
+    resourcepacks: 'resourcepack',
+    shaderpacks: 'shader',
+    datapacks: 'datapack',
+  };
+  const categoryPath = categoryPathMap[category] || 'project';
+
+  for (const entry of entries) {
+    const version = entry.version;
+    let nameCell = '';
+    let authorCell = '';
+    let versionCell = '';
+
+    if (version && version.project_id) {
+      const project = projectsMap[version.project_id];
+      const author = version.author_id ? usersMap[version.author_id] : null;
+
+      // Name column with icon and link
+      if (project) {
+        const projectName = project.title || project.slug || 'Unknown';
+        const projectSlug = project.slug || project.id;
+        const projectUrl = `https://modrinth.com/${categoryPath}/${projectSlug}`;
+
+        if (project.icon_url) {
+          nameCell = `<img alt="Icon" src="${project.icon_url}" height="20px"> [${projectName}](${projectUrl})`;
+        } else {
+          nameCell = `[${projectName}](${projectUrl})`;
+        }
+      } else {
+        // Project not found, use filename
+        const fileName = path.basename(entry.path);
+        nameCell = fileName;
+      }
+
+      // Author column with avatar and link
+      if (author) {
+        const authorName = author.username || 'Unknown';
+        const authorUrl = `https://modrinth.com/user/${authorName}`;
+
+        if (author.avatar_url) {
+          authorCell = `<img alt="Avatar" src="${author.avatar_url}" height="20px"> [${authorName}](${authorUrl})`;
+        } else {
+          authorCell = `[${authorName}](${authorUrl})`;
+        }
+      } else {
+        authorCell = 'Unknown';
+      }
+
+      // Version column
+      versionCell = version.version_number || 'Unknown';
+    } else {
+      // File not found on Modrinth
+      const fileName = path.basename(entry.path);
+      nameCell = fileName;
+      authorCell = 'Unknown';
+      versionCell = '-';
+    }
+
+    lines.push(`| ${nameCell} | ${authorCell} | ${versionCell} |`);
+  }
+
+  return lines.join('\n') + '\n';
+}
+
+/**
  * Generate .gitignore rules for files not hosted on Modrinth
  */
 function generateGitignoreRules(lockfile) {
