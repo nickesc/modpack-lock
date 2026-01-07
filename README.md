@@ -95,33 +95,6 @@ The `modpack.lock` file has the following structure:
 }
 ```
 
-## Future Plans
-
-- [ ] Add support for CurseForge
-- [ ] Add support for restoring modpack contents using the lockfile
-- [ ] Add CLI option to generate .md files for each category that lists the avaiable content
-- [ ] add fields in each category for count of mods (including unhosted)
-- [ ] create a modpack.json counterpart to the modpack.lock file
-  - [ ] add a field for version
-  - [ ] add a field for id
-  - [ ] add a field for author
-  - [ ] add a field for license
-  - [ ] add a field for dependencies
-  - [ ] add a field for modloader
-  - [ ] add a field for target minecraft version
-  - [ ] add a field for target loader version
-  - [ ] add optional field for description
-  - [ ] add optional field for project URL
-  - [ ] add optional field for source URL
-  - [ ] add optional field for issues URL
-  - [ ] add optional field for renderer
-  - [ ] add optional field for tags
-  - [ ] add optional field for categories
-  - [ ] add custom location(s) for outputted modpack.json (for use with mods like fancymenu that have an assets folder)
-- [ ] build create-modpack-json npx script to create a modpack.json file from the modpack.lock file and user input
-
-Feel free to submit a pull request working on any of the above, or open an issue for any feature requests or bug reports.
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for more details.
