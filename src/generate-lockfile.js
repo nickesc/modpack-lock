@@ -491,7 +491,7 @@ async function generateLockfile(config) {
       }
 
       const readmeContent = generateCategoryReadme(category, entries, projectsMap, usersMap);
-      const categoryDir = DIRECTORIES_TO_SCAN.find(d => d.name === category);
+      const categoryDir = getScanDirectories(config.path).find(d => d.name === category);
 
       if (categoryDir) {
         const readmePath = path.join(categoryDir.path, 'README.md');
