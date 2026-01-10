@@ -1,2 +1,8 @@
 
 modpack-lock-*.tgz
+
+node_modules/
+
+test/workspace/
+
+modpack.lock

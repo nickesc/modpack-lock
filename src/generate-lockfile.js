@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import fs from 'fs/promises';
 import crypto from 'crypto';
 import path from 'path';
@@ -10,31 +8,17 @@ const MODRINTH_API_BASE = 'https://api.modrinth.com/v2';
 const MODRINTH_VERSION_FILES_ENDPOINT = `${MODRINTH_API_BASE}/version_files`;
 const MODRINTH_PROJECTS_ENDPOINT = `${MODRINTH_API_BASE}/projects`;
 const MODRINTH_USERS_ENDPOINT = `${MODRINTH_API_BASE}/users`;
-const BATCH_SIZE = 100; // Safe limit for URL length
+const BATCH_SIZE = 100;
 
 // Get the workspace root from the current working directory
-const WORKSPACE_ROOT = process.cwd();
-
-/**
- * Parse command-line arguments
- */
-function parseArgs() {
-  const args = process.argv.slice(2);
-  return {
-    dryRun: args.includes('--dry-run') || args.includes('-d'),
-    quiet: args.includes('--quiet') || args.includes('-q'),
-    silent: args.includes('--silent') || args.includes('-s'),
-    gitignore: args.includes('--gitignore') || args.includes('-g'),
-    readme: args.includes('--readme') || args.includes('-r'),
-  };
-}
+//const WORKSPACE_ROOT = process.cwd();
 
 /**
  * Create a logger function that respects quiet mode
  */
 function createLogger(quiet) {
   if (quiet) {
-    return () => {}; // No-op function when quiet
+    return () => {};
   }
   return (...args) => console.log(...args);
 }
@@ -49,12 +33,17 @@ function silenceConsole() {
   console.info = () => {};
 }
 
-const DIRECTORIES_TO_SCAN = [
-  { name: 'mods', path: path.join(WORKSPACE_ROOT, 'mods') },
-  { name: 'resourcepacks', path: path.join(WORKSPACE_ROOT, 'resourcepacks') },
-  { name: 'datapacks', path: path.join(WORKSPACE_ROOT, 'datapacks') },
-  { name: 'shaderpacks', path: path.join(WORKSPACE_ROOT, 'shaderpacks') },
-];
+/**
+ * Get the directories to scan for modpack files
+ */
+function getScanDirectories(directoryPath) {
+  return [
+    { name: 'mods', path: path.join(directoryPath, 'mods') },
+    { name: 'resourcepacks', path: path.join(directoryPath, 'resourcepacks') },
+    { name: 'datapacks', path: path.join(directoryPath, 'datapacks') },
+    { name: 'shaderpacks', path: path.join(directoryPath, 'shaderpacks') },
+  ];
+}
 
 /**
  * Calculate SHA1 hash of a file
@@ -80,7 +69,6 @@ async function findFiles(dirPath) {
       }
     }
   } catch (error) {
-    // Directory doesn't exist or can't be read - skip it
     if (error.code !== 'ENOENT') {
       console.warn(`Warning: Could not read directory ${dirPath}: ${error.message}`);
     }
@@ -92,14 +80,14 @@ async function findFiles(dirPath) {
 /**
  * Scan a directory and return file info with hashes
  */
-async function scanDirectory(dirInfo) {
+async function scanDirectory(dirInfo, workspaceRoot) {
   const files = await findFiles(dirInfo.path);
   const fileEntries = [];
 
   for (const filePath of files) {
     try {
       const hash = await calculateSHA1(filePath);
-      const relativePath = path.relative(WORKSPACE_ROOT, filePath);
+      const relativePath = path.relative(workspaceRoot, filePath);
 
       fileEntries.push({
         path: relativePath,
@@ -159,7 +147,7 @@ function chunkArray(array, size) {
 }
 
 /**
- * Fetch multiple projects by their IDs (batched to avoid URL length limits)
+ * Fetch multiple projects by their IDs in batches
  */
 async function getProjects(projectIds) {
   if (projectIds.length === 0) {
@@ -191,7 +179,7 @@ async function getProjects(projectIds) {
 }
 
 /**
- * Fetch multiple users by their IDs (batched to avoid URL length limits)
+ * Fetch multiple users by their IDs in batches
  */
 async function getUsers(userIds) {
   if (userIds.length === 0) {
@@ -265,7 +253,6 @@ function createLockfile(fileEntries, versionData) {
     lockfile.counts[category] = entries.length;
   }
 
-  // Calculate total count
   lockfile.total = fileEntries.length;
 
   return lockfile;
@@ -390,8 +377,7 @@ function generateGitignoreRules(lockfile) {
 /**
  * Main execution function
  */
-async function main() {
-  const config = parseArgs();
+async function generateLockfile(config) {
   const log = createLogger(config.quiet);
 
   if (config.silent) {
@@ -406,16 +392,16 @@ async function main() {
 
   // Scan all directories
   const allFileEntries = [];
-  for (const dirInfo of DIRECTORIES_TO_SCAN) {
+  for (const dirInfo of getScanDirectories(config.path)) {
     log(`Scanning ${dirInfo.name}...`);
-    const fileEntries = await scanDirectory(dirInfo);
+    const fileEntries = await scanDirectory(dirInfo, config.path);
     log(`  Found ${fileEntries.length} file(s)`);
     allFileEntries.push(...fileEntries);
   }
 
   if (allFileEntries.length === 0) {
     log('No files found. Creating empty lockfile.');
-    const outputPath = path.join(WORKSPACE_ROOT, MODPACK_LOCKFILE_NAME);
+    const outputPath = path.join(config.path, MODPACK_LOCKFILE_NAME);
     if (config.dryRun) {
       log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
     } else {
@@ -439,7 +425,7 @@ async function main() {
   const lockfile = createLockfile(allFileEntries, versionData);
 
   // Write lockfile
-  const outputPath = path.join(WORKSPACE_ROOT, MODPACK_LOCKFILE_NAME);
+  const outputPath = path.join(config.path, MODPACK_LOCKFILE_NAME);
   if (config.dryRun) {
     log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
   } else {
@@ -454,13 +440,13 @@ async function main() {
     log(`${category}: ${entries.length} file(s) (${withVersion} found on Modrinth, ${withoutVersion} unknown)`);
   }
 
-  // Generate .gitignore rules if requested
+  // Generate .gitignore rules
   if (config.gitignore) {
     log('\n=== .gitignore Rules ===');
     log(generateGitignoreRules(lockfile));
   }
 
-  // Generate README files if requested
+  // Generate README files
   if (config.readme) {
     log('\nGenerating README files...');
 
@@ -487,7 +473,7 @@ async function main() {
       getUsers(Array.from(authorIds)),
     ]);
 
-    // Create maps for easy lookup
+    // Map projects and users to their IDs
     const projectsMap = {};
     for (const project of projects) {
       projectsMap[project.id] = project;
@@ -501,11 +487,11 @@ async function main() {
     // Generate README for each category
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
       if (entries.length === 0) {
-        continue; // Skip empty categories
+        continue;
       }
 
       const readmeContent = generateCategoryReadme(category, entries, projectsMap, usersMap);
-      const categoryDir = DIRECTORIES_TO_SCAN.find(d => d.name === category);
+      const categoryDir = getScanDirectories(config.path).find(d => d.name === category);
 
       if (categoryDir) {
         const readmePath = path.join(categoryDir.path, 'README.md');
@@ -525,9 +511,7 @@ async function main() {
 
     log('README generation complete.');
   }
+  return true;
 }
 
-main().catch(error => {
-  console.error('Error:', error);
-  process.exit(1);
-});
+export default generateLockfile;
