@@ -33,12 +33,17 @@ function silenceConsole() {
   console.info = () => {};
 }
 
-const DIRECTORIES_TO_SCAN = [
-  { name: 'mods', path: path.join(WORKSPACE_ROOT, 'mods') },
-  { name: 'resourcepacks', path: path.join(WORKSPACE_ROOT, 'resourcepacks') },
-  { name: 'datapacks', path: path.join(WORKSPACE_ROOT, 'datapacks') },
-  { name: 'shaderpacks', path: path.join(WORKSPACE_ROOT, 'shaderpacks') },
-];
+/**
+ * Get the directories to scan for modpack files
+ */
+function getScanDirectories(directoryPath) {
+  return [
+    { name: 'mods', path: path.join(directoryPath, 'mods') },
+    { name: 'resourcepacks', path: path.join(directoryPath, 'resourcepacks') },
+    { name: 'datapacks', path: path.join(directoryPath, 'datapacks') },
+    { name: 'shaderpacks', path: path.join(directoryPath, 'shaderpacks') },
+  ];
+}
 
 /**
  * Calculate SHA1 hash of a file
@@ -75,14 +80,14 @@ async function findFiles(dirPath) {
 /**
  * Scan a directory and return file info with hashes
  */
-async function scanDirectory(dirInfo) {
+async function scanDirectory(dirInfo, workspaceRoot) {
   const files = await findFiles(dirInfo.path);
   const fileEntries = [];
 
   for (const filePath of files) {
     try {
       const hash = await calculateSHA1(filePath);
-      const relativePath = path.relative(WORKSPACE_ROOT, filePath);
+      const relativePath = path.relative(workspaceRoot, filePath);
 
       fileEntries.push({
         path: relativePath,
@@ -387,16 +392,16 @@ async function generateLockfile(config) {
 
   // Scan all directories
   const allFileEntries = [];
-  for (const dirInfo of DIRECTORIES_TO_SCAN) {
+  for (const dirInfo of getScanDirectories(config.path)) {
     log(`Scanning ${dirInfo.name}...`);
-    const fileEntries = await scanDirectory(dirInfo);
+    const fileEntries = await scanDirectory(dirInfo, config.path);
     log(`  Found ${fileEntries.length} file(s)`);
     allFileEntries.push(...fileEntries);
   }
 
   if (allFileEntries.length === 0) {
     log('No files found. Creating empty lockfile.');
-    const outputPath = path.join(WORKSPACE_ROOT, MODPACK_LOCKFILE_NAME);
+    const outputPath = path.join(config.path, MODPACK_LOCKFILE_NAME);
     if (config.dryRun) {
       log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
     } else {
@@ -420,7 +425,7 @@ async function generateLockfile(config) {
   const lockfile = createLockfile(allFileEntries, versionData);
 
   // Write lockfile
-  const outputPath = path.join(WORKSPACE_ROOT, MODPACK_LOCKFILE_NAME);
+  const outputPath = path.join(config.path, MODPACK_LOCKFILE_NAME);
   if (config.dryRun) {
     log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
   } else {
