@@ -26,7 +26,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "test": "node index.js",
+    "test": "vitest --run",
     "start": "node index.js",
     "modpack-lock": "node src/modpack-lock.js"
   },
@@ -39,5 +39,8 @@
   ],
   "dependencies": {
     "commander": "^14.0.2"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.16"
   }
 }
