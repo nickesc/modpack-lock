@@ -37,17 +37,25 @@ npx modpack-lock
 
 Navigate to your Minecraft profile directory (the folder containing `mods`, `resourcepacks`, `datapacks`, and `shaderpacks` folders) and run:
 
-```bash
-modpack-lock
+```text
+Usage: modpack-lock [options]
+
+Create a modpack lockfile for files hosted on Modrinth (mods, resource packs, shaders and datapacks)
+
+Options:
+  -d, --dry-run      Dry-run mode - no files will be written
+  -g, --gitignore    Print .gitignore rules for files not hosted on Modrinth
+  -r, --readme       Generate README.md files for each category
+  -p, --path <path>  Path to the modpack directory
+
+LOGGING
+  -q, --quiet        Quiet mode - only show errors and warnings
+  -s, --silent       Silent mode - no output
+
+INFORMATION
+  -V, --version      output the version number
+  --help             display help for modpack-lock
 ```
-
-Flags:
-
-- `--dry-run` or `-d`: Print the files that would be scanned, but don't actually scan them
-- `--quiet` or `-q`: Print only errors and warnings
-- `--silent` or `-s`: Print nothing
-- `--gitignore` or `-g`: Print the rules to add to your `.gitignore` file
-- `--readme` or `-r`: Generate README.md files with lists of all content for each category inside their directories
 
 The script will:
 
