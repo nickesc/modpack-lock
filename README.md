@@ -1,6 +1,6 @@
-
-<a href="https://github.com/nickesc/modpack-lock"><img alt="Source: Github" src="https://img.shields.io/badge/source-github-brightgreen?style=for-the-badge&logo=github&labelColor=%23505050"></a>
 <a href="https://www.npmjs.com/package/modpack-lock"><img alt="NPM: npmjs.com/package/modpack-lock" src="https://img.shields.io/npm/v/modpack-lock?style=for-the-badge&logo=npm&logoColor=white&label=npm&color=%23C12127&labelColor=%23505050"></a>
+<a href="https://github.com/nickesc/modpack-lock"><img alt="Source: Github" src="https://img.shields.io/badge/source-github-brightgreen?style=for-the-badge&logo=github&labelColor=%23505050"></a>
+<a href="https://github.com/nickesc/modpack-lock/actions/workflows/generateLockfile-tests.yml"><img alt="Tests: github.com/nickesc/modpack-lock/actions/workflows/generateLockfile-tests.yml" src="https://img.shields.io/github/actions/workflow/status/nickesc/modpack-lock/generateLockfile-tests.yml?logo=github&label=tests&logoColor=white&style=for-the-badge&labelColor=%23505050"></a>
 
 # modpack-lock
 
