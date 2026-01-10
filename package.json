@@ -41,6 +41,7 @@
     "commander": "^14.0.2"
   },
   "devDependencies": {
+    "unzipper": "^0.12.3",
     "vitest": "^4.0.16"
   }
 }
