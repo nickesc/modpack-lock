@@ -12,9 +12,9 @@
   "license": "MIT",
   "author": "N. Escobar <nick@nescobar.media> (https://nickesc.github.io/)",
   "type": "module",
-  "main": "index.js",
+  "main": "src/generate-lockfile.js",
   "bin": {
-    "modpack-lock": "index.js"
+    "modpack-lock": "src/modpack-lock.js"
   },
   "keywords": [
     "modrinth",
@@ -27,7 +27,7 @@
   },
   "scripts": {
     "test": "vitest --run",
-    "start": "node index.js",
+    "start": "node src/modpack-lock.js",
     "modpack-lock": "node src/modpack-lock.js"
   },
   "files": [
