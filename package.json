@@ -31,7 +31,6 @@
     "modpack-lock": "node src/modpack-lock.js"
   },
   "files": [
-    "index.js",
     "README.md",
     "LICENSE",
     "package.json",
