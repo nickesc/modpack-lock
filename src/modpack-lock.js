@@ -1,10 +1,11 @@
 #!/usr/bin/env NODE_OPTIONS=--no-warnings node
 
 import { Command } from 'commander';
-import prompts from 'prompts';
 import path from 'path';
+import slugify from 'slugify';
 import generateLockfile from './generate_lockfile.js';
 import generateJson from './generate_json.js';
+import getModpackInfo from './modpack_info.js';
 import * as config from './config/index.js';
 import pkg from '../package.json' with { type: 'json' };
 
@@ -16,17 +17,6 @@ const originalLogs = {
     info: console.info,
     warn: console.warn,
     error: console.error,
-};
-
-function slugify(string, separator = "-") {
-    return string
-        .toString()
-        .normalize('NFD') // split an accented letter in the base letter and the accent
-        .replace(/[\u0300-\u036f]/g, '') // remove all previously split accents
-        .toLowerCase()
-        .replace(/[^a-z0-9 -]/g, '') // remove all chars not letters, numbers and spaces (to be replaced)
-        .trim()
-        .replace(/\s+/g, separator);
 };
 
 /**
@@ -41,6 +31,9 @@ function quietConsole(silent = false) {
     }
 }
 
+/**
+ * Restore the console's original functions
+ */
 function restoreConsole() {
     console.log = originalLogs.log;
     console.info = originalLogs.info;
@@ -48,125 +41,18 @@ function restoreConsole() {
     console.error = originalLogs.error;
 }
 
-
-function validateNotEmpty(value, field) {
-    if (value.trim().length === 0) {
-        return `${field} cannot be empty`;
-    }
-    return true;
-}
-
-/**
- * Get user input for modpack information
- */
-async function getModpackInfo(defaults = {}) {
-    let answers = await prompts([
-        {
-            type: 'text',
-            name: 'name',
-            message: 'Modpack name',
-            initial: defaults.name,
-            validate: (value) => {
-                return validateNotEmpty(value, 'Name');
-            },
-        },
-        {
-            type: 'text',
-            name: 'version',
-            message: 'Modpack version',
-            initial: defaults.version || '1.0.0',
-            validate: (value) => {
-                return validateNotEmpty(value, 'Version');
-            },
-        },
-
-        {
-            type: 'text',
-            name: 'id',
-            message: 'Modpack slug/ID',
-            initial: defaults.id ? slugify(defaults.id) : slugify(defaults.name),
-            validate: (value) => {
-                return validateNotEmpty(value, 'ID');
-            },
-        },
-        {
-            type: 'text',
-            name: 'description',
-            message: 'Modpack description',
-            initial: defaults.description || undefined,
-        },
-        {
-            type: 'text',
-            name: 'author',
-            message: 'Modpack author',
-            initial: defaults.author || undefined,
-            validate: (value) => {
-                return validateNotEmpty(value, 'Author');
-            },
-        },
-        {
-            type: 'text',
-            name: 'projectUrl',
-            message: 'Modpack URL',
-            initial: defaults.projectUrl || undefined,
-        },
-        {
-            type: 'text',
-            name: 'sourceUrl',
-            message: 'Modpack source code URL',
-            initial: defaults.sourceUrl || undefined,
-        },
-        {
-            type: 'text',
-            name: 'license',
-            message: 'Modpack license',
-            initial: defaults.license || 'MIT',
-        },
-        {
-            type: 'autocomplete',
-            name: 'modloader',
-            message: 'Modpack modloader',
-            initial: defaults.modloader || undefined,
-            choices: [
-                { title: 'fabric' },
-                { title: 'forge' },
-                { title: 'quilt' },
-                { title: 'neoforge' },
-                { title: 'sponge' },
-                { title: 'paper' },
-                { title: 'velocity' },
-                { title: 'bungeecord' },
-                { title: 'waterfall' },
-                { title: 'travertia' },
-                { title: 'nukkit' },
-                { title: 'pufferfish' },
-                { title: 'purpur' },
-            ],
-            validate: (value) => {
-                return validateNotEmpty(value, 'Modloader');
-            },
-        },
-        {
-            type: 'text',
-            name: 'targetModloaderVersion',
-            message: 'Target modloader version',
-            initial: defaults.targetModloaderVersion || undefined,
-        },
-        {
-            type: 'text',
-            name: 'targetMinecraftVersion',
-            message: 'Target Minecraft version',
-            initial: defaults.targetMinecraftVersion || undefined,
-            validate: (value) => {
-                return validateNotEmpty(value, 'Minecraft Version');
-            },
-        }
-    ]);
-    if (Object.keys(answers).length < 11) {
-        console.warn('Modpack initialization was interrupted');
-        process.exit(1);
-    }
-    return answers;
+function generateModpackFiles(modpackInfo, path) {
+    quietConsole();
+    generateLockfile({ path: path || process.cwd() }).then(lockfile => {
+        restoreConsole();
+        console.log('Lockfile generated');
+        generateJson(modpackInfo, lockfile, path || process.cwd()).then(() => {
+            process.exit(0);
+        }).catch(error => {
+            console.error('Error:', error);
+            process.exit(1);
+        });
+    });
 }
 
 modpackLock
@@ -208,11 +94,16 @@ modpackLock.command('init')
     .option('--name <name>', 'Modpack name')
     .option('--version <version>', 'Modpack version')
     .option('--id <id>', 'Modpack slug/ID')
+    .option('--description <description>', 'Modpack description')
     .option('--author <author>', 'Modpack author')
+    .option('--projectUrl <projectUrl>', 'Modpack URL')
+    .option('--sourceUrl <sourceUrl>', 'Modpack source code URL')
+    .option('--license <license>', 'Modpack license')
     .option('--modloader <modloader>', 'Modpack modloader')
+    .option('--targetModloaderVersion <targetModloaderVersion>', 'Target modloader version')
     .option('--targetMinecraftVersion <targetMinecraftVersion>', 'Target Minecraft version')
     .optionsGroup("INFORMATION")
-    .helpOption("--help", `display help for ${pkg.name}`)
+    .helpOption("--help", `display help for ${pkg.name} init`)
     .action((options) => {
         if (options.noninteractive) {
             if (!options.author || !options.modloader || !options.targetMinecraftVersion) {
@@ -222,22 +113,17 @@ modpackLock.command('init')
                 const modpackInfo = {
                     name: options.name || path.basename(options.folder || process.cwd()),
                     version: options.version || '1.0.0',
-                    id: options.id || options.name || path.basename(options.folder || process.cwd()),
+                    id: slugify(options.id || options.name || path.basename(options.folder || process.cwd()), config.SLUGIFY_OPTIONS),
+                    description: options.description || '',
                     author: options.author,
+                    projectUrl: options.projectUrl || '',
+                    sourceUrl: options.sourceUrl || '',
+                    license: options.license || '',
                     modloader: options.modloader,
+                    targetModloaderVersion: options.targetModloaderVersion || '',
                     targetMinecraftVersion: options.targetMinecraftVersion,
                 };
-                quietConsole();
-                generateLockfile({ path: options.folder || process.cwd() }).then(lockfile => {
-                    restoreConsole();
-                    console.log('Lockfile generated');
-                    generateJson(modpackInfo, lockfile, options.folder || process.cwd()).then(() => {
-                        process.exit(0);
-                    }).catch(error => {
-                        console.error('Error:', error);
-                        process.exit(1);
-                    });
-                });
+                generateModpackFiles(modpackInfo, options.folder);
             }
         } else {
             console.log(jsonDescription);
@@ -247,17 +133,17 @@ modpackLock.command('init')
                 name: options.name || path.basename(options.folder || process.cwd()),
                 version: options.version,
                 id: options.id,
+                description: options.description,
                 author: options.author,
+                projectUrl: options.projectUrl,
+                sourceUrl: options.sourceUrl,
+                license: options.license,
                 modloader: options.modloader,
+                targetModloaderVersion: options.targetModloaderVersion,
                 targetMinecraftVersion: options.targetMinecraftVersion,
             })
                 .then(modpackInfo => {
-                    quietConsole();
-                    generateLockfile({ path: options.folder || process.cwd() }).then(lockfile => {
-                        restoreConsole();
-                        console.log('Lockfile generated');
-                        generateJson(modpackInfo, lockfile, options.folder || process.cwd());
-                    });
+                    generateModpackFiles(modpackInfo, options.folder);
                 }, error => {
                     console.error('Error:', error);
                     process.exit(1);
