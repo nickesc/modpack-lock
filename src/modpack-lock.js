@@ -168,3 +168,4 @@ modpackLock.command('init')
 
 modpackLock.parse()
 
+export { generateModpackFiles, generateJson, generateLockfile, getModpackJson, getLockfile, promptUserForInfo };
