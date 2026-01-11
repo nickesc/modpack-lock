@@ -44,38 +44,40 @@ export default async function generateJson(modpackInfo, lockfile, path) {
     }
 
     // Collect project IDs from lockfile
-    for (const [category, entries] of Object.entries(lockfile.dependencies)) {
-        for (const entry of entries) {
-            if (entry.version && entry.version.project_id) {
-                projectIds[category].add(entry.version.project_id);
-            } else {
-                packDependencies[category].push(entry.path);
+    if (lockfile) if (lockfile.dependencies) {
+        for (const [category, entries] of Object.entries(lockfile.dependencies)) {
+            for (const entry of entries) {
+                if (entry.version && entry.version.project_id) {
+                    projectIds[category].add(entry.version.project_id);
+                } else {
+                    packDependencies[category].push(entry.path);
+                }
             }
         }
-    }
-    const allProjectIds = new Set();
-    for (const category of config.DEPENDENCY_CATEGORIES) {
-        for (const projectId of projectIds[category]) {
-            allProjectIds.add(projectId);
-        }
-    }
-
-    // Fetch projects from Modrinth
-    const projects = await getProjects(Array.from(allProjectIds));
-    const projectsMap = {};
-    for (const project of projects) {
-        projectsMap[project.id] = project.slug;
-    }
-
-    // Add projects to dependencies by category
-    for (const category of config.DEPENDENCY_CATEGORIES) {
-        for (const projectId of projectIds[category]) {
-            const projectSlug = projectsMap[projectId];
-            if (projectSlug) {
-                packDependencies[category].push(projectSlug);
+        const allProjectIds = new Set();
+        for (const category of config.DEPENDENCY_CATEGORIES) {
+            for (const projectId of projectIds[category]) {
+                allProjectIds.add(projectId);
             }
         }
-        //packDependencies[category].push(...packDependencies[category].map(item => item.path));
+
+        // Fetch projects from Modrinth
+        const projects = await getProjects(Array.from(allProjectIds));
+        const projectsMap = {};
+        for (const project of projects) {
+            projectsMap[project.id] = project.slug;
+        }
+
+        // Add projects to dependencies by category
+        for (const category of config.DEPENDENCY_CATEGORIES) {
+            for (const projectId of projectIds[category]) {
+                const projectSlug = projectsMap[projectId];
+                if (projectSlug) {
+                    packDependencies[category].push(projectSlug);
+                }
+            }
+            //packDependencies[category].push(...packDependencies[category].map(item => item.path));
+        }
     }
 
     // Create modpack JSON object
