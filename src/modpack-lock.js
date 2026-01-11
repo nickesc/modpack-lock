@@ -42,6 +42,11 @@ function restoreConsole() {
     console.error = originalLogs.error;
 }
 
+/**
+ * Generate the modpack files (lockfile and JSON)
+ * @param {Object} modpackInfo - The modpack information
+ * @param {string} directory - The directory to generate the files in
+ */
 function generateModpackFiles(modpackInfo, directory) {
     generateLockfile({ path: directory }).then(lockfile => {
         generateJson(modpackInfo, lockfile, directory).then(() => {
