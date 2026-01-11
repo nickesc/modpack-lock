@@ -303,7 +303,7 @@ async function generateLockfile(config) {
 
         console.log('README generation complete.');
     }
-    return true;
+    return lockfile;
 }
 
 export default generateLockfile;
