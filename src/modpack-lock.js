@@ -6,6 +6,7 @@ import slugify from 'slugify';
 import generateLockfile from './generate_lockfile.js';
 import generateJson from './generate_json.js';
 import promptUserForInfo from './modpack_info.js';
+import { getModpackJson } from './directory_scanning.js';
 import * as config from './config/index.js';
 import pkg from '../package.json' with { type: 'json' };
 
@@ -41,12 +42,9 @@ function restoreConsole() {
     console.error = originalLogs.error;
 }
 
-function generateModpackFiles(modpackInfo, path) {
-    quietConsole();
-    generateLockfile({ path: path || process.cwd() }).then(lockfile => {
-        restoreConsole();
-        console.log('Lockfile generated');
-        generateJson(modpackInfo, lockfile, path || process.cwd()).then(() => {
+function generateModpackFiles(modpackInfo, directory) {
+    generateLockfile({ path: directory }).then(lockfile => {
+        generateJson(modpackInfo, lockfile, directory).then(() => {
             process.exit(0);
         }).catch(error => {
             console.error('Error:', error);
@@ -72,14 +70,23 @@ modpackLock
     .helpOption("-h, --help", `display help for ${pkg.name}`)
     .version(pkg.version, '-V')
     .action((options) => {
+        const currDir = options.path || process.cwd();
+
         if (options.quiet) {
             quietConsole();
         } else if (options.silent) {
             quietConsole(true);
         }
-        generateLockfile({ ...options, path: options.path || process.cwd() }).catch(error => {
-            console.error('Error:', error);
-            process.exit(1);
+
+        getModpackJson(currDir).then(modpackInfo => {
+            if (modpackInfo) {
+                generateModpackFiles(modpackInfo, currDir);
+            } else {
+                generateLockfile({ ...options, path: currDir }).catch(error => {
+                    console.error('Error:', error);
+                    process.exit(1);
+                });
+            }
         });
     });
 
@@ -91,29 +98,32 @@ modpackLock.command('init')
     .option('-f, --folder <path>', 'Path to the modpack directory')
     .option("-n, --noninteractive", 'Non-interactive mode - must provide options for required fields')
     .optionsGroup("MODPACK INFORMATION")
-    .option('--name <name>', 'Modpack name')
-    .option('--version <version>', 'Modpack version')
-    .option('--id <id>', 'Modpack slug/ID')
+    .option('--name <name>', 'Modpack name; defaults to the directory name; required')
+    .option('--version <version>', 'Modpack version; defaults to 1.0.0; required')
+    .option('--id <id>', 'Modpack slug/ID; defaults to the directory name slugified; required')
     .option('--description <description>', 'Modpack description')
-    .option('--author <author>', 'Modpack author')
+    .option('--author <author>', 'Modpack author; required')
     .option('--projectUrl <projectUrl>', 'Modpack URL')
     .option('--sourceUrl <sourceUrl>', 'Modpack source code URL')
     .option('--license <license>', 'Modpack license')
-    .option('--modloader <modloader>', 'Modpack modloader')
+    .option('--modloader <modloader>', 'Modpack modloader; required')
     .option('--targetModloaderVersion <targetModloaderVersion>', 'Target modloader version')
-    .option('--targetMinecraftVersion <targetMinecraftVersion>', 'Target Minecraft version')
+    .option('--targetMinecraftVersion <targetMinecraftVersion>', 'Target Minecraft version; required')
     .optionsGroup("INFORMATION")
     .helpOption("--help", `display help for ${pkg.name} init`)
     .action((options) => {
+        const currDir = options.folder || process.cwd();
+
         if (options.noninteractive) {
+            quietConsole();
             if (!options.author || !options.modloader || !options.targetMinecraftVersion) {
                 console.error('Error: Must provide options for required fields');
                 process.exit(1);
             } else {
                 const modpackInfo = {
-                    name: options.name || path.basename(options.folder || process.cwd()),
+                    name: options.name || path.basename(currDir),
                     version: options.version || '1.0.0',
-                    id: slugify(options.id || options.name || path.basename(options.folder || process.cwd()), config.SLUGIFY_OPTIONS),
+                    id: slugify(options.id || options.name || path.basename(currDir), config.SLUGIFY_OPTIONS),
                     description: options.description || '',
                     author: options.author,
                     projectUrl: options.projectUrl || '',
@@ -123,14 +133,14 @@ modpackLock.command('init')
                     targetModloaderVersion: options.targetModloaderVersion || '',
                     targetMinecraftVersion: options.targetMinecraftVersion,
                 };
-                generateModpackFiles(modpackInfo, options.folder);
+                generateModpackFiles(modpackInfo, currDir);
             }
         } else {
             console.log(jsonDescription);
             console.log("\nSee `modpack-lock init --help` for definitive documentation on these fields and exactly what they do.\n");
             console.log("Press ^C at any time to quit.\n");
             promptUserForInfo({
-                name: options.name || path.basename(options.folder || process.cwd()),
+                name: options.name || path.basename(currDir),
                 version: options.version,
                 id: options.id,
                 description: options.description,
@@ -143,7 +153,7 @@ modpackLock.command('init')
                 targetMinecraftVersion: options.targetMinecraftVersion,
             })
                 .then(modpackInfo => {
-                    generateModpackFiles(modpackInfo, options.folder);
+                    generateModpackFiles(modpackInfo, currDir);
                 }, error => {
                     console.error('Error:', error);
                     process.exit(1);
