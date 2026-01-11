@@ -5,8 +5,10 @@ import prompts from 'prompts';
 import path from 'path';
 import generateLockfile from './generate-lockfile.js';
 import generateJson from './generate-json.js';
-
+import * as config from './config/index.js';
 import pkg from '../package.json' with { type: 'json' };
+
+
 const modpackLock = new Command('modpack-lock');
 
 const originalLogs = {
@@ -188,7 +190,7 @@ modpackLock
         });
     });
 
-const jsonDescription = "This utility will walk you through creating a modpack.json file. It only covers the most common items, and tries to guess sensible defaults.";
+const jsonDescription = `This utility will walk you through creating a ${config.MODPACK_JSON_NAME} file. It only covers the most common items, and tries to guess sensible defaults.`;
 
 modpackLock.command('init')
     .description(jsonDescription)

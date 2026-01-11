@@ -1,17 +1,17 @@
 import fs from 'fs/promises';
 import crypto from 'crypto';
 import path from 'path';
+import * as config from './config/index.js';
 
 /**
  * Get the directories to scan for modpack files
  */
 export function getScanDirectories(directoryPath) {
-    return [
-        { name: 'mods', path: path.join(directoryPath, 'mods') },
-        { name: 'resourcepacks', path: path.join(directoryPath, 'resourcepacks') },
-        { name: 'datapacks', path: path.join(directoryPath, 'datapacks') },
-        { name: 'shaderpacks', path: path.join(directoryPath, 'shaderpacks') },
-    ];
+    const scanDirectories = [];
+    for (const category of config.DEPENDENCY_CATEGORIES) {
+        scanDirectories.push({ name: category, path: path.join(directoryPath, category) });
+    }
+    return scanDirectories;
 }
 
 /**

@@ -2,19 +2,14 @@ import fs from 'fs/promises';
 import path from 'path';
 import { getVersionsFromHashes, getProjects, getUsers } from './modrinth_interactions.js';
 import { getScanDirectories, scanDirectory } from './directory_scanning.js';
-
-const LOCKFILE_VERSION = '1.0.1';
-const MODPACK_LOCKFILE_NAME = 'modpack.lock';
-
-// Get the workspace root from the current working directory
-//const WORKSPACE_ROOT = process.cwd();
+import * as config from './config/index.js';
 
 /**
  * Create empty lockfile structure
  */
 function createEmptyLockfile() {
     return {
-        version: LOCKFILE_VERSION,
+        version: config.LOCKFILE_VERSION,
         generated: new Date().toISOString(),
         total: 0,
         counts: {},
@@ -73,12 +68,10 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
     const lines = [`# ${categoryTitle}`, '', '| Name | Author | Version |', '|-|-|-|'];
 
     // Map category to Modrinth URL path segment
-    const categoryPathMap = {
-        mods: 'mod',
-        resourcepacks: 'resourcepack',
-        shaderpacks: 'shader',
-        datapacks: 'datapack',
-    };
+    const categoryPathMap = {};
+    for (const category of config.DEPENDENCY_CATEGORIES) {
+        categoryPathMap[category] = category.toLowerCase().slice(0, -1);
+    }
     const categoryPath = categoryPathMap[category] || 'project';
 
     for (const entry of entries) {
@@ -146,12 +139,10 @@ function generateGitignoreRules(lockfile) {
     const exceptions = [];
 
     // Base ignore patterns for each category
-    rules.push('mods/*.jar');
-    rules.push('resourcepacks/*.zip');
-    rules.push('datapacks/*.zip');
-    rules.push('shaderpacks/*.zip');
-    rules.push('');
-    rules.push('## Exceptions');
+    for (const category of config.DEPENDENCY_CATEGORIES) {
+        rules.push(`${category}/*.${category === "mods" ? "jar" : "zip"}`);
+    }
+    rules.push('\n## Exceptions');
 
     // Find files not hosted on Modrinth
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
@@ -175,8 +166,8 @@ function generateGitignoreRules(lockfile) {
 /**
  * Main execution function
  */
-async function generateLockfile(config) {
-    if (config.dryRun) {
+async function generateLockfile(options) {
+    if (options.dryRun) {
         console.log('[DRY RUN] Preview mode - no files will be written');
     }
 
@@ -184,17 +175,17 @@ async function generateLockfile(config) {
 
     // Scan all directories
     const allFileEntries = [];
-    for (const dirInfo of getScanDirectories(config.path)) {
+    for (const dirInfo of getScanDirectories(options.path)) {
         console.log(`Scanning ${dirInfo.name}...`);
-        const fileEntries = await scanDirectory(dirInfo, config.path);
+        const fileEntries = await scanDirectory(dirInfo, options.path);
         console.log(`  Found ${fileEntries.length} file(s)`);
         allFileEntries.push(...fileEntries);
     }
 
     if (allFileEntries.length === 0) {
         console.log('No files found. Creating empty lockfile.');
-        const outputPath = path.join(config.path, MODPACK_LOCKFILE_NAME);
-        if (config.dryRun) {
+        const outputPath = path.join(options.path, config.MODPACK_LOCKFILE_NAME);
+        if (options.dryRun) {
             console.log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
         } else {
             await writeLockfile(createEmptyLockfile(), outputPath);
@@ -217,8 +208,8 @@ async function generateLockfile(config) {
     const lockfile = createLockfile(allFileEntries, versionData);
 
     // Write lockfile
-    const outputPath = path.join(config.path, MODPACK_LOCKFILE_NAME);
-    if (config.dryRun) {
+    const outputPath = path.join(options.path, config.MODPACK_LOCKFILE_NAME);
+    if (options.dryRun) {
         console.log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
     } else {
         await writeLockfile(lockfile, outputPath);
@@ -233,13 +224,14 @@ async function generateLockfile(config) {
     }
 
     // Generate .gitignore rules
-    if (config.gitignore) {
-        console.log('\n=== .gitignore Rules ===');
+    if (options.gitignore) {
+        console.log('\n=== .gitignore Rules ===\n');
         console.log(generateGitignoreRules(lockfile));
+        console.log();
     }
 
     // Generate README files
-    if (config.readme) {
+    if (options.readme) {
         console.log('\nGenerating README files...');
 
         // Collect unique project IDs and author IDs from version data
@@ -283,12 +275,12 @@ async function generateLockfile(config) {
             }
 
             const readmeContent = generateCategoryReadme(category, entries, projectsMap, usersMap);
-            const categoryDir = getScanDirectories(config.path).find(d => d.name === category);
+            const categoryDir = getScanDirectories(options.path).find(d => d.name === category);
 
             if (categoryDir) {
                 const readmePath = path.join(categoryDir.path, 'README.md');
 
-                if (config.dryRun) {
+                if (options.dryRun) {
                     console.log(`[DRY RUN] Would write README to: ${readmePath}`);
                 } else {
                     try {

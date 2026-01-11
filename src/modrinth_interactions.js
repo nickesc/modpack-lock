@@ -1,8 +1,4 @@
-const MODRINTH_API_BASE = 'https://api.modrinth.com/v2';
-const MODRINTH_VERSION_FILES_ENDPOINT = `${MODRINTH_API_BASE}/version_files`;
-const MODRINTH_PROJECTS_ENDPOINT = `${MODRINTH_API_BASE}/projects`;
-const MODRINTH_USERS_ENDPOINT = `${MODRINTH_API_BASE}/users`;
-const BATCH_SIZE = 100;
+import * as config from './config/index.js';
 
 /**
  * Split an array into chunks of specified size
@@ -15,7 +11,6 @@ function chunkArray(array, size) {
     return chunks;
 }
 
-
 /**
  * Query Modrinth API for version information from hashes
  */
@@ -25,7 +20,7 @@ export async function getVersionsFromHashes(hashes) {
     }
 
     try {
-        const response = await fetch(MODRINTH_VERSION_FILES_ENDPOINT, {
+        const response = await fetch(config.MODRINTH_VERSION_FILES_ENDPOINT, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -56,12 +51,12 @@ export async function getProjects(projectIds) {
         return [];
     }
 
-    const chunks = chunkArray(projectIds, BATCH_SIZE);
+    const chunks = chunkArray(projectIds, config.BATCH_SIZE);
     const results = [];
 
     for (const chunk of chunks) {
         try {
-            const url = `${MODRINTH_PROJECTS_ENDPOINT}?ids=${encodeURIComponent(JSON.stringify(chunk))}`;
+            const url = `${config.MODRINTH_PROJECTS_ENDPOINT}?ids=${encodeURIComponent(JSON.stringify(chunk))}`;
             const response = await fetch(url);
 
             if (!response.ok) {
@@ -88,12 +83,12 @@ export async function getUsers(userIds) {
         return [];
     }
 
-    const chunks = chunkArray(userIds, BATCH_SIZE);
+    const chunks = chunkArray(userIds, config.BATCH_SIZE);
     const results = [];
 
     for (const chunk of chunks) {
         try {
-            const url = `${MODRINTH_USERS_ENDPOINT}?ids=${encodeURIComponent(JSON.stringify(chunk))}`;
+            const url = `${config.MODRINTH_USERS_ENDPOINT}?ids=${encodeURIComponent(JSON.stringify(chunk))}`;
             const response = await fetch(url);
 
             if (!response.ok) {

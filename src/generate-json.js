@@ -1,18 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
-import generateLockfile from './generate-lockfile.js';
 import { getProjects } from './modrinth_interactions.js';
-
-const MODPACK_JSON_NAME = 'modpack.json';
-const MODPACK_INFO_REQUIRED_FIELDS = [
-    "name",
-    "version",
-    "id",
-    "author",
-    "modloader",
-    "targetMinecraftVersion"
-];
-const DEPENDENCY_CATEGORIES = ['mods', 'resourcepacks', 'shaderpacks', 'datapacks'];
+import * as config from './config/index.js';
 
 /**
  * Create a JSON object from the modpack information and dependencies
@@ -29,8 +18,8 @@ function createModpackJson(modpackInfo, dependencies) {
  */
 async function writeJson(jsonObject, outputPath) {
     const content = JSON.stringify(jsonObject, null, 2);
-    await fs.writeFile(path.join(outputPath, MODPACK_JSON_NAME), content, 'utf-8');
-    console.log(`modpack.json written to: ${path.join(outputPath, MODPACK_JSON_NAME)}`);
+    await fs.writeFile(path.join(outputPath, config.MODPACK_JSON_NAME), content, 'utf-8');
+    console.log(`modpack.json written to: ${path.join(outputPath, config.MODPACK_JSON_NAME)}`);
 }
 
 /**
@@ -41,38 +30,33 @@ async function writeJson(jsonObject, outputPath) {
  */
 export default async function generateJson(modpackInfo, lockfile, path) {
     // Validate modpack info
-    for (const field of MODPACK_INFO_REQUIRED_FIELDS) {
+    for (const field of config.MODPACK_INFO_REQUIRED_FIELDS) {
         if (!modpackInfo[field]) {
             throw new Error(`Modpack info is missing required field: ${field}`);
         }
     }
 
-    const projectIds = {
-        mods: new Set(),
-        resourcepacks: new Set(),
-        shaderpacks: new Set(),
-        datapacks: new Set(),
-    };
-    const packDependencies = {
-        mods: [],
-        resourcepacks: [],
-        shaderpacks: [],
-        datapacks: [],
-    };
+    const projectIds = {};
+    const packDependencies = {};
+    for (const category of config.DEPENDENCY_CATEGORIES) {
+        projectIds[category] = new Set();
+        packDependencies[category] = [];
+    }
 
     // Collect project IDs from lockfile
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
         for (const entry of entries) {
             if (entry.version && entry.version.project_id) {
                 projectIds[category].add(entry.version.project_id);
-                //allProjectIds.add(entry.version.project_id);
             } else {
                 packDependencies[category].push(entry.path);
             }
         }
     }
-
-    const allProjectIds = new Set([...projectIds.mods, ...projectIds.resourcepacks, ...projectIds.shaderpacks, ...projectIds.datapacks]);
+    const allProjectIds = new Set();
+    for (const category of config.DEPENDENCY_CATEGORIES) {
+        allProjectIds.add(...projectIds[category]);
+    }
 
     // Fetch projects from Modrinth
     const projects = await getProjects(Array.from(allProjectIds));
@@ -82,7 +66,7 @@ export default async function generateJson(modpackInfo, lockfile, path) {
     }
 
     // Add projects to dependencies by category
-    for (const category of ['mods', 'resourcepacks', 'shaderpacks', 'datapacks']){
+    for (const category of config.DEPENDENCY_CATEGORIES){
         for (const projectId of projectIds[category]) {
             packDependencies[category].push(projectsMap[projectId]);
         }
