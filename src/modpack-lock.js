@@ -145,15 +145,20 @@ modpackLock
     });
   });
 
+const jsonDescription = "This utility will walk you through creating a modpack.json file. It only covers the most common items, and tries to guess sensible defaults."
+
 modpackLock.command('init')
-  .description('Initialize a new modpack')
+  .description(jsonDescription)
   .optionsGroup("Options:")
-  .option('-p, --path <path>', 'Path to the modpack directory')
+  .option('-f, --folder <path>', 'Path to the modpack directory')
+  .optionsGroup("INFORMATION")
+  .helpOption("--help", `display help for ${pkg.name}`)
   .action((options) => {
-    console.log("This utility will walk you through creating a modpack.json file.\nIt only covers the most common items, and tries to guess sensible defaults.\n");
+    console.log(jsonDescription);
+    console.log("\nSee `modpack-lock init --help` for definitive documentation on these fields and exactly what they do.\n");
     console.log("Press ^C at any time to quit.\n");
-    getModpackInfo(path.basename(options.path || process.cwd())).then(modpackInfo => {
-        generateJson(modpackInfo, [], [options.path || process.cwd()])
+    getModpackInfo(path.basename(options.folder || process.cwd())).then(modpackInfo => {
+        generateJson(modpackInfo, [], [options.folder || process.cwd()])
     }, error => {
       console.error('Error:', error);
       process.exit(1);
