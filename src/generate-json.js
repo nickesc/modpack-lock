@@ -66,7 +66,7 @@ export default async function generateJson(modpackInfo, lockfile, path) {
     }
 
     // Add projects to dependencies by category
-    for (const category of config.DEPENDENCY_CATEGORIES){
+    for (const category of config.DEPENDENCY_CATEGORIES) {
         for (const projectId of projectIds[category]) {
             packDependencies[category].push(projectsMap[projectId]);
         }

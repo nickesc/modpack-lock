@@ -203,17 +203,17 @@ modpackLock.command('init')
         console.log("\nSee `modpack-lock init --help` for definitive documentation on these fields and exactly what they do.\n");
         console.log("Press ^C at any time to quit.\n");
         getModpackInfo(path.basename(options.folder || process.cwd()))
-        .then(modpackInfo => {
-            quietConsole();
-            generateLockfile({ path: options.folder || process.cwd() }).then(lockfile => {
-                restoreConsole();
-                console.log('Lockfile generated');
-                generateJson(modpackInfo, lockfile, options.folder || process.cwd());
+            .then(modpackInfo => {
+                quietConsole();
+                generateLockfile({ path: options.folder || process.cwd() }).then(lockfile => {
+                    restoreConsole();
+                    console.log('Lockfile generated');
+                    generateJson(modpackInfo, lockfile, options.folder || process.cwd());
+                });
+            }, error => {
+                console.error('Error:', error);
+                process.exit(1);
             });
-        }, error => {
-            console.error('Error:', error);
-            process.exit(1);
-        });
     });
 
 modpackLock.parse()
