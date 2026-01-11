@@ -9,6 +9,13 @@ import generateJson from './generate-json.js';
 import pkg from '../package.json' with { type: 'json' };
 const modpackLock = new Command('modpack-lock');
 
+const originalLogs = {
+    log: console.log,
+    info: console.info,
+    warn: console.warn,
+    error: console.error,
+};
+
 function slugify(string, separator = "-") {
     return string
         .toString()
@@ -30,6 +37,13 @@ function quietConsole(silent = false) {
         console.warn = () => { };
         console.error = () => { };
     }
+}
+
+function restoreConsole() {
+    console.log = originalLogs.log;
+    console.info = originalLogs.info;
+    console.warn = originalLogs.warn;
+    console.error = originalLogs.error;
 }
 
 
@@ -186,8 +200,14 @@ modpackLock.command('init')
         console.log(jsonDescription);
         console.log("\nSee `modpack-lock init --help` for definitive documentation on these fields and exactly what they do.\n");
         console.log("Press ^C at any time to quit.\n");
-        getModpackInfo(path.basename(options.folder || process.cwd())).then(modpackInfo => {
-            generateJson(modpackInfo, [], [options.folder || process.cwd()]);
+        getModpackInfo(path.basename(options.folder || process.cwd()))
+        .then(modpackInfo => {
+            quietConsole();
+            generateLockfile({ path: options.folder || process.cwd() }).then(lockfile => {
+                restoreConsole();
+                console.log('Lockfile generated');
+                generateJson(modpackInfo, lockfile, options.folder || process.cwd());
+            });
         }, error => {
             console.error('Error:', error);
             process.exit(1);

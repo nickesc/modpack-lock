@@ -39,7 +39,7 @@ async function writeJson(jsonObject, outputPath) {
  * @param {Object} dependencies - The dependencies
  * @param {string} path - The path to write the JSON object to
  */
-export default async function generateJson(modpackInfo, dependencies, path) {
+export default async function generateJson(modpackInfo, lockfile, path) {
     // Validate modpack info
     for (const field of MODPACK_INFO_REQUIRED_FIELDS) {
         if (!modpackInfo[field]) {
@@ -47,58 +47,50 @@ export default async function generateJson(modpackInfo, dependencies, path) {
         }
     }
 
-    // Generate lockfile
-    const lockfile = await generateLockfile({ path: path });
-
-    // Collect unique project IDs from lockfile
     const projectIds = {
         mods: new Set(),
         resourcepacks: new Set(),
         shaderpacks: new Set(),
         datapacks: new Set(),
     };
-
-    const unknownProjects = {
+    const packDependencies = {
         mods: [],
         resourcepacks: [],
         shaderpacks: [],
         datapacks: [],
     };
 
+    // Collect project IDs from lockfile
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
         for (const entry of entries) {
             if (entry.version && entry.version.project_id) {
                 projectIds[category].add(entry.version.project_id);
+                //allProjectIds.add(entry.version.project_id);
             } else {
-                unknownProjects[category].push(entry);
+                packDependencies[category].push(entry.path);
             }
         }
     }
 
-    // Fetch projects and users in parallel
-    console.log(`Fetching data for ${projectIds.size} project(s)...`);
+    const allProjectIds = new Set([...projectIds.mods, ...projectIds.resourcepacks, ...projectIds.shaderpacks, ...projectIds.datapacks]);
 
-    const [mods, resourcepacks, shaderpacks, datapacks] = await Promise.all([
-        getProjects(Array.from(projectIds['mods'])),
-        getProjects(Array.from(projectIds['resourcepacks'])),
-        getProjects(Array.from(projectIds['shaderpacks'])),
-        getProjects(Array.from(projectIds['datapacks'])),
-    ]);
+    // Fetch projects from Modrinth
+    const projects = await getProjects(Array.from(allProjectIds));
+    const projectsMap = {};
+    for (const project of projects) {
+        projectsMap[project.id] = project.slug;
+    }
 
-    const packDependencies = {
-        mods: mods.map(mod => mod.slug),
-        resourcepacks: resourcepacks.map(resourcepack => resourcepack.slug),
-        shaderpacks: shaderpacks.map(shaderpack => shaderpack.slug),
-        datapacks: datapacks.map(datapack => datapack.slug),
-    };
-
-    // Add unknown projects to dependencies
-    for (const category of ['mods', 'resourcepacks', 'shaderpacks', 'datapacks']) {
-        packDependencies[category].push(...unknownProjects[category].map(item => item.path));
+    // Add projects to dependencies by category
+    for (const category of ['mods', 'resourcepacks', 'shaderpacks', 'datapacks']){
+        for (const projectId of projectIds[category]) {
+            packDependencies[category].push(projectsMap[projectId]);
+        }
+        //packDependencies[category].push(...packDependencies[category].map(item => item.path));
     }
 
     // Create modpack JSON object
-    const jsonObject = createModpackJson(packDependencies);
+    const jsonObject = createModpackJson(modpackInfo, packDependencies);
 
     // Write modpack JSON object to disk
     await writeJson(jsonObject, path);
