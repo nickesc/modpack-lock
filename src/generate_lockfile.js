@@ -134,7 +134,7 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
 /**
  * Generate .gitignore rules for files not hosted on Modrinth
  */
-function generateGitignoreRules(lockfile) {
+export function generateGitignoreRules(lockfile) {
     const rules = [];
     const exceptions = [];
 
@@ -164,9 +164,75 @@ function generateGitignoreRules(lockfile) {
 }
 
 /**
+ * Generate the README.md files for each category
+ */
+export async function generateReadmeFiles(lockfile, options) {
+    // Collect unique project IDs and author IDs from version data
+    const projectIds = new Set();
+    const authorIds = new Set();
+
+    for (const [category, entries] of Object.entries(lockfile.dependencies)) {
+        for (const entry of entries) {
+            if (entry.version && entry.version.project_id) {
+                projectIds.add(entry.version.project_id);
+            }
+            if (entry.version && entry.version.author_id) {
+                authorIds.add(entry.version.author_id);
+            }
+        }
+    }
+
+    // Fetch projects and users in parallel
+    console.log(`Fetching data for ${projectIds.size} project(s) and ${authorIds.size} user(s)...`);
+
+    const [projects, users] = await Promise.all([
+        getProjects(Array.from(projectIds)),
+        getUsers(Array.from(authorIds)),
+    ]);
+
+    // Map projects and users to their IDs
+    const projectsMap = {};
+    for (const project of projects) {
+        projectsMap[project.id] = project;
+    }
+
+    const usersMap = {};
+    for (const user of users) {
+        usersMap[user.id] = user;
+    }
+
+    // Generate README for each category
+    for (const [category, entries] of Object.entries(lockfile.dependencies)) {
+        if (entries.length === 0) {
+            continue;
+        }
+
+        const readmeContent = generateCategoryReadme(category, entries, projectsMap, usersMap);
+        const categoryDir = getScanDirectories(options.path).find(d => d.name === category);
+
+        if (categoryDir) {
+            const readmePath = path.join(categoryDir.path, 'README.md');
+
+            if (options.dryRun) {
+                console.log(`[DRY RUN] Would write README to: ${readmePath}`);
+            } else {
+                try {
+                    await fs.writeFile(readmePath, readmeContent, 'utf-8');
+                    console.log(`Generated README: ${readmePath}`);
+                } catch (error) {
+                    console.warn(`Warning: Could not write README to ${readmePath}: ${error.message}`);
+                }
+            }
+        }
+    }
+
+    console.log('README generation complete.');
+}
+
+/**
  * Main execution function
  */
-async function generateLockfile(options) {
+export default async function generateLockfile(options) {
     if (options.dryRun) {
         console.log('[DRY RUN] Preview mode - no files will be written');
     }
@@ -233,69 +299,8 @@ async function generateLockfile(options) {
     // Generate README files
     if (options.readme) {
         console.log('\nGenerating README files...');
-
-        // Collect unique project IDs and author IDs from version data
-        const projectIds = new Set();
-        const authorIds = new Set();
-
-        for (const [category, entries] of Object.entries(lockfile.dependencies)) {
-            for (const entry of entries) {
-                if (entry.version && entry.version.project_id) {
-                    projectIds.add(entry.version.project_id);
-                }
-                if (entry.version && entry.version.author_id) {
-                    authorIds.add(entry.version.author_id);
-                }
-            }
-        }
-
-        // Fetch projects and users in parallel
-        console.log(`Fetching data for ${projectIds.size} project(s) and ${authorIds.size} user(s)...`);
-
-        const [projects, users] = await Promise.all([
-            getProjects(Array.from(projectIds)),
-            getUsers(Array.from(authorIds)),
-        ]);
-
-        // Map projects and users to their IDs
-        const projectsMap = {};
-        for (const project of projects) {
-            projectsMap[project.id] = project;
-        }
-
-        const usersMap = {};
-        for (const user of users) {
-            usersMap[user.id] = user;
-        }
-
-        // Generate README for each category
-        for (const [category, entries] of Object.entries(lockfile.dependencies)) {
-            if (entries.length === 0) {
-                continue;
-            }
-
-            const readmeContent = generateCategoryReadme(category, entries, projectsMap, usersMap);
-            const categoryDir = getScanDirectories(options.path).find(d => d.name === category);
-
-            if (categoryDir) {
-                const readmePath = path.join(categoryDir.path, 'README.md');
-
-                if (options.dryRun) {
-                    console.log(`[DRY RUN] Would write README to: ${readmePath}`);
-                } else {
-                    try {
-                        await fs.writeFile(readmePath, readmeContent, 'utf-8');
-                        console.log(`Generated README: ${readmePath}`);
-                    } catch (error) {
-                        console.warn(`Warning: Could not write README to ${readmePath}: ${error.message}`);
-                    }
-                }
-            }
-        }
-
-        console.log('README generation complete.');
+        await generateReadmeFiles(lockfile, options);
     }
+
     return lockfile;
 }
-
-export default generateLockfile;
