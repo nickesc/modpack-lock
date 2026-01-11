@@ -34,9 +34,9 @@ async function writeJson(jsonObject, outputPath) {
  * Generate a modpack.json file
  * @param {Object} modpackInfo - The modpack information
  * @param {Object} dependencies - The dependencies
- * @param {Array} paths - A list of paths to write the JSON object to
+ * @param {string} path - The path to write the JSON object to
  */
-export default async function generateJson(modpackInfo, dependencies, paths) {
+export default async function generateJson(modpackInfo, dependencies, path) {
     // Validate modpack info
     for (const field of MODPACK_INFO_REQUIRED_FIELDS) {
         if (!modpackInfo[field]) {
@@ -48,9 +48,7 @@ export default async function generateJson(modpackInfo, dependencies, paths) {
     const jsonObject = createModpackJson(modpackInfo, dependencies);
 
     // Write modpack JSON object to disk
-    for (const p of paths) {
-        await writeJson(jsonObject, p);
-    }
+    await writeJson(jsonObject, path);
 }
 
 
