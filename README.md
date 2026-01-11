@@ -8,7 +8,6 @@
 
 Creates a modpack lockfile for files hosted on Modrinth (mods, resource packs, shaders and datapacks).
 
-
 ## Overview
 
 Many mod and pack authors request that modpack creators link to Modrinth or CurseForge downloads rather than re-hosting files. This makes it difficult to track content files in version control when pushing to a remote server.
