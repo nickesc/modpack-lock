@@ -6,7 +6,7 @@ import slugify from 'slugify';
 import generateLockfile from './generate_lockfile.js';
 import generateJson from './generate_json.js';
 import promptUserForInfo from './modpack_info.js';
-import { getModpackJson } from './directory_scanning.js';
+import { getModpackJson, getLockfile } from './directory_scanning.js';
 import * as config from './config/index.js';
 import pkg from '../package.json' with { type: 'json' };
 

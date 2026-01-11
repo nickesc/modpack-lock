@@ -76,8 +76,8 @@ export async function scanDirectory(dirInfo, workspaceRoot) {
 /**
  * Scan for existing JSON file and return the JSON object if it exists
  */
-export async function getModpackJson(directoryPath) {
-    const jsonPath = path.join(directoryPath, files.MODPACK_JSON_NAME);
+async function getJsonFile(directoryPath, filename) {
+    const jsonPath = path.join(directoryPath, filename);
     // try to read the file
     try {
         const fileContent = await fs.readFile(jsonPath, 'utf-8');
@@ -89,4 +89,22 @@ export async function getModpackJson(directoryPath) {
             return null;
         }
     }
+}
+
+/**
+ * Get the modpack JSON file if it exists
+ * @param {string} directoryPath - The path to the directory to scan
+ * @returns {Object|null} The JSON object if the file exists, otherwise null
+ */
+export async function getModpackJson(directoryPath) {
+    return getJsonFile(directoryPath, files.MODPACK_JSON_NAME);
+}
+
+/**
+ * Get the lockfile file if it exists
+ * @param {string} directoryPath - The path to the directory to scan
+ * @returns {Object|null} The JSON object if the file exists, otherwise null
+ */
+export async function getLockfile(directoryPath) {
+    return getJsonFile(directoryPath, files.MODPACK_LOCKFILE_NAME);
 }
