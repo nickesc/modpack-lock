@@ -3,8 +3,8 @@
 import { Command } from 'commander';
 import prompts from 'prompts';
 import path from 'path';
-import generateLockfile from './generate-lockfile.js';
-import generateJson from './generate-json.js';
+import generateLockfile from './generate_lockfile.js';
+import generateJson from './generate_json.js';
 import * as config from './config/index.js';
 import pkg from '../package.json' with { type: 'json' };
 
@@ -59,13 +59,13 @@ function validateNotEmpty(value, field) {
 /**
  * Get user input for modpack information
  */
-async function getModpackInfo(defaultName) {
+async function getModpackInfo(defaults = {}) {
     let answers = await prompts([
         {
             type: 'text',
             name: 'name',
             message: 'Modpack name',
-            initial: defaultName,
+            initial: defaults.name,
             validate: (value) => {
                 return validateNotEmpty(value, 'Name');
             },
@@ -74,7 +74,7 @@ async function getModpackInfo(defaultName) {
             type: 'text',
             name: 'version',
             message: 'Modpack version',
-            initial: '1.0.0',
+            initial: defaults.version || '1.0.0',
             validate: (value) => {
                 return validateNotEmpty(value, 'Version');
             },
@@ -84,7 +84,7 @@ async function getModpackInfo(defaultName) {
             type: 'text',
             name: 'id',
             message: 'Modpack slug/ID',
-            initial: slugify(defaultName),
+            initial: defaults.id ? slugify(defaults.id) : slugify(defaults.name),
             validate: (value) => {
                 return validateNotEmpty(value, 'ID');
             },
@@ -93,11 +93,13 @@ async function getModpackInfo(defaultName) {
             type: 'text',
             name: 'description',
             message: 'Modpack description',
+            initial: defaults.description || undefined,
         },
         {
             type: 'text',
             name: 'author',
             message: 'Modpack author',
+            initial: defaults.author || undefined,
             validate: (value) => {
                 return validateNotEmpty(value, 'Author');
             },
@@ -106,22 +108,25 @@ async function getModpackInfo(defaultName) {
             type: 'text',
             name: 'projectUrl',
             message: 'Modpack URL',
+            initial: defaults.projectUrl || undefined,
         },
         {
             type: 'text',
             name: 'sourceUrl',
             message: 'Modpack source code URL',
+            initial: defaults.sourceUrl || undefined,
         },
         {
             type: 'text',
             name: 'license',
             message: 'Modpack license',
-            initial: 'MIT',
+            initial: defaults.license || 'MIT',
         },
         {
             type: 'autocomplete',
             name: 'modloader',
             message: 'Modpack modloader',
+            initial: defaults.modloader || undefined,
             choices: [
                 { title: 'fabric' },
                 { title: 'forge' },
@@ -145,11 +150,13 @@ async function getModpackInfo(defaultName) {
             type: 'text',
             name: 'targetModloaderVersion',
             message: 'Target modloader version',
+            initial: defaults.targetModloaderVersion || undefined,
         },
         {
             type: 'text',
             name: 'targetMinecraftVersion',
             message: 'Target Minecraft version',
+            initial: defaults.targetMinecraftVersion || undefined,
             validate: (value) => {
                 return validateNotEmpty(value, 'Minecraft Version');
             },
@@ -176,8 +183,8 @@ modpackLock
     .option('-q, --quiet', 'Quiet mode - only show errors and warnings')
     .option('-s, --silent', 'Silent mode - no output')
     .optionsGroup("INFORMATION")
-    .helpOption("--help", `display help for ${pkg.name}`)
-    .version(pkg.version)
+    .helpOption("-h, --help", `display help for ${pkg.name}`)
+    .version(pkg.version, '-V')
     .action((options) => {
         if (options.quiet) {
             quietConsole();
@@ -196,24 +203,66 @@ modpackLock.command('init')
     .description(jsonDescription)
     .optionsGroup("Options:")
     .option('-f, --folder <path>', 'Path to the modpack directory')
+    .option("-n, --noninteractive", 'Non-interactive mode - must provide options for required fields')
+    .optionsGroup("MODPACK INFORMATION")
+    .option('--name <name>', 'Modpack name')
+    .option('--version <version>', 'Modpack version')
+    .option('--id <id>', 'Modpack slug/ID')
+    .option('--author <author>', 'Modpack author')
+    .option('--modloader <modloader>', 'Modpack modloader')
+    .option('--targetMinecraftVersion <targetMinecraftVersion>', 'Target Minecraft version')
     .optionsGroup("INFORMATION")
     .helpOption("--help", `display help for ${pkg.name}`)
     .action((options) => {
-        console.log(jsonDescription);
-        console.log("\nSee `modpack-lock init --help` for definitive documentation on these fields and exactly what they do.\n");
-        console.log("Press ^C at any time to quit.\n");
-        getModpackInfo(path.basename(options.folder || process.cwd()))
-            .then(modpackInfo => {
+        if (options.noninteractive) {
+            if (!options.author || !options.modloader || !options.targetMinecraftVersion) {
+                console.error('Error: Must provide options for required fields');
+                process.exit(1);
+            } else {
+                const modpackInfo = {
+                    name: options.name || path.basename(options.folder || process.cwd()),
+                    version: options.version || '1.0.0',
+                    id: options.id || options.name || path.basename(options.folder || process.cwd()),
+                    author: options.author,
+                    modloader: options.modloader,
+                    targetMinecraftVersion: options.targetMinecraftVersion,
+                };
                 quietConsole();
                 generateLockfile({ path: options.folder || process.cwd() }).then(lockfile => {
                     restoreConsole();
                     console.log('Lockfile generated');
-                    generateJson(modpackInfo, lockfile, options.folder || process.cwd());
+                    generateJson(modpackInfo, lockfile, options.folder || process.cwd()).then(() => {
+                        process.exit(0);
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        process.exit(1);
+                    });
                 });
-            }, error => {
-                console.error('Error:', error);
-                process.exit(1);
-            });
+            }
+        } else {
+            console.log(jsonDescription);
+            console.log("\nSee `modpack-lock init --help` for definitive documentation on these fields and exactly what they do.\n");
+            console.log("Press ^C at any time to quit.\n");
+            getModpackInfo({
+                name: options.name || path.basename(options.folder || process.cwd()),
+                version: options.version,
+                id: options.id,
+                author: options.author,
+                modloader: options.modloader,
+                targetMinecraftVersion: options.targetMinecraftVersion,
+            })
+                .then(modpackInfo => {
+                    quietConsole();
+                    generateLockfile({ path: options.folder || process.cwd() }).then(lockfile => {
+                        restoreConsole();
+                        console.log('Lockfile generated');
+                        generateJson(modpackInfo, lockfile, options.folder || process.cwd());
+                    });
+                }, error => {
+                    console.error('Error:', error);
+                    process.exit(1);
+                });
+        }
     });
 
 modpackLock.parse()
