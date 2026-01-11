@@ -1,14 +1,15 @@
 import fs from 'fs/promises';
 import crypto from 'crypto';
 import path from 'path';
-import * as config from './config/index.js';
+import * as files from './config/files.js';
+import * as constants from './config/constants.js';
 
 /**
  * Get the directories to scan for modpack files
  */
 export function getScanDirectories(directoryPath) {
     const scanDirectories = [];
-    for (const category of config.DEPENDENCY_CATEGORIES) {
+    for (const category of constants.DEPENDENCY_CATEGORIES) {
         scanDirectories.push({ name: category, path: path.join(directoryPath, category) });
     }
     return scanDirectories;
@@ -70,4 +71,22 @@ export async function scanDirectory(dirInfo, workspaceRoot) {
     }
 
     return fileEntries;
+}
+
+/**
+ * Scan for existing JSON file and return the JSON object if it exists
+ */
+export async function getModpackJson(directoryPath) {
+    const jsonPath = path.join(directoryPath, files.MODPACK_JSON_NAME);
+    // try to read the file
+    try {
+        const fileContent = await fs.readFile(jsonPath, 'utf-8');
+        return JSON.parse(fileContent);
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            throw new Error(`Warning: Could not read file ${jsonPath}: ${error.message}`);
+        } else {
+            return null;
+        }
+    }
 }
