@@ -55,7 +55,9 @@ export default async function generateJson(modpackInfo, lockfile, path) {
     }
     const allProjectIds = new Set();
     for (const category of config.DEPENDENCY_CATEGORIES) {
-        allProjectIds.add(...projectIds[category]);
+        for (const projectId of projectIds[category]) {
+            allProjectIds.add(projectId);
+        }
     }
 
     // Fetch projects from Modrinth
@@ -68,7 +70,10 @@ export default async function generateJson(modpackInfo, lockfile, path) {
     // Add projects to dependencies by category
     for (const category of config.DEPENDENCY_CATEGORIES) {
         for (const projectId of projectIds[category]) {
-            packDependencies[category].push(projectsMap[projectId]);
+            const projectSlug = projectsMap[projectId];
+            if (projectSlug) {
+                packDependencies[category].push(projectSlug);
+            }
         }
         //packDependencies[category].push(...packDependencies[category].map(item => item.path));
     }
