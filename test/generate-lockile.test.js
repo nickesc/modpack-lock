@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import unzipper from 'unzipper';
 
-import generateLockfile from '../src/generate-lockfile.js';
+import generateLockfile from '../src/generate_lockfile.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
