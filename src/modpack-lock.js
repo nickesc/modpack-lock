@@ -5,7 +5,7 @@ import path from 'path';
 import slugify from 'slugify';
 import generateLockfile from './generate_lockfile.js';
 import generateJson from './generate_json.js';
-import getModpackInfo from './modpack_info.js';
+import promptUserForInfo from './modpack_info.js';
 import * as config from './config/index.js';
 import pkg from '../package.json' with { type: 'json' };
 
@@ -129,7 +129,7 @@ modpackLock.command('init')
             console.log(jsonDescription);
             console.log("\nSee `modpack-lock init --help` for definitive documentation on these fields and exactly what they do.\n");
             console.log("Press ^C at any time to quit.\n");
-            getModpackInfo({
+            promptUserForInfo({
                 name: options.name || path.basename(options.folder || process.cwd()),
                 version: options.version,
                 id: options.id,

@@ -15,7 +15,7 @@ function validateNotEmpty(value, field) {
 /**
  * Get user input for modpack information
  */
-export default async function getModpackInfo(defaults = {}) {
+export default async function promptUserForInfo(defaults = {}) {
     let answers = await prompts([
         {
             type: 'text',
