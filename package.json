@@ -12,7 +12,7 @@
   "license": "MIT",
   "author": "N. Escobar <nick@nescobar.media> (https://nickesc.github.io/)",
   "type": "module",
-  "main": "src/modpack-lock.js",
+  "main": "src/index.js",
   "bin": {
     "modpack-lock": "src/modpack-lock.js"
   },

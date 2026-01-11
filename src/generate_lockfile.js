@@ -232,7 +232,7 @@ export async function generateReadmeFiles(lockfile, options) {
 /**
  * Main execution function
  */
-export default async function generateLockfile(options) {
+export async function generateLockfile(options) {
     if (options.dryRun) {
         console.log('[DRY RUN] Preview mode - no files will be written');
     }
