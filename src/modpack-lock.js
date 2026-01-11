@@ -9,6 +9,19 @@ import generateJson from './generate-json.js';
 import pkg from '../package.json' with { type: 'json' };
 const modpackLock = new Command('modpack-lock');
 
+/**
+ * Silence all console.log output
+ */
+function quietConsole(silent = false) {
+  console.log = () => {};
+  console.info = () => {};
+  if (silent) {
+    console.warn = () => {};
+    console.error = () => {};
+  }
+}
+
+
 function validateNotEmpty(value, field) {
   if (value.trim().length === 0) {
     return `${field} cannot be empty`;
@@ -139,6 +152,11 @@ modpackLock
   .helpOption("--help", `display help for ${pkg.name}`)
   .version(pkg.version)
   .action((options) => {
+    if (options.quiet) {
+      quietConsole();
+    } else if (options.silent) {
+      quietConsole(true);
+    }
     generateLockfile({ ...options, path: options.path || process.cwd() }).catch(error => {
       console.error('Error:', error);
       process.exit(1);
