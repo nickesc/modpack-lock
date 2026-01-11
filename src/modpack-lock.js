@@ -9,6 +9,17 @@ import generateJson from './generate-json.js';
 import pkg from '../package.json' with { type: 'json' };
 const modpackLock = new Command('modpack-lock');
 
+function slugify(string, separator = "-") {
+  return string
+    .toString()
+    .normalize('NFD') // split an accented letter in the base letter and the accent
+    .replace(/[\u0300-\u036f]/g, '') // remove all previously split accents
+    .toLowerCase()
+    .replace(/[^a-z0-9 -]/g, '') // remove all chars not letters, numbers and spaces (to be replaced)
+    .trim()
+    .replace(/\s+/g, separator);
+};
+
 /**
  * Silence all console.log output
  */
@@ -57,7 +68,7 @@ async function getModpackInfo(defaultName) {
           type: 'text',
           name: 'id',
           message: 'Modpack slug/ID',
-          initial: defaultName,
+          initial: slugify(defaultName),
           validate: (value) => {
             return validateNotEmpty(value, 'ID');
           },
