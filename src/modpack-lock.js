@@ -115,7 +115,7 @@ async function getModpackInfo(defaultName) {
           },
         }
     ]);
-    if (Object.keys(answers).length === 0) {
+    if (Object.keys(answers).length < 11) {
       console.warn('Modpack initialization was interrupted');
       process.exit(1);
     }
