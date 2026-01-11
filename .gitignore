@@ -6,3 +6,5 @@ node_modules/
 test/workspace/
 
 modpack.lock
+
+modpack.json
