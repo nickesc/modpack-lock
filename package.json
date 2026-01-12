@@ -9,6 +9,7 @@
     "type": "git",
     "url": "git+https://github.com/nickesc/modpack-lock.git"
   },
+  "homepage": "https://nickesc.github.io/modpack-lock",
   "license": "MIT",
   "author": "N. Escobar <nick@nescobar.media> (https://nickesc.github.io/)",
   "type": "module",
