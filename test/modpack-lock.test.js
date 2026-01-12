@@ -9,7 +9,7 @@ import { promisify } from 'node:util';
 import unzipper from 'unzipper';
 
 // Import all exported functions from the package
-import generateModpackFiles, {
+import { generateModpackFiles,
     generateJson,
     generateLockfile,
     generateGitignoreRules,
