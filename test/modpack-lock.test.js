@@ -16,7 +16,7 @@ import { generateModpackFiles,
     generateReadmeFiles,
     getModpackInfo,
     getLockfile,
-} from '../src/index.js';
+} from '../src/modpack-lock.js';
 
 const execFileAsync = promisify(execFile);
 
