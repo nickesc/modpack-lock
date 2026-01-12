@@ -1,0 +1,21 @@
+{
+  "entryPoints": ["src/modpack-lock.js"],
+  "readme": "README.md",
+  "out": "docs",
+  "darkHighlightTheme": "github-dark",
+  "lightHighlightTheme": "github-light",
+  "plugin": ["typedoc-github-theme"],
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "jsDocCompatibility": true,
+  "sort": ["source-order"],
+  "githubPages": true,
+  "hostedBaseUrl": "https://nickesc.github.io/modpack-lock",
+  "useHostedBaseUrlForAbsoluteLinks": true,
+  "navigationLinks": {
+    "source": "https://github.com/nickesc/modpack-lock",
+    "issues": "https://github.com/nickesc/modpack-lock/issues",
+    "npm": "https://www.npmjs.com/package/modpack-lock"
+  },
+}
