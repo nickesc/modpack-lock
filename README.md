@@ -47,7 +47,7 @@ The script will:
 3. Query the Modrinth API to find version information
 4. Generate a `modpack.lock` file in the current directory
 
-If a `modpack.json` file exists in the directory, the lockfile's dependency list will also be written to it. Run [`modpack-lock init`](#initialization) to create this file.
+If a `modpack.json` file exists in the directory, the lockfile's dependency list will also be written to it. Run `modpack-lock init` to create this file.
 
 Then, commit the `modpack.lock` (and `modpack.json`) to your repository and push it to your remote.
 
@@ -85,7 +85,9 @@ To initialize a new modpack, run:
 modpack-lock init
 ```
 
-This will create a `modpack.json` file that stores your modpack's metadata (name, version, author, etc.), including a list of dependency slugs. This file is optional, but when present, the main command will also write the lockfile dependencies to `modpack.json`.
+This will create a `modpack.json` file that stores your modpack's metadata (name, version, author, etc.), including a list of dependency slugs. This file is optional, but when present, the main command will also write the lockfile dependencies to `modpack.json`. It will also regenerate the lockfile.
+
+The interactive mode will prompt you for each field. Set their initial values using the available option flags. Use `--noninteractive` with the required options (`--author`, `--modloader`, `--targetMinecraftVersion`) to skip prompts.
 
 ```text
 Usage: modpack-lock init [options]
@@ -112,9 +114,6 @@ MODPACK INFORMATION
 INFORMATION
   --help                                             display help for modpack-lock init
 ```
-
-The interactive mode will prompt you for each field. Set their initial values using the available option flags. Use `--noninteractive` with the required options (`--author`, `--modloader`, `--targetMinecraftVersion`) to skip prompts.
-
 
 > [!TIP]
 >
