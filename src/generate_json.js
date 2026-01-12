@@ -26,9 +26,9 @@ async function writeJson(jsonObject, outputPath) {
  * Generate a modpack.json file
  * @param {Object} modpackInfo - The modpack information
  * @param {Object} dependencies - The dependencies
- * @param {string} path - The path to write the JSON object to
+ * @param {string} outputDir - The path to write the JSON object to
  */
-export default async function generateJson(modpackInfo, lockfile, path) {
+export default async function generateJson(modpackInfo, lockfile, outputDir, options = {}) {
     // Validate modpack info
     for (const field of config.MODPACK_INFO_REQUIRED_FIELDS) {
         if (!modpackInfo[field]) {
@@ -84,7 +84,13 @@ export default async function generateJson(modpackInfo, lockfile, path) {
     const jsonObject = createModpackJson(modpackInfo, packDependencies);
 
     // Write modpack JSON object to disk
-    await writeJson(jsonObject, path);
+    if (options.dryRun) {
+        console.log(`[DRY RUN] Would write ${config.MODPACK_JSON_NAME} to: ${path.join(outputDir, config.MODPACK_JSON_NAME)}`);
+    } else {
+        await writeJson(jsonObject, outputDir);
+    }
+
+    return jsonObject;
 }
 
 
