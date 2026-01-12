@@ -13,7 +13,15 @@ function validateNotEmpty(value, field) {
 }
 
 /**
+ * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
+ * @typedef {import('./config/types.js').Options} Options
+ * @typedef {import('./config/types.js').Lockfile} Lockfile
+ */
+
+/**
  * Get user input for modpack information
+ * @param {ModpackInfo} defaults - The initial/default modpack information
+ * @returns {Promise<ModpackInfo>} The modpack information from the user
  */
 export default async function promptUserForInfo(defaults = {}) {
     let answers = await prompts([

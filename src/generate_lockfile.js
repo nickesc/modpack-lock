@@ -5,6 +5,11 @@ import { getScanDirectories, scanDirectory } from './directory_scanning.js';
 import * as config from './config/index.js';
 
 /**
+ * @typedef {import('./config/types.js').Options} Options
+ * @typedef {import('./config/types.js').Lockfile} Lockfile
+ */
+
+/**
  * Create empty lockfile structure
  */
 function createEmptyLockfile() {
@@ -133,7 +138,7 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
 
 /**
  * Generate .gitignore rules for files not hosted on Modrinth
- * @param {Object} lockfile - The lockfile object
+ * @param {Lockfile} lockfile - The lockfile object
  * @returns {string} The .gitignore rules
  */
 export function generateGitignoreRules(lockfile) {
@@ -167,9 +172,9 @@ export function generateGitignoreRules(lockfile) {
 
 /**
  * Generate the README.md files for each category
- * @param {Object} lockfile - The lockfile object
+ * @param {Lockfile} lockfile - The lockfile object
  * @param {string} workingDir - The working directory
- * @param {Object} options - The options object
+ * @param {Options} options - The options object
  */
 export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
     // Collect unique project IDs and author IDs from version data
@@ -237,8 +242,8 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
 /**
  * Generate the lockfile
  * @param {string} workingDir - The working directory
- * @param {Object} options - The options object
- * @returns {Object} The lockfile object
+ * @param {Options} options - The options object
+ * @returns {Lockfile} The lockfile object
  */
 export async function generateLockfile(workingDir, options = {}) {
     if (options.dryRun) {

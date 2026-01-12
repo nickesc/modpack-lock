@@ -4,6 +4,12 @@ import { getProjects } from './modrinth_interactions.js';
 import * as config from './config/index.js';
 
 /**
+ * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
+ * @typedef {import('./config/types.js').Options} Options
+ * @typedef {import('./config/types.js').Lockfile} Lockfile
+ */
+
+/**
  * Create a JSON object from the modpack information and dependencies
  */
 function createModpackJson(modpackInfo, dependencies) {
@@ -24,9 +30,11 @@ async function writeJson(jsonObject, outputPath) {
 
 /**
  * Generate a modpack.json file
- * @param {Object} modpackInfo - The modpack information
- * @param {Object} dependencies - The dependencies
+ * @param {ModpackInfo} modpackInfo - The modpack information
+ * @param {Lockfile} lockfile - The lockfile
  * @param {string} outputDir - The path to write the JSON object to
+ * @param {Options} options - The options object
+ * @returns {Promise<Lockfile>} The JSON file's object
  */
 export default async function generateJson(modpackInfo, lockfile, outputDir, options = {}) {
     // Validate modpack info

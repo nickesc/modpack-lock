@@ -3,6 +3,26 @@ import generateJson from './generate_json.js';
 import promptUserForInfo from './modpack_info.js';
 import { getModpackInfo, getLockfile } from './directory_scanning.js';
 
+/**
+ * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
+ * @typedef {import('./config/types.js').Options} Options
+ * @typedef {import('./config/types.js').Lockfile} Lockfile
+ */
+
+/**
+ * @license MIT
+ * @author nickesc
+ * @module modpack-lock
+ * @showGroups
+ */
+
+/**
+ * Generate the modpack files (lockfile and JSON)
+ * @param {ModpackInfo} modpackInfo - The modpack information
+ * @param {string} directory - The directory to generate the files in
+ * @param {Options} options - The options object
+ * @returns {Promise<Lockfile>} The lockfile object
+ */
 async function generateModpackFiles(modpackInfo, directory, options = {}) {
     const lockfile = await generateLockfile(directory, options);
     await generateJson(modpackInfo, lockfile, directory, options);

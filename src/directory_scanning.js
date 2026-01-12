@@ -5,7 +5,14 @@ import * as files from './config/files.js';
 import * as constants from './config/constants.js';
 
 /**
+ * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
+ * @typedef {import('./config/types.js').Lockfile} Lockfile
+ */
+
+/**
  * Get the directories to scan for modpack files
+ * @param {string} directoryPath - The path to the directory to scan
+ * @returns {Array<Object>} The directories to scan
  */
 export function getScanDirectories(directoryPath) {
     const scanDirectories = [];
@@ -93,9 +100,9 @@ async function getJsonFile(directoryPath, filename) {
 }
 
 /**
- * Get the modpack JSON file if it exists
+ * Get the modpack info from the JSON file if it exists
  * @param {string} directoryPath - The path to the directory to scan
- * @returns {Object|null} The JSON object if the file exists, otherwise null
+ * @returns {Promise<ModpackInfo|null>} The modpack info JSON object if the file exists, otherwise null
  */
 export async function getModpackInfo(directoryPath) {
     return getJsonFile(directoryPath, files.MODPACK_JSON_NAME);
@@ -104,7 +111,7 @@ export async function getModpackInfo(directoryPath) {
 /**
  * Get the lockfile file if it exists
  * @param {string} directoryPath - The path to the directory to scan
- * @returns {Object|null} The JSON object if the file exists, otherwise null
+ * @returns {Lockfile|null} The JSON object if the file exists, otherwise null
  */
 export async function getLockfile(directoryPath) {
     return getJsonFile(directoryPath, files.MODPACK_LOCKFILE_NAME);
