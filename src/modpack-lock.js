@@ -5,6 +5,7 @@ import path from 'path';
 import slugify from 'slugify';
 import {generateLockfile} from './generate_lockfile.js';
 import generateJson from './generate_json.js';
+import generateModpackFiles from './index.js';
 import promptUserForInfo from './modpack_info.js';
 import { getModpackJson } from './directory_scanning.js';
 import * as config from './config/index.js';
@@ -42,22 +43,6 @@ function restoreConsole() {
     console.error = originalLogs.error;
 }
 
-/**
- * Generate the modpack files (lockfile and JSON)
- * @param {Object} modpackInfo - The modpack information
- * @param {string} directory - The directory to generate the files in
- */
-function generateModpackFiles(modpackInfo, directory) {
-    generateLockfile({ path: directory }).then(lockfile => {
-        generateJson(modpackInfo, lockfile, directory).then(() => {
-            process.exit(0);
-        }).catch(error => {
-            console.error('Error:', error);
-            process.exit(1);
-        });
-    });
-}
-
 modpackLock
     .name(pkg.name)
     .description(pkg.description)
@@ -74,25 +59,26 @@ modpackLock
     .optionsGroup("INFORMATION")
     .helpOption("-h, --help", `display help for ${pkg.name}`)
     .version(pkg.version, '-V')
-    .action((options) => {
-        const currDir = options.path || process.cwd();
+    .action(async (options) => {
+        try {
+            const currDir = options.path || process.cwd();
 
-        if (options.quiet) {
-            quietConsole();
-        } else if (options.silent) {
-            quietConsole(true);
-        }
-
-        getModpackJson(currDir).then(modpackInfo => {
-            if (modpackInfo) {
-                generateModpackFiles(modpackInfo, currDir);
-            } else {
-                generateLockfile({ ...options, path: currDir }).catch(error => {
-                    console.error('Error:', error);
-                    process.exit(1);
-                });
+            if (options.quiet) {
+                quietConsole();
+            } else if (options.silent) {
+                quietConsole(true);
             }
-        });
+
+            const modpackInfo = await getModpackJson(currDir);
+            if (modpackInfo) {
+                await generateModpackFiles(modpackInfo, currDir, options);
+            } else {
+                await generateLockfile(currDir, options);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            process.exitCode = 1;
+        }
     });
 
 const jsonDescription = `This utility will walk you through creating a ${config.MODPACK_JSON_NAME} file. It only covers the most common items, and tries to guess sensible defaults.`;
@@ -116,14 +102,15 @@ modpackLock.command('init')
     .option('--targetMinecraftVersion <targetMinecraftVersion>', 'Target Minecraft version; required')
     .optionsGroup("INFORMATION")
     .helpOption("--help", `display help for ${pkg.name} init`)
-    .action((options) => {
+    .action(async (options) => {
         const currDir = options.folder || process.cwd();
 
         if (options.noninteractive) {
             quietConsole();
             if (!options.author || !options.modloader || !options.targetMinecraftVersion) {
                 console.error('Error: Must provide options for required fields');
-                process.exit(1);
+                process.exitCode = 1;
+                return;
             } else {
                 const modpackInfo = {
                     name: options.name || path.basename(currDir),
@@ -138,32 +125,41 @@ modpackLock.command('init')
                     targetModloaderVersion: options.targetModloaderVersion || '',
                     targetMinecraftVersion: options.targetMinecraftVersion,
                 };
-                generateModpackFiles(modpackInfo, currDir);
+                try {
+                    await generateModpackFiles(modpackInfo, currDir, { dryRun: false });
+                } catch (error) {
+                    console.error('Error:', error);
+                    process.exitCode = 1;
+                }
             }
         } else {
             console.log(jsonDescription);
             console.log("\nSee `modpack-lock init --help` for definitive documentation on these fields and exactly what they do.\n");
             console.log("Press ^C at any time to quit.\n");
-            promptUserForInfo({
-                name: options.name || path.basename(currDir),
-                version: options.version,
-                id: options.id,
-                description: options.description,
-                author: options.author,
-                projectUrl: options.projectUrl,
-                sourceUrl: options.sourceUrl,
-                license: options.license,
-                modloader: options.modloader,
-                targetModloaderVersion: options.targetModloaderVersion,
-                targetMinecraftVersion: options.targetMinecraftVersion,
-            })
-                .then(modpackInfo => {
-                    generateModpackFiles(modpackInfo, currDir);
-                }, error => {
-                    console.error('Error:', error);
-                    process.exit(1);
+            try {
+                const modpackInfo = await promptUserForInfo({
+                    name: options.name || path.basename(currDir),
+                    version: options.version,
+                    id: options.id,
+                    description: options.description,
+                    author: options.author,
+                    projectUrl: options.projectUrl,
+                    sourceUrl: options.sourceUrl,
+                    license: options.license,
+                    modloader: options.modloader,
+                    targetModloaderVersion: options.targetModloaderVersion,
+                    targetMinecraftVersion: options.targetMinecraftVersion,
                 });
+
+                await generateModpackFiles(modpackInfo, currDir, { dryRun: false });
+            } catch (error) {
+                console.error('Error:', error);
+                process.exitCode = 1;
+            }
         }
     });
 
-modpackLock.parse()
+modpackLock.parseAsync().catch((error) => {
+    console.error('Error:', error);
+    process.exit(1);
+});
