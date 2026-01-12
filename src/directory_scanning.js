@@ -44,6 +44,7 @@ async function findFiles(dirPath) {
         }
     }
 
+    files.sort((a, b) => a.localeCompare(b, 'en', { numeric: true, sensitivity: 'base' }));
     return files;
 }
 

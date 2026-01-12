@@ -248,6 +248,14 @@ export async function generateLockfile(options) {
         allFileEntries.push(...fileEntries);
     }
 
+    // Sort file entries
+    allFileEntries.sort((a, b) => {
+        if (a.category !== b.category) {
+            return a.category.localeCompare(b.category, 'en', { sensitivity: 'base' });
+        }
+        return a.path.localeCompare(b.path, 'en', { numeric: true, sensitivity: 'base' });
+    });
+
     if (allFileEntries.length === 0) {
         console.log('No files found. Creating empty lockfile.');
         const outputPath = path.join(options.path, config.MODPACK_LOCKFILE_NAME);
