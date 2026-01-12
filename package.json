@@ -14,7 +14,7 @@
   "type": "module",
   "main": "src/index.js",
   "bin": {
-    "modpack-lock": "src/modpack-lock.js"
+    "modpack-lock": "src/cli.js"
   },
   "keywords": [
     "modrinth",
@@ -27,8 +27,8 @@
   },
   "scripts": {
     "test": "vitest --run",
-    "start": "node src/modpack-lock.js",
-    "modpack-lock": "node src/modpack-lock.js"
+    "start": "node src/cli.js",
+    "modpack-lock": "node src/cli.js"
   },
   "files": [
     "README.md",

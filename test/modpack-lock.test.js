@@ -25,7 +25,7 @@ const __dirname = path.dirname(__filename);
 const WORKSPACE_ZIP = path.resolve(__dirname, 'workspace.zip');
 const LOCKFILE_NAME = 'modpack.lock';
 const JSON_NAME = 'modpack.json';
-const CLI_PATH = path.resolve(__dirname, '../src/modpack-lock.js');
+const CLI_PATH = path.resolve(__dirname, '../src/cli.js');
 
 const DEPENDENCY_CATEGORIES = ['mods', 'resourcepacks', 'shaderpacks', 'datapacks'];
 
