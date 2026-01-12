@@ -55,7 +55,7 @@ describe('generateLockfile', () => {
   it('creates a lockfile for the provided workspace fixture', async () => {
     const workspaceDir = await extractWorkspaceFixture();
 
-    await generateLockfile({ path: workspaceDir, quiet: true });
+    await generateLockfile(workspaceDir);
 
     expect(fetchSpy).toHaveBeenCalled();
 
@@ -103,7 +103,7 @@ describe('generateLockfile', () => {
     const emptyDir = await createTempDir('modpack-lock-empty-');
 
 
-    await generateLockfile({ path: emptyDir, quiet: true });
+    await generateLockfile(emptyDir);
 
     expect(fetchSpy).not.toHaveBeenCalled();
 
