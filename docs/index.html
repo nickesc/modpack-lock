@@ -6,7 +6,7 @@
 <p>Creates a modpack lockfile for files hosted on Modrinth (mods, resource packs, shaders and datapacks).</p>
 <h2 id="overview" class="tsd-anchor-link">Overview<a href="#overview" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
 <p>Many mod and pack authors request that modpack creators link to Modrinth or CurseForge downloads rather than re-hosting files. This makes it difficult to track content files in version control when pushing to a remote server.</p>
-<p>This script generates a <code>modpack.lock</code> file in the current directory containing a JSON object with a plaintext representation of the modpack's contents. This object contains the metadata for the content available on Modrinth, including hashes, versions, names, download URLs and more. This allows for easy diffing and clear version history.</p>
+<p>This script generates a <code>modpack.lock</code> file in the current directory containing a plaintext representation of the modpack's contents. This object contains the metadata for the content available on Modrinth, including hashes, versions, names, download URLs and more. An optional <code>modpack.json</code> file can also be created to store your modpack's metadata (name, version, modloader, dependencies, etc.) alongside the lockfile. This setup allows for easy diffing and clear version history.</p>
 <blockquote>
 <p>While an <code>.mrpack</code> file could be used to track changes to the modpack, it is a large, binary file that cannot be diffed and can contain large amounts of duplicate data from the rest of the repository.</p>
 </blockquote>
@@ -20,25 +20,9 @@
 <pre><code class="bash"><span class="hl-0">npx</span><span class="hl-1"> </span><span class="hl-2">modpack-lock</span>
 </code><button type="button">Copy</button></pre>
 
-<h2 id="usage" class="tsd-anchor-link">Usage<a href="#usage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h2 id="cli" class="tsd-anchor-link">CLI<a href="#cli" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
 <p>Navigate to your Minecraft profile directory (the folder containing <code>mods</code>, <code>resourcepacks</code>, <code>datapacks</code>, and <code>shaderpacks</code> folders) and run:</p>
-<pre><code class="text">Usage: modpack-lock [options]
-
-Create a modpack lockfile for files hosted on Modrinth (mods, resource packs, shaders and datapacks)
-
-Options:
-  -d, --dry-run      Dry-run mode - no files will be written
-  -g, --gitignore    Print .gitignore rules for files not hosted on Modrinth
-  -r, --readme       Generate README.md files for each category
-  -p, --path &lt;path&gt;  Path to the modpack directory
-
-LOGGING
-  -q, --quiet        Quiet mode - only show errors and warnings
-  -s, --silent       Silent mode - no output
-
-INFORMATION
-  -V, --version      output the version number
-  --help             display help for modpack-lock
+<pre><code class="bash"><span class="hl-0">modpack-lock</span>
 </code><button type="button">Copy</button></pre>
 
 <p>The script will:</p>
@@ -48,7 +32,64 @@ INFORMATION
 <li>Query the Modrinth API to find version information</li>
 <li>Generate a <code>modpack.lock</code> file in the current directory</li>
 </ol>
-<p>Then, commit the <code>modpack.lock</code> file to your repository and push it to your remote.</p>
+<p>If a <code>modpack.json</code> file exists in the directory, the lockfile's dependency list will also be written to it. Run <code>modpack-lock init</code> to create this file.</p>
+<p>Then, commit the <code>modpack.lock</code> (and <code>modpack.json</code>) to your repository and push it to your remote.</p>
+<pre><code class="text">Usage: modpack-lock [options] [command]
+
+Creates a modpack lockfile for files hosted on Modrinth (mods, resource packs, shaders and datapacks)
+
+Options:
+  -p, --path &lt;path&gt;  Path to the modpack directory
+  -d, --dry-run      Dry-run mode - no files will be written
+
+GENERATION
+  -g, --gitignore    Print .gitignore rules for files not hosted on Modrinth
+  -r, --readme       Generate README.md files for each category
+
+LOGGING
+  -q, --quiet        Quiet mode - only show errors and warnings
+  -s, --silent       Silent mode - no output
+
+INFORMATION
+  -V                 output the version number
+  -h, --help         display help for modpack-lock
+
+Commands:
+  init [options]     This utility will walk you through creating a modpack.json file. It only covers the most common items, and tries to guess sensible defaults.
+</code><button type="button">Copy</button></pre>
+
+<h3 id="initialization" class="tsd-anchor-link">Initialization<a href="#initialization" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>To initialize a new modpack, run:</p>
+<pre><code class="bash"><span class="hl-0">modpack-lock</span><span class="hl-1"> </span><span class="hl-2">init</span>
+</code><button type="button">Copy</button></pre>
+
+<p>This will create a <code>modpack.json</code> file that stores your modpack's metadata (name, version, author, etc.), including a list of dependency slugs. This file is optional, but when present, the main command will also write the lockfile dependencies to <code>modpack.json</code>. It will also regenerate the lockfile.</p>
+<p>The interactive mode will prompt you for each field. Set their initial values using the available option flags. Use <code>--noninteractive</code> with the required options (<code>--author</code>, <code>--modloader</code>, <code>--targetMinecraftVersion</code>) to skip prompts.</p>
+<pre><code class="text">Usage: modpack-lock init [options]
+
+This utility will walk you through creating a modpack.json file. It only covers the most common items, and tries to guess sensible defaults.
+
+Options:
+  -f, --folder &lt;path&gt;                                Path to the modpack directory
+  -n, --noninteractive                               Non-interactive mode - must provide options for required fields
+
+MODPACK INFORMATION
+  --name &lt;name&gt;                                      Modpack name; defaults to the directory name; required
+  --version &lt;version&gt;                                Modpack version; defaults to 1.0.0; required
+  --id &lt;id&gt;                                          Modpack slug/ID; defaults to the directory name slugified; required
+  --description &lt;description&gt;                        Modpack description
+  --author &lt;author&gt;                                  Modpack author; required
+  --projectUrl &lt;projectUrl&gt;                          Modpack URL
+  --sourceUrl &lt;sourceUrl&gt;                            Modpack source code URL
+  --license &lt;license&gt;                                Modpack license
+  --modloader &lt;modloader&gt;                            Modpack modloader; required
+  --targetModloaderVersion &lt;targetModloaderVersion&gt;  Target modloader version
+  --targetMinecraftVersion &lt;targetMinecraftVersion&gt;  Target Minecraft version; required
+
+INFORMATION
+  --help                                             display help for modpack-lock init
+</code><button type="button">Copy</button></pre>
+
 <div class="tsd-alert tsd-alert-tip"><div class="tsd-alert-title"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><use href="assets/icons.svg#icon-alertTip"></use></svg><span>Tip</span></div><p></p>
 <p>You can run this script as a pre-commit hook to ensure that the modpack lockfile is up to date before committing your changes to your repository.</p>
 <p>Also, consider adding these rules to your <code>.gitignore</code> to ensure you don't commit the modpack contents to your repository, with exceptions for any files that are not Modrinth-hosted:</p>
@@ -62,11 +103,31 @@ shaderpacks/*.zip
 </code><button type="button">Copy</button></pre>
 
 </div>
-<h2 id="output" class="tsd-anchor-link">Output<a href="#output" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<p>The <code>modpack.lock</code> file has the following structure:</p>
+<h2 id="api" class="tsd-anchor-link">API<a href="#api" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>For programmatic usage, <code>modpack-lock</code> exports these functions:</p>
+<ul>
+<li><code>getModpackInfo()</code></li>
+<li><code>getLockfile()</code></li>
+<li><code>generateJson()</code></li>
+<li><code>generateGitignoreRules()</code></li>
+<li><code>generateReadmeFiles()</code></li>
+<li><code>generateLockfile()</code></li>
+<li><code>generateModpackFiles()</code></li>
+<li><code>promptUserForInfo()</code></li>
+</ul>
+<p>See the <a href="https://nickesc.github.io/modpack-lock">API documentation</a> for full details.</p>
+<h2 id="file-formats" class="tsd-anchor-link">File Formats<a href="#file-formats" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="" class="tsd-anchor-link"><code>modpack.lock</code></h3>
+<p>The lockfile contains metadata about Modrinth-hosted files found in your modpack directories:</p>
 <pre><code class="json"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;version&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;1.0.1&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;generated&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;2026-01-06T03:00:00.000Z&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;total&quot;</span><span class="hl-1">: </span><span class="hl-3">7</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;counts&quot;</span><span class="hl-1">: {</span><br/><span class="hl-1">    </span><span class="hl-3">&quot;mods&quot;</span><span class="hl-1">: </span><span class="hl-3">1</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-3">&quot;resourcepacks&quot;</span><span class="hl-1">: </span><span class="hl-3">3</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-3">&quot;datapacks&quot;</span><span class="hl-1">: </span><span class="hl-3">1</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-3">&quot;shaderpacks&quot;</span><span class="hl-1">: </span><span class="hl-3">2</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;dependencies&quot;</span><span class="hl-1">: {</span><br/><span class="hl-1">    </span><span class="hl-3">&quot;mods&quot;</span><span class="hl-1">: [</span><br/><span class="hl-1">      {</span><br/><span class="hl-1">        </span><span class="hl-3">&quot;path&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;mods/example-mod.jar&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">        </span><span class="hl-3">&quot;version&quot;</span><span class="hl-1">: { </span><span class="hl-4">...</span><span class="hl-1"> }</span><br/><span class="hl-1">      }</span><br/><span class="hl-1">    ],</span><br/><span class="hl-1">    </span><span class="hl-3">&quot;resourcepacks&quot;</span><span class="hl-1">: [ </span><span class="hl-4">...</span><span class="hl-1"> ],</span><br/><span class="hl-1">    </span><span class="hl-3">&quot;datapacks&quot;</span><span class="hl-1">: [ </span><span class="hl-4">...</span><span class="hl-1"> ],</span><br/><span class="hl-1">    </span><span class="hl-3">&quot;shaderpacks&quot;</span><span class="hl-1">: [ </span><span class="hl-4">...</span><span class="hl-1"> ]</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="-1" class="tsd-anchor-link"><code>modpack.json</code><a href="#-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>If created via <code>modpack-lock init</code>, the JSON file combines your modpack metadata with the lockfile's dependency list:</p>
+<pre><code class="json"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;name&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;My Modpack&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;version&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;1.0.0&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;id&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;my-modpack&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;description&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;author&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;name&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;projectUrl&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;sourceUrl&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;license&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;modloader&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;modloader&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;targetModloaderVersion&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;targetMinecraftVersion&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;x.y.z&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-3">&quot;dependencies&quot;</span><span class="hl-1">: {</span><br/><span class="hl-1">    </span><span class="hl-3">&quot;mods&quot;</span><span class="hl-1">: [ </span><span class="hl-4">...</span><span class="hl-1"> ],</span><br/><span class="hl-1">    </span><span class="hl-3">&quot;resourcepacks&quot;</span><span class="hl-1">: [ </span><span class="hl-4">...</span><span class="hl-1"> ],</span><br/><span class="hl-1">    </span><span class="hl-3">&quot;datapacks&quot;</span><span class="hl-1">: [ </span><span class="hl-4">...</span><span class="hl-1"> ],</span><br/><span class="hl-1">    </span><span class="hl-3">&quot;shaderpacks&quot;</span><span class="hl-1">: [ </span><span class="hl-4">...</span><span class="hl-1"> ]</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">}</span>
 </code><button type="button">Copy</button></pre>
 
 <h2 id="license" class="tsd-anchor-link">License<a href="#license" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
 <p>This project is licensed under the MIT License - see the <a href="media/LICENSE">LICENSE</a> file for more details.</p>
-</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#modpack-lock"><span>modpack-<wbr/>lock</span></a><ul><li><ul><li><ul><li><ul><li><ul><li><a href="#by-nickesc-github--modrinth"><span>by nickesc -<wbr/> <wbr/>Git<wbr/>Hub | <wbr/>Modrinth</span></a></li></ul></li></ul></li></ul></li></ul></li><li><a href="#overview"><span>Overview</span></a></li><li><a href="#installation"><span>Installation</span></a></li><li><a href="#usage"><span>Usage</span></a></li><li><a href="#output"><span>Output</span></a></li><li><a href="#license"><span>License</span></a></li></ul></div></details></div><div class="site-menu"><nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://github.com/nickesc/modpack-lock" class="tsd-nav-link">source</a><a href="https://github.com/nickesc/modpack-lock/issues" class="tsd-nav-link">issues</a><a href="https://www.npmjs.com/package/modpack-lock" class="tsd-nav-link">npm</a></nav><nav class="tsd-navigation"><a href="modules.html">modpack-lock</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a> with <a href="https://github.com/JulianWowra/typedoc-github-theme" target="_blank">typedoc-github-theme</a></p></footer><div class="overlay"></div></body></html>
+<p><a href="https://github.com/nickesc/modpack-lock/blob/main/LICENSE"><img class="badge-img" alt="GitHub License" src="https://img.shields.io/github/license/nickesc/modpack-lock?style=for-the-badge&labelColor=%23333&color=%230070ff"></a></p>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#modpack-lock"><span>modpack-<wbr/>lock</span></a><ul><li><ul><li><ul><li><ul><li><ul><li><a href="#by-nickesc-github--modrinth"><span>by nickesc -<wbr/> <wbr/>Git<wbr/>Hub | <wbr/>Modrinth</span></a></li></ul></li></ul></li></ul></li></ul></li><li><a href="#overview"><span>Overview</span></a></li><li><a href="#installation"><span>Installation</span></a></li><li><a href="#cli"><span>CLI</span></a></li><li><ul><li><a href="#initialization"><span>Initialization</span></a></li></ul></li><li><a href="#api"><span>API</span></a></li><li><a href="#file-formats"><span>File <wbr/>Formats</span></a></li><li><ul><li><a href="#"><span></span></a></li><li><a href="#-1"><span></span></a></li></ul></li><li><a href="#license"><span>License</span></a></li></ul></div></details></div><div class="site-menu"><nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://github.com/nickesc/modpack-lock" class="tsd-nav-link">source</a><a href="https://github.com/nickesc/modpack-lock/issues" class="tsd-nav-link">issues</a><a href="https://www.npmjs.com/package/modpack-lock" class="tsd-nav-link">npm</a></nav><nav class="tsd-navigation"><a href="modules.html">modpack-lock</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a> with <a href="https://github.com/JulianWowra/typedoc-github-theme" target="_blank">typedoc-github-theme</a></p></footer><div class="overlay"></div></body></html>
