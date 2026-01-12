@@ -70,7 +70,7 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
     // Map category to Modrinth URL path segment
     const categoryPathMap = {};
     for (const category of config.DEPENDENCY_CATEGORIES) {
-        categoryPathMap[category] = category.toLowerCase().slice(0, -1);
+        categoryPathMap[category] = category === 'shaderpacks' ? 'shader' : category.toLowerCase().slice(0, -1);
     }
     const categoryPath = categoryPathMap[category] || 'project';
 
