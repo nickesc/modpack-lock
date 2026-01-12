@@ -112,10 +112,11 @@ modpackLock.command('init')
                 process.exitCode = 1;
                 return;
             } else {
+                const name = options.name || path.basename(currDir);
                 const modpackInfo = {
-                    name: options.name || path.basename(currDir),
+                    name: name,
                     version: options.version || '1.0.0',
-                    id: slugify(options.id || options.name || path.basename(currDir), config.SLUGIFY_OPTIONS),
+                    id: slugify(options.id || name, config.SLUGIFY_OPTIONS),
                     description: options.description || '',
                     author: options.author,
                     projectUrl: options.projectUrl || '',
