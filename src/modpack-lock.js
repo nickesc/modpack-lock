@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import path from 'path';
 import slugify from 'slugify';
-import generateLockfile from './generate_lockfile.js';
+import {generateLockfile} from './generate_lockfile.js';
 import generateJson from './generate_json.js';
 import promptUserForInfo from './modpack_info.js';
 import { getModpackJson } from './directory_scanning.js';
