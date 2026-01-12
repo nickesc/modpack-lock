@@ -24,16 +24,16 @@ function validateNotEmpty(value, field) {
  * @returns {Promise<ModpackInfo>} The modpack information from the user
  */
 export default async function promptUserForInfo(defaults = {}) {
-    let answers = await prompts([
-        {
-            type: 'text',
-            name: 'name',
-            message: 'Modpack name',
-            initial: defaults.name,
-            validate: (value) => {
-                return validateNotEmpty(value, 'Name');
-            },
+    let name = await prompts({
+        type: 'text',
+        name: 'name',
+        message: 'Modpack name',
+        initial: defaults.name,
+        validate: (value) => {
+            return validateNotEmpty(value, 'Name');
         },
+    });
+    let answers = await prompts([
         {
             type: 'text',
             name: 'version',
@@ -48,7 +48,7 @@ export default async function promptUserForInfo(defaults = {}) {
             type: 'text',
             name: 'id',
             message: 'Modpack slug/ID',
-            initial: slugify(defaults.id || defaults.name, config.SLUGIFY_OPTIONS),
+            initial: slugify(defaults.id || name.name, config.SLUGIFY_OPTIONS),
             validate: (value) => {
                 return validateNotEmpty(value, 'ID');
             },
@@ -126,9 +126,11 @@ export default async function promptUserForInfo(defaults = {}) {
             },
         }
     ]);
-    if (Object.keys(answers).length < 11) {
+
+    let modpackInfo = {...name, ...answers};
+    if (Object.keys(modpackInfo).length < 11) {
         console.warn('Modpack initialization was interrupted');
         process.exit(1);
     }
-    return answers;
+    return modpackInfo;
 }
