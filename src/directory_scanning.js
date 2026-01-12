@@ -97,7 +97,7 @@ async function getJsonFile(directoryPath, filename) {
  * @param {string} directoryPath - The path to the directory to scan
  * @returns {Object|null} The JSON object if the file exists, otherwise null
  */
-export async function getModpackJson(directoryPath) {
+export async function getModpackInfo(directoryPath) {
     return getJsonFile(directoryPath, files.MODPACK_JSON_NAME);
 }
 

@@ -7,7 +7,7 @@ import {generateLockfile} from './generate_lockfile.js';
 import generateJson from './generate_json.js';
 import { generateModpackFiles } from './index.js';
 import promptUserForInfo from './modpack_info.js';
-import { getModpackJson } from './directory_scanning.js';
+import { getModpackInfo } from './directory_scanning.js';
 import * as config from './config/index.js';
 import pkg from '../package.json' with { type: 'json' };
 
@@ -69,7 +69,7 @@ modpackLock
                 quietConsole(true);
             }
 
-            const modpackInfo = await getModpackJson(currDir);
+            const modpackInfo = await getModpackInfo(currDir);
             if (modpackInfo) {
                 await generateModpackFiles(modpackInfo, currDir, options);
             } else {

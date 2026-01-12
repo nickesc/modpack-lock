@@ -14,7 +14,7 @@ import { generateModpackFiles,
     generateLockfile,
     generateGitignoreRules,
     generateReadmeFiles,
-    getModpackJson,
+    getModpackInfo,
     getLockfile,
 } from '../src/index.js';
 
@@ -381,7 +381,7 @@ describe('Package API', () => {
         });
     });
 
-    describe('getModpackJson / getLockfile', () => {
+    describe('getModpackInfo / getLockfile', () => {
         it('reads existing modpack.json', async () => {
             const readWorkspace = await extractWorkspaceFixture();
 
@@ -397,14 +397,14 @@ describe('Package API', () => {
             const readLockfile = await generateLockfile(readWorkspace);
             await generateJson(modpackInfo, readLockfile, readWorkspace);
 
-            const result = await getModpackJson(readWorkspace);
+            const result = await getModpackInfo(readWorkspace);
             expect(result).not.toBeNull();
             expect(result.name).toBe('Test Modpack');
         });
 
         it('returns null when modpack.json does not exist', async () => {
             const emptyDir = await createTempDir('modpack-lock-no-json-');
-            const result = await getModpackJson(emptyDir);
+            const result = await getModpackInfo(emptyDir);
             expect(result).toBeNull();
         });
 
