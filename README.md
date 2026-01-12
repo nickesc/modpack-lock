@@ -40,7 +40,6 @@ Navigate to your Minecraft profile directory (the folder containing `mods`, `res
 modpack-lock
 ```
 
-
 The script will:
 
 1. Scan the `mods`, `resourcepacks`, `datapacks`, and `shaderpacks` directories for `.jar` and `.zip` files
@@ -51,8 +50,6 @@ The script will:
 If a `modpack.json` file exists in the directory, the lockfile's dependency list will also be written to it. Run [`modpack-lock init`](#initialization) to create this file.
 
 Then, commit the `modpack.lock` (and `modpack.json`) to your repository and push it to your remote.
-
-### Usage
 
 ```text
 Usage: modpack-lock [options] [command]
@@ -82,7 +79,13 @@ Commands:
 
 ### Initialization
 
-Running `modpack-lock init` creates a `modpack.json` file that stores your modpack's metadata (name, version, author, etc.). This is optional, but when present, the main command will also write the lockfile dependencies to `modpack.json`.
+To initialize a new modpack, run:
+
+```bash
+modpack-lock init
+```
+
+This will create a `modpack.json` file that stores your modpack's metadata (name, version, author, etc.), including a list of dependency slugs. This file is optional, but when present, the main command will also write the lockfile dependencies to `modpack.json`.
 
 ```text
 Usage: modpack-lock init [options]
@@ -110,7 +113,7 @@ INFORMATION
   --help                                             display help for modpack-lock init
 ```
 
-The interactive mode will prompt you for each field. Use `--noninteractive` with the required options (`--author`, `--modloader`, `--targetMinecraftVersion`) to skip prompts.
+The interactive mode will prompt you for each field. Set their initial values using the available option flags. Use `--noninteractive` with the required options (`--author`, `--modloader`, `--targetMinecraftVersion`) to skip prompts.
 
 
 > [!TIP]
