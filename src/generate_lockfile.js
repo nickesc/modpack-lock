@@ -133,6 +133,8 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
 
 /**
  * Generate .gitignore rules for files not hosted on Modrinth
+ * @param {Object} lockfile - The lockfile object
+ * @returns {string} The .gitignore rules
  */
 export function generateGitignoreRules(lockfile) {
     const rules = [];
@@ -165,8 +167,11 @@ export function generateGitignoreRules(lockfile) {
 
 /**
  * Generate the README.md files for each category
+ * @param {Object} lockfile - The lockfile object
+ * @param {string} workingDir - The working directory
+ * @param {Object} options - The options object
  */
-export async function generateReadmeFiles(lockfile, options) {
+export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
     // Collect unique project IDs and author IDs from version data
     const projectIds = new Set();
     const authorIds = new Set();
@@ -208,7 +213,7 @@ export async function generateReadmeFiles(lockfile, options) {
         }
 
         const readmeContent = generateCategoryReadme(category, entries, projectsMap, usersMap);
-        const categoryDir = getScanDirectories(options.path).find(d => d.name === category);
+        const categoryDir = getScanDirectories(workingDir).find(d => d.name === category);
 
         if (categoryDir) {
             const readmePath = path.join(categoryDir.path, 'README.md');
@@ -230,9 +235,12 @@ export async function generateReadmeFiles(lockfile, options) {
 }
 
 /**
- * Main execution function
+ * Generate the lockfile
+ * @param {string} workingDir - The working directory
+ * @param {Object} options - The options object
+ * @returns {Object} The lockfile object
  */
-export async function generateLockfile(options) {
+export async function generateLockfile(workingDir, options = {}) {
     if (options.dryRun) {
         console.log('[DRY RUN] Preview mode - no files will be written');
     }
@@ -241,9 +249,9 @@ export async function generateLockfile(options) {
 
     // Scan all directories
     const allFileEntries = [];
-    for (const dirInfo of getScanDirectories(options.path)) {
+    for (const dirInfo of getScanDirectories(workingDir)) {
         console.log(`Scanning ${dirInfo.name}...`);
-        const fileEntries = await scanDirectory(dirInfo, options.path);
+        const fileEntries = await scanDirectory(dirInfo, workingDir);
         console.log(`  Found ${fileEntries.length} file(s)`);
         allFileEntries.push(...fileEntries);
     }
@@ -258,7 +266,7 @@ export async function generateLockfile(options) {
 
     if (allFileEntries.length === 0) {
         console.log('No files found. Creating empty lockfile.');
-        const outputPath = path.join(options.path, config.MODPACK_LOCKFILE_NAME);
+        const outputPath = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
         if (options.dryRun) {
             console.log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
         } else {
@@ -282,7 +290,7 @@ export async function generateLockfile(options) {
     const lockfile = createLockfile(allFileEntries, versionData);
 
     // Write lockfile
-    const outputPath = path.join(options.path, config.MODPACK_LOCKFILE_NAME);
+    const outputPath = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
     if (options.dryRun) {
         console.log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
     } else {
@@ -307,7 +315,7 @@ export async function generateLockfile(options) {
     // Generate README files
     if (options.readme) {
         console.log('\nGenerating README files...');
-        await generateReadmeFiles(lockfile, options);
+        await generateReadmeFiles(lockfile, workingDir, options = {});
     }
 
     return lockfile;
