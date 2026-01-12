@@ -13,7 +13,6 @@ import { getModpackInfo, getLockfile } from './directory_scanning.js';
  * @license MIT
  * @author nickesc
  * @module modpack-lock
- * @showGroups
  */
 
 /**
