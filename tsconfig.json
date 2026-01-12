@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "module": "NodeNext",
+    "target": "ES6",
+  },
+  "include": [
+    "src/**/*.js"
+  ]
+}

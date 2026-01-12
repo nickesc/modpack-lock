@@ -1,32 +1,31 @@
-#!/usr/bin/env NODE_OPTIONS=--no-warnings node
+import { generateLockfile, generateReadmeFiles, generateGitignoreRules } from './generate_lockfile.js';
+import generateJson from './generate_json.js';
+import promptUserForInfo from './modpack_info.js';
+import { getModpackInfo, getLockfile } from './directory_scanning.js';
 
-import { Command } from 'commander';
-import generateLockfile from './generate-lockfile.js';
+/**
+ * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
+ * @typedef {import('./config/types.js').Options} Options
+ * @typedef {import('./config/types.js').Lockfile} Lockfile
+ */
 
-import pkg from '../package.json' with { type: 'json' };
-const modpackLock = new Command('modpack-lock');
+/**
+ * @license MIT
+ * @author nickesc
+ * @module modpack-lock
+ */
 
-modpackLock
-  .name(pkg.name)
-  .description(pkg.description)
-  .summary("Create a modpack lockfile")
-  .optionsGroup("Options:")
-  .option('-d, --dry-run', 'Dry-run mode - no files will be written')
-  .option('-g, --gitignore', 'Print .gitignore rules for files not hosted on Modrinth')
-  .option('-r, --readme', 'Generate README.md files for each category')
-  .option('-p, --path <path>', 'Path to the modpack directory')
-  .optionsGroup("LOGGING")
-  .option('-q, --quiet', 'Quiet mode - only show errors and warnings')
-  .option('-s, --silent', 'Silent mode - no output')
-  .optionsGroup("INFORMATION")
-  .helpOption("--help", `display help for ${pkg.name}`)
-  .version(pkg.version)
-  .action((options) => {
-    generateLockfile({ ...options, path: options.path || process.cwd() }).catch(error => {
-      console.error('Error:', error);
-      process.exit(1);
-    });
-  });
+/**
+ * Generate the modpack files (lockfile and JSON)
+ * @param {ModpackInfo} modpackInfo - The modpack information
+ * @param {string} directory - The directory to generate the files in
+ * @param {Options} options - The options object
+ * @returns {Promise<Lockfile>} The lockfile object
+ */
+async function generateModpackFiles(modpackInfo, directory, options = {}) {
+    const lockfile = await generateLockfile(directory, options);
+    await generateJson(modpackInfo, lockfile, directory, options);
+    return lockfile;
+}
 
-modpackLock.parse()
-
+export { generateModpackFiles, generateJson, generateLockfile, generateGitignoreRules, generateReadmeFiles, getModpackInfo, getLockfile, promptUserForInfo };

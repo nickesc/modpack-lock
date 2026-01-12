@@ -1,7 +1,7 @@
 {
   "name": "modpack-lock",
-  "version": "0.2.0",
-  "description": "Create a modpack lockfile for files hosted on Modrinth (mods, resource packs, shaders and datapacks)",
+  "version": "0.3.0",
+  "description": "Creates a modpack lockfile for files hosted on Modrinth (mods, resource packs, shaders and datapacks)",
   "bugs": {
     "url": "https://github.com/nickesc/modpack-lock/issues"
   },
@@ -9,12 +9,13 @@
     "type": "git",
     "url": "git+https://github.com/nickesc/modpack-lock.git"
   },
+  "homepage": "https://nickesc.github.io/modpack-lock",
   "license": "MIT",
   "author": "N. Escobar <nick@nescobar.media> (https://nickesc.github.io/)",
   "type": "module",
-  "main": "src/generate-lockfile.js",
+  "main": "src/modpack-lock.js",
   "bin": {
-    "modpack-lock": "src/modpack-lock.js"
+    "modpack-lock": "src/cli.js"
   },
   "keywords": [
     "modrinth",
@@ -23,23 +24,29 @@
     "lockfile"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "test": "vitest --run",
-    "start": "node src/modpack-lock.js",
-    "modpack-lock": "node src/modpack-lock.js"
+    "start": "node src/cli.js",
+    "docs": "typedoc",
+    "modpack-lock": "node src/cli.js"
   },
   "files": [
     "README.md",
     "LICENSE",
     "package.json",
-    "src/*.js"
+    "src/**/*.js"
   ],
   "dependencies": {
-    "commander": "^14.0.2"
+    "commander": "^14.0.2",
+    "prompts": "^2.4.2",
+    "slugify": "^1.6.6"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.0.16",
+    "typedoc": "^0.28.16",
+    "typedoc-github-theme": "^0.3.1",
     "unzipper": "^0.12.3",
     "vitest": "^4.0.16"
   }
