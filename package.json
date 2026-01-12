@@ -29,6 +29,7 @@
   "scripts": {
     "test": "vitest --run",
     "start": "node src/cli.js",
+    "docs": "typedoc",
     "modpack-lock": "node src/cli.js"
   },
   "files": [
