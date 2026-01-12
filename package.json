@@ -43,6 +43,8 @@
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.16",
+    "typedoc": "^0.28.16",
+    "typedoc-github-theme": "^0.3.1",
     "unzipper": "^0.12.3",
     "vitest": "^4.0.16"
   }
