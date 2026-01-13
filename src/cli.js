@@ -4,7 +4,6 @@ import { Command } from 'commander';
 import path from 'path';
 import slugify from 'slugify';
 import {generateLockfile} from './generate_lockfile.js';
-import generateJson from './generate_json.js';
 import { generateModpackFiles } from './modpack-lock.js';
 import promptUserForInfo from './modpack_info.js';
 import { getModpackInfo } from './directory_scanning.js';
@@ -41,6 +40,17 @@ function restoreConsole() {
     console.info = originalLogs.info;
     console.warn = originalLogs.warn;
     console.error = originalLogs.error;
+}
+
+/**
+ * Merge modpack info with priority: options > existingInfo > defaults
+ */
+function mergeModpackInfo(existingInfo, options, defaults) {
+    const result = {};
+    for (const [key, defaultValue] of Object.entries(defaults)) {
+        result[key] = options[key] || existingInfo?.[key] || defaultValue;
+    }
+    return result;
 }
 
 modpackLock
@@ -105,6 +115,8 @@ modpackLock.command('init')
     .action(async (options) => {
         const currDir = options.folder || process.cwd();
 
+        let existingInfo = await getModpackInfo(currDir);
+
         if (options.noninteractive) {
             quietConsole();
             if (!options.author || !options.modloader || !options.targetMinecraftVersion) {
@@ -112,20 +124,23 @@ modpackLock.command('init')
                 process.exitCode = 1;
                 return;
             } else {
-                const name = options.name || path.basename(currDir);
-                const modpackInfo = {
-                    name: name,
-                    version: options.version || '1.0.0',
-                    id: slugify(options.id || name, config.SLUGIFY_OPTIONS),
-                    description: options.description || '',
-                    author: options.author,
-                    projectUrl: options.projectUrl || '',
-                    sourceUrl: options.sourceUrl || '',
-                    license: options.license || '',
-                    modloader: options.modloader,
-                    targetModloaderVersion: options.targetModloaderVersion || '',
-                    targetMinecraftVersion: options.targetMinecraftVersion,
+                const defaultName = path.basename(currDir);
+                const defaults = {
+                    name: defaultName,
+                    version: config.DEFAULT_MODPACK_VERSION,
+                    id: defaultName,
+                    description: '',
+                    author: options.author, // Required, no default
+                    projectUrl: '',
+                    sourceUrl: '',
+                    license: '',
+                    modloader: options.modloader, // Required, no default
+                    targetModloaderVersion: '',
+                    targetMinecraftVersion: options.targetMinecraftVersion, // Required, no default
                 };
+
+                const modpackInfo = mergeModpackInfo(existingInfo, options, defaults);
+                modpackInfo.id = slugify(modpackInfo.id, config.SLUGIFY_OPTIONS);
                 try {
                     await generateModpackFiles(modpackInfo, currDir, { dryRun: false });
                 } catch (error) {
@@ -138,19 +153,23 @@ modpackLock.command('init')
             console.log("\nSee `modpack-lock init --help` for definitive documentation on these fields and exactly what they do.\n");
             console.log("Press ^C at any time to quit.\n");
             try {
-                const modpackInfo = await promptUserForInfo({
-                    name: options.name || path.basename(currDir),
-                    version: options.version,
-                    id: options.id,
-                    description: options.description,
-                    author: options.author,
-                    projectUrl: options.projectUrl,
-                    sourceUrl: options.sourceUrl,
-                    license: options.license,
-                    modloader: options.modloader,
-                    targetModloaderVersion: options.targetModloaderVersion,
-                    targetMinecraftVersion: options.targetMinecraftVersion,
-                });
+                const defaults = {
+                    name: path.basename(currDir),
+                    version: config.DEFAULT_MODPACK_VERSION,
+                    id: undefined,
+                    description: undefined,
+                    author: undefined,
+                    projectUrl: undefined,
+                    sourceUrl: undefined,
+                    license: config.DEFAULT_MODPACK_LICENSE,
+                    modloader: undefined,
+                    targetModloaderVersion: undefined,
+                    targetMinecraftVersion: undefined,
+                };
+
+                const modpackInfo = await promptUserForInfo(
+                    mergeModpackInfo(existingInfo, options, defaults)
+                );
 
                 await generateModpackFiles(modpackInfo, currDir, { dryRun: false });
             } catch (error) {
