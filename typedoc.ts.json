@@ -2,7 +2,7 @@
   "compilerOptions": {
     "allowJs": true,
     "module": "NodeNext",
-    "target": "ES6",
+    "target": "ES6"
   },
   "include": [
     "src/**/*.js"

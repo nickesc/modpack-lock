@@ -1,8 +1,9 @@
 #!/usr/bin/env NODE_OPTIONS=--no-warnings node
 
 import { Command } from 'commander';
-import path from 'path';
 import slugify from 'slugify';
+import path from 'path';
+import { spawn } from 'child_process';
 import {generateLockfile} from './generate_lockfile.js';
 import { generateModpackFiles } from './modpack-lock.js';
 import promptUserForInfo from './modpack_info.js';
@@ -44,12 +45,23 @@ function restoreConsole() {
 
 /**
  * Merge modpack info with priority: options > existingInfo > defaults
+ * Preserves all fields from existingInfo
  */
 function mergeModpackInfo(existingInfo, options, defaults) {
     const result = {};
     for (const [key, defaultValue] of Object.entries(defaults)) {
         result[key] = options[key] || existingInfo?.[key] || defaultValue;
     }
+
+    // Then, add any fields from existingInfo that aren't in defaults
+    if (existingInfo) {
+        for (const [key, value] of Object.entries(existingInfo)) {
+            if (!(key in defaults)) {
+                result[key] = value;
+            }
+        }
+    }
+
     return result;
 }
 
@@ -111,7 +123,7 @@ modpackLock.command('init')
     .option('--targetModloaderVersion <targetModloaderVersion>', 'Target modloader version')
     .option('--targetMinecraftVersion <targetMinecraftVersion>', 'Target Minecraft version; required')
     .optionsGroup("INFORMATION")
-    .helpOption("--help", `display help for ${pkg.name} init`)
+    .helpOption("-h, --help", `display help for ${pkg.name} init`)
     .action(async (options) => {
         const currDir = options.folder || process.cwd();
 
@@ -119,7 +131,7 @@ modpackLock.command('init')
 
         if (options.noninteractive) {
             quietConsole();
-            if (!options.author || !options.modloader || !options.targetMinecraftVersion) {
+            if ( (!options.author && !existingInfo?.author) || (!options.modloader && !existingInfo?.modloader) || (!options.targetMinecraftVersion && !existingInfo?.targetMinecraftVersion)) {
                 console.error('Error: Must provide options for required fields');
                 process.exitCode = 1;
                 return;
@@ -176,6 +188,69 @@ modpackLock.command('init')
                 console.error('Error:', error);
                 process.exitCode = 1;
             }
+        }
+    });
+
+modpackLock.command('run')
+    .description(`Run a script (shell command) defined in ${config.MODPACK_JSON_NAME}\'s \'scripts\' object`)
+    .argument('<script>', 'The name of the script to run')
+    .option('-f, --folder <path>', 'Path to the modpack directory')
+    .option('-D, --debug', 'Debug mode -- show more information about how the command is being parsed')
+    .helpOption("-h, --help", `display help for ${pkg.name} run`)
+    .allowExcessArguments(true)
+    .allowUnknownOption(true)
+    .action(async (script, options, command) => {
+        try {
+            if (options.debug) {
+                console.log("COMMAND:", command);
+            }
+
+            const currDir = options.folder || process.cwd();
+            const modpackInfo = await getModpackInfo(currDir);
+
+            // verify neccecary files and information exist
+            if (!modpackInfo) {
+                throw new Error('No modpack.json file found');
+            }
+            if (!modpackInfo.scripts) {
+                throw new Error('No scripts defined in modpack.json');
+            }
+            if (!modpackInfo.scripts[script]) {
+                throw new Error(`Script ${script} not found in modpack.json`);
+            }
+
+            // build the full command
+            const scriptCommand = modpackInfo.scripts[script];
+            const args = command.args ? command.args.slice(1) : [];
+            const fullCommand = `${scriptCommand} ${args.join(' ')}`;
+
+            // debug logging
+            if (options.debug) {
+                console.log("CURR DIR:", currDir);
+                console.log("OPTIONS:", options);
+                console.log("SCRIPT:", script);
+                console.log("SCRIPT COMMAND:", scriptCommand);
+                console.log("ARGS:", args);
+                console.log("FULL COMMAND:", fullCommand);
+            }
+
+            // spawn the command
+            const child = spawn(fullCommand, [], {
+                shell: true,
+                stdio: 'inherit',
+                cwd: currDir
+            });
+
+            // preserve exit code on completion
+            const exitCode = await new Promise((resolve) => {
+                child.on('close', (code) => {
+                    resolve(code || 0);
+                });
+            });
+            process.exitCode = exitCode;
+        } catch (error) {
+            console.error('Error:', error.message);
+            process.exitCode = 1;
         }
     });
 

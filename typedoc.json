@@ -1,4 +1,5 @@
 {
+  "tsconfig": "typedoc.ts.json",
   "entryPoints": ["src/modpack-lock.js"],
   "readme": "README.md",
   "out": "docs",
