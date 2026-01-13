@@ -1,8 +1,9 @@
 #!/usr/bin/env NODE_OPTIONS=--no-warnings node
 
 import { Command } from 'commander';
-import path from 'path';
 import slugify from 'slugify';
+import path from 'path';
+import { spawn } from 'child_process';
 import {generateLockfile} from './generate_lockfile.js';
 import { generateModpackFiles } from './modpack-lock.js';
 import promptUserForInfo from './modpack_info.js';
@@ -182,14 +183,59 @@ modpackLock.command('init')
 modpackLock.command('run')
     .description('Run a script (shell command) defined in modpack.json')
     .argument('<script>', 'The name of the script to run')
+    .option('-f, --folder <path>', 'Path to the modpack directory')
+    .option('-D, --debug', 'Debug mode -- show more information about how the command is being parsed')
     .helpOption("-h, --help", `display help for ${pkg.name} run`)
-    .action(async (options) => {
-        const modpackInfo = await getModpackInfo(currDir);
-        if (modpackInfo) {
+    .allowExcessArguments(true)
+    .allowUnknownOption(true)
+    .action(async (script, options, command) => {
+        try {
+            const currDir = options.folder || process.cwd();
+            const modpackInfo = await getModpackInfo(currDir);
 
+            // verify neccecary files and information exist
+            if (!modpackInfo) {
+                throw new Error('No modpack.json file found');
+            }
+            if (!modpackInfo.scripts) {
+                throw new Error('No scripts defined in modpack.json');
+            }
+            if (!modpackInfo.scripts[script]) {
+                throw new Error(`Script ${script} not found in modpack.json`);
+            }
 
-        } else {
-            throw new Error('No modpack.json file found');
+            // build the full command
+            const scriptCommand = modpackInfo.scripts[script];
+            const args = command.args ? command.args.slice(1) : [];
+            const fullCommand = `${scriptCommand} ${args.join(' ')}`;
+
+            // debug logging
+            if (options.debug) {
+                console.log("CURR DIR:", currDir);
+                console.log("OPTIONS:", options);
+                console.log("SCRIPT:", script);
+                console.log("SCRIPT COMMAND:", scriptCommand);
+                console.log("ARGS:", args);
+                console.log("FULL COMMAND:", fullCommand);
+            }
+
+            // spawn the command
+            const child = spawn(fullCommand, [], {
+                shell: true,
+                stdio: 'inherit',
+                cwd: currDir
+            });
+
+            // preserve exit code on completion
+            const exitCode = await new Promise((resolve) => {
+                child.on('close', (code) => {
+                    resolve(code || 0);
+                });
+            });
+            process.exitCode = exitCode;
+        } catch (error) {
+            console.error('Error:', error.message);
+            process.exitCode = 1;
         }
     });
 
