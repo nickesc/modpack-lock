@@ -18,6 +18,8 @@ This script generates a `modpack.lock` file in the current directory containing 
 
 The lockfile could also serve as a basis for restoring modpack contents after cloning the repository to a new machine.
 
+Using the `scripts` field in `modpack.json`, you can also define reusable, tracked shell commands for common modpack tasks (like publishing, generating assets or CI/CD workflows).
+
 ## Installation
 
 To install the script globally with `npm`:
@@ -115,6 +117,38 @@ INFORMATION
   --help                                             display help for modpack-lock init
 ```
 
+### Running Scripts
+
+To run a script defined in `modpack.json` run:
+
+```bash
+modpack-lock run <script>
+```
+
+This command takes the name of the script as its first argument. Use the `-f` option to specify a different path to the modpack directory. For debug logging, use the `-D` option.
+
+To pass additional arguments and options to the script, write them after a `--` separator:
+
+```bash
+modpack-lock run <script> -- [options] <args> 
+```
+
+The `scripts` field in `modpack.json` is a key-value pair of script names and their corresponding shell commands. The `scripts` field is optional and is omitted by default.
+
+```text
+Usage: modpack-lock run [options] <script>
+
+Run a script (shell command) defined in modpack.json's 'scripts' object
+
+Arguments:
+  script               The name of the script to run
+
+Options:
+  -f, --folder <path>  Path to the modpack directory
+  -D, --debug          Debug mode -- show more information about how the command is being parsed
+  -h, --help           display help for modpack-lock run
+```
+
 > [!TIP]
 >
 > You can run this script as a pre-commit hook to ensure that the modpack lockfile is up to date before committing your changes to your repository.
@@ -199,6 +233,9 @@ If created via `modpack-lock init`, the JSON file combines your modpack metadata
     "resourcepacks": [ ... ],
     "datapacks": [ ... ],
     "shaderpacks": [ ... ]
+  },
+  "scripts": {
+    "example": "echo 'example script'"
   }
 }
 ```
