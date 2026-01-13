@@ -45,12 +45,23 @@ function restoreConsole() {
 
 /**
  * Merge modpack info with priority: options > existingInfo > defaults
+ * Preserves all fields from existingInfo
  */
 function mergeModpackInfo(existingInfo, options, defaults) {
     const result = {};
     for (const [key, defaultValue] of Object.entries(defaults)) {
         result[key] = options[key] || existingInfo?.[key] || defaultValue;
     }
+
+    // Then, add any fields from existingInfo that aren't in defaults
+    if (existingInfo) {
+        for (const [key, value] of Object.entries(existingInfo)) {
+            if (!(key in defaults)) {
+                result[key] = value;
+            }
+        }
+    }
+
     return result;
 }
 
@@ -120,7 +131,7 @@ modpackLock.command('init')
 
         if (options.noninteractive) {
             quietConsole();
-            if (!options.author || !options.modloader || !options.targetMinecraftVersion) {
+            if ( (!options.author && !existingInfo?.author) || (!options.modloader && !existingInfo?.modloader) || (!options.targetMinecraftVersion && !existingInfo?.targetMinecraftVersion)) {
                 console.error('Error: Must provide options for required fields');
                 process.exitCode = 1;
                 return;
