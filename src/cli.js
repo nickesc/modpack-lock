@@ -111,7 +111,7 @@ modpackLock.command('init')
     .option('--targetModloaderVersion <targetModloaderVersion>', 'Target modloader version')
     .option('--targetMinecraftVersion <targetMinecraftVersion>', 'Target Minecraft version; required')
     .optionsGroup("INFORMATION")
-    .helpOption("--help", `display help for ${pkg.name} init`)
+    .helpOption("-h, --help", `display help for ${pkg.name} init`)
     .action(async (options) => {
         const currDir = options.folder || process.cwd();
 
@@ -176,6 +176,20 @@ modpackLock.command('init')
                 console.error('Error:', error);
                 process.exitCode = 1;
             }
+        }
+    });
+
+modpackLock.command('run')
+    .description('Run a script (shell command) defined in modpack.json')
+    .argument('<script>', 'The name of the script to run')
+    .helpOption("-h, --help", `display help for ${pkg.name} run`)
+    .action(async (options) => {
+        const modpackInfo = await getModpackInfo(currDir);
+        if (modpackInfo) {
+
+
+        } else {
+            throw new Error('No modpack.json file found');
         }
     });
 
