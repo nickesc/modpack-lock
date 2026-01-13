@@ -127,7 +127,7 @@ modpackLock.command('init')
                 const defaultName = path.basename(currDir);
                 const defaults = {
                     name: defaultName,
-                    version: '1.0.0',
+                    version: config.DEFAULT_MODPACK_VERSION,
                     id: defaultName,
                     description: '',
                     author: options.author, // Required, no default
@@ -155,13 +155,13 @@ modpackLock.command('init')
             try {
                 const defaults = {
                     name: path.basename(currDir),
-                    version: undefined,
+                    version: config.DEFAULT_MODPACK_VERSION,
                     id: undefined,
                     description: undefined,
                     author: undefined,
                     projectUrl: undefined,
                     sourceUrl: undefined,
-                    license: "MIT",
+                    license: config.DEFAULT_MODPACK_LICENSE,
                     modloader: undefined,
                     targetModloaderVersion: undefined,
                     targetMinecraftVersion: undefined,
