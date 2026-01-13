@@ -190,6 +190,10 @@ modpackLock.command('run')
     .allowUnknownOption(true)
     .action(async (script, options, command) => {
         try {
+            if (options.debug) {
+                console.log("COMMAND:", command);
+            }
+
             const currDir = options.folder || process.cwd();
             const modpackInfo = await getModpackInfo(currDir);
 
