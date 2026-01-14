@@ -21,7 +21,8 @@ export async function getLicenseList(featured = false) {
 
         if (!featured) {
             // get featured licenses and place them at the beginning of the list, removing them from the original list
-            licenseSpdxIds.unshift({ title: 'All-Rights-Reserved', value: 'all-rights-reserved' });
+            licenseSpdxIds.unshift(config.ALL_RIGHTS_RESERVED_LICENSE);
+            licenseSpdxIds.push(config.OTHER_OPTION);
             const featuredLicenseList = await getLicenseList(true);
             for (const license of featuredLicenseList) {
                 licenseSpdxIds= licenseSpdxIds.filter( id => id !== license );
@@ -31,8 +32,10 @@ export async function getLicenseList(featured = false) {
 
         return licenseSpdxIds;
     } catch (error) {
-        console.warn(`Warning: failed to fetch license list`);
-        return [];
+        console.warn(`Warning: failed to fetch license list. Using fallbacks.`);
+        const licenses = config.FALLBACK_LICENSES.push(config.ALL_RIGHTS_RESERVED_LICENSE)
+        licenses.push(config.OTHER_OPTION);
+        return licenses;
     }
 }
 
