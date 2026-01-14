@@ -23,3 +23,22 @@ export const ARR_LICENSE_TEXT =
     "Copyright (c) [year] [fullname]\n" +
     "\n" +
     "All rights reserved.\n";
+
+export const ALL_RIGHTS_RESERVED_LICENSE = { title: 'All-Rights-Reserved', value: 'all-rights-reserved' };
+export const OTHER_OPTION = { title: 'Other', value: 'other' };
+
+export const FALLBACK_LICENSES = [
+    { title: 'MIT', value: 'mit' },
+    { title: 'Apache-2.0', value: 'apache-2.0' },
+    { title: 'GPL-3.0', value: 'gpl-3.0' },
+    { title: 'CC0-1.0', value: 'cc0-1.0' }
+]
+
+export const FALLBACK_MODLOADERS = [
+    { title: 'fabric', value: 'fabric' },
+    { title: 'forge', value: 'forge' },
+    { title: 'quilt', value: 'quilt' },
+    { title: 'neoforge', value: 'neoforge' },
+    { title: 'sponge', value: 'sponge' },
+    { title: 'paper', value: 'paper' }
+]
