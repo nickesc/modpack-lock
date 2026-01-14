@@ -194,7 +194,7 @@ modpackLock.command('init')
                 );
 
                 // prompt user if they want to add the license text
-                const licenseText = options.addLicense ? await promptUserAboutLicenseText(modpackInfo) : false;
+                const licenseText = options.addLicense === undefined ? await promptUserAboutLicenseText(modpackInfo) : options.addLicense;
                 console.log();
                 if (licenseText) {
                     await generateLicense(modpackInfo, currDir, options);
