@@ -1,6 +1,7 @@
 import { generateLockfile, generateReadmeFiles, generateGitignoreRules } from './generate_lockfile.js';
 import generateJson from './generate_json.js';
-import { promptUserForInfo } from './modpack_info.js';
+import generateLicense from './generate_license.js';
+import { promptUserForInfo, promptUserAboutLicenseText } from './modpack_info.js';
 import { getModpackInfo, getLockfile } from './directory_scanning.js';
 
 /**
@@ -29,4 +30,4 @@ async function generateModpackFiles(modpackInfo, directory, options = {}) {
     return lockfile;
 }
 
-export { generateModpackFiles, generateJson, generateLockfile, generateGitignoreRules, generateReadmeFiles, getModpackInfo, getLockfile, promptUserForInfo };
+export { generateModpackFiles, generateJson, generateLockfile, generateGitignoreRules, generateReadmeFiles, generateLicense, getModpackInfo, getLockfile, promptUserForInfo };
