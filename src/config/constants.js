@@ -19,6 +19,8 @@ export const DEPENDENCY_CATEGORIES = [
     "datapacks"
 ];
 
+export const MINECRAFT_VERSION_TYPES = ["release", "alpha", "beta", "snapshot"];
+
 export const ARR_LICENSE_TEXT =
     "Copyright (c) [year] [fullname]\n" +
     "\n" +
@@ -32,7 +34,7 @@ export const FALLBACK_LICENSES = [
     { title: 'Apache-2.0', value: 'apache-2.0' },
     { title: 'GPL-3.0', value: 'gpl-3.0' },
     { title: 'CC0-1.0', value: 'cc0-1.0' }
-]
+];
 
 export const FALLBACK_MODLOADERS = [
     { title: 'fabric', value: 'fabric' },
@@ -41,4 +43,29 @@ export const FALLBACK_MODLOADERS = [
     { title: 'neoforge', value: 'neoforge' },
     { title: 'sponge', value: 'sponge' },
     { title: 'paper', value: 'paper' }
-]
+];
+
+export const FALLBACK_TARGET_MINECRAFT_VERSIONS = [
+    { title: '1.21.x'},
+    { title: '1.20.x'},
+    { title: '1.19.x'},
+    { title: '1.18.x'},
+    { title: '1.17.x'},
+    { title: '1.16.x'},
+    { title: '1.15.x'},
+    { title: '1.14.x'},
+    { title: '1.13.x'},
+    { title: '1.12.x'},
+    { title: '1.11.x'},
+    { title: '1.10.x'},
+    { title: '1.9.x'},
+    { title: '1.8.x'},
+    { title: '1.7.x'},
+    { title: '1.6.x'},
+    { title: '1.5.x'},
+    { title: '1.4.x'},
+    { title: '1.3.x'},
+    { title: '1.2.x'},
+    { title: '1.1.x'},
+    { title: '1.0.x'}
+];
