@@ -19,16 +19,22 @@ export const DEPENDENCY_CATEGORIES = [
     "datapacks"
 ];
 
+/** Minecraft version types */
 export const MINECRAFT_VERSION_TYPES = ["release", "alpha", "beta", "snapshot"];
 
+/** All-Rights-Reserved license text */
 export const ARR_LICENSE_TEXT =
     "Copyright (c) [year] [fullname]\n" +
     "\n" +
     "All rights reserved.\n";
 
+/** All-Rights-Reserved license option */
 export const ALL_RIGHTS_RESERVED_LICENSE = { title: 'All-Rights-Reserved', value: 'all-rights-reserved' };
+
+/** Other option */
 export const OTHER_OPTION = { title: 'Other', value: 'other' };
 
+/** Fallback licenses */
 export const FALLBACK_LICENSES = [
     { title: 'MIT', value: 'mit' },
     { title: 'Apache-2.0', value: 'apache-2.0' },
@@ -36,6 +42,7 @@ export const FALLBACK_LICENSES = [
     { title: 'CC0-1.0', value: 'cc0-1.0' }
 ];
 
+/** Fallback modloaders */
 export const FALLBACK_MODLOADERS = [
     { title: 'fabric', value: 'fabric' },
     { title: 'forge', value: 'forge' },
@@ -45,6 +52,7 @@ export const FALLBACK_MODLOADERS = [
     { title: 'paper', value: 'paper' }
 ];
 
+/** Fallback target Minecraft versions */
 export const FALLBACK_TARGET_MINECRAFT_VERSIONS = [
     { title: '1.21.x'},
     { title: '1.20.x'},
