@@ -46,10 +46,13 @@ export const FALLBACK_LICENSES = [
 export const FALLBACK_MODLOADERS = [
     { title: 'fabric', value: 'fabric' },
     { title: 'forge', value: 'forge' },
-    { title: 'quilt', value: 'quilt' },
     { title: 'neoforge', value: 'neoforge' },
+    { title: 'paper', value: 'paper' },
+    { title: 'purpur', value: 'purpur' },
+    { title: 'quilt', value: 'quilt' },
     { title: 'sponge', value: 'sponge' },
-    { title: 'paper', value: 'paper' }
+    { title: 'spigot', value: 'spigot' },
+    { title: 'vanilla', value: 'vanilla' }
 ];
 
 /** Fallback target Minecraft versions */
