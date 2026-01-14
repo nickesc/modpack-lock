@@ -125,6 +125,7 @@ modpackLock.command('init')
     .optionsGroup("INFORMATION")
     .helpOption("-h, --help", `display help for ${pkg.name} init`)
     .action(async (options) => {
+        options._init = true;
         const currDir = options.folder || process.cwd();
 
         let existingInfo = await getModpackInfo(currDir);
@@ -154,7 +155,7 @@ modpackLock.command('init')
                 const modpackInfo = mergeModpackInfo(existingInfo, options, defaults);
                 modpackInfo.id = slugify(modpackInfo.id, config.SLUGIFY_OPTIONS);
                 try {
-                    await generateModpackFiles(modpackInfo, currDir, { dryRun: false });
+                    await generateModpackFiles(modpackInfo, currDir, options);
                 } catch (error) {
                     console.error('Error:', error);
                     process.exitCode = 1;
@@ -183,7 +184,7 @@ modpackLock.command('init')
                     mergeModpackInfo(existingInfo, options, defaults)
                 );
 
-                await generateModpackFiles(modpackInfo, currDir, { dryRun: false });
+                await generateModpackFiles(modpackInfo, currDir, options);
             } catch (error) {
                 console.error('Error:', error);
                 process.exitCode = 1;
@@ -200,6 +201,7 @@ modpackLock.command('run')
     .allowExcessArguments(true)
     .allowUnknownOption(true)
     .action(async (script, options, command) => {
+        options._run = true;
         try {
             if (options.debug) {
                 console.log("COMMAND:", command);
