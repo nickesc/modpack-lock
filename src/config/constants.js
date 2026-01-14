@@ -18,3 +18,8 @@ export const DEPENDENCY_CATEGORIES = [
     "shaderpacks",
     "datapacks"
 ];
+
+export const ARR_LICENSE_TEXT =
+    "Copyright (c) [year] [fullname]\n" +
+    "\n" +
+    "All rights reserved.\n";
