@@ -59,23 +59,24 @@ Usage: modpack-lock [options] [command]
 Creates a modpack lockfile for files hosted on Modrinth (mods, resource packs, shaders and datapacks)
 
 Options:
-  -p, --path <path>  Path to the modpack directory
-  -d, --dry-run      Dry-run mode - no files will be written
+  -p, --path <path>       Path to the modpack directory
+  -d, --dry-run           Dry-run mode - no files will be written
 
 GENERATION
-  -g, --gitignore    Print .gitignore rules for files not hosted on Modrinth
-  -r, --readme       Generate README.md files for each category
+  -g, --gitignore         Print .gitignore rules for files not hosted on Modrinth
+  -r, --readme            Generate README.md files for each category
 
 LOGGING
-  -q, --quiet        Quiet mode - only show errors and warnings
-  -s, --silent       Silent mode - no output
+  -q, --quiet             Quiet mode - only show errors and warnings
+  -s, --silent            Silent mode - no output
 
 INFORMATION
-  -V                 output the version number
-  -h, --help         display help for modpack-lock
+  -V                      output the version number
+  -h, --help              display help for modpack-lock
 
 Commands:
-  init [options]     This utility will walk you through creating a modpack.json file. It only covers the most common items, and tries to guess sensible defaults.
+  init [options]          This utility will walk you through creating a modpack.json file. It only covers the most common items, and tries to guess sensible defaults.
+  run [options] <script>  Run a script (shell command) defined in modpack.json's 'scripts' object
 ```
 
 
@@ -99,11 +100,12 @@ This utility will walk you through creating a modpack.json file. It only covers 
 Options:
   -f, --folder <path>                                Path to the modpack directory
   -n, --noninteractive                               Non-interactive mode - must provide options for required fields
+  --add-license                                      Add the license file to the modpack
 
 MODPACK INFORMATION
-  --name <name>                                      Modpack name; defaults to the directory name; required
-  --version <version>                                Modpack version; defaults to 1.0.0; required
-  --id <id>                                          Modpack slug/ID; defaults to the directory name slugified; required
+  --name <name>                                      Modpack name; defaults to the directory name
+  --version <version>                                Modpack version; defaults to 1.0.0
+  --id <id>                                          Modpack slug/ID; defaults to the directory name slugified
   --description <description>                        Modpack description
   --author <author>                                  Modpack author; required
   --projectUrl <projectUrl>                          Modpack URL
@@ -114,7 +116,7 @@ MODPACK INFORMATION
   --targetMinecraftVersion <targetMinecraftVersion>  Target Minecraft version; required
 
 INFORMATION
-  --help                                             display help for modpack-lock init
+  -h, --help                                         display help for modpack-lock init
 ```
 
 ### Running Scripts
