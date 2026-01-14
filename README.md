@@ -90,7 +90,7 @@ modpack-lock init
 
 This will create a `modpack.json` file that stores your modpack's metadata (name, version, author, etc.), including a list of dependency slugs. This file is optional, but when present, the main command will also write the lockfile dependencies to `modpack.json`. It will also regenerate the lockfile.
 
-The interactive mode will prompt you for each field. Set their initial values using the available option flags. Use `--noninteractive` with the required options (`--author`, `--modloader`, `--targetMinecraftVersion`) to skip prompts.
+The interactive mode will prompt you for each field. Set their initial values using the available option flags. Use `--noninteractive` with the required options (`--author`, `--modloader`, `--targetMinecraftVersion`) to skip the interactive-prompt and use the provided values.
 
 ```text
 Usage: modpack-lock init [options]
