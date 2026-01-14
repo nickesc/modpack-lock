@@ -131,3 +131,22 @@ export async function promptUserForInfo(defaults = {}) {
     }
     return modpackInfo;
 }
+
+/**
+ * Prompt the user about adding the license text to the modpack
+ * @param {ModpackInfo} modpackInfo - The modpack information
+ * @returns {Promise<boolean>} Whether the user wants to add the license text to the modpack
+ */
+export async function promptUserAboutLicenseText(modpackInfo) {
+    const licenseText = await getLicenseText(modpackInfo.license);
+    if (licenseText) {
+        const answer = await prompts({
+            type: 'confirm',
+            name: 'licenseText',
+            message: 'Add the LICENSE file to the modpack?',
+            initial: true,
+        });
+        return licenseText;
+    }
+    return false;
+}
