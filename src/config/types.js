@@ -42,4 +42,31 @@
  * @property {boolean} readme - Whether to generate README.md files
  */
 
+/**
+ * @typedef {Object} InitOptions
+ * Contains options for the initialization of the modpack files.
+ * @property {string} folder - The folder to generate the modpack files in
+ * @property {boolean} noninteractive - Whether to run the interactive mode
+ * @property {string} name - The name of the modpack
+ * @property {string} version - The version of the modpack
+ * @property {string} id - The slug/ID of the modpack
+ * @property {string} description - The description of the modpack
+ * @property {string} author - The author of the modpack
+ * @property {string} projectUrl - The modpack's project URL
+ * @property {string} sourceUrl - The modpack's source code URL
+ * @property {string} license - The modpack's license
+ * @property {string} modloader - The modpack's modloader
+ * @property {string} targetModloaderVersion - The target modloader version
+ * @property {string} targetMinecraftVersion - The target Minecraft version
+ * @property {boolean} _init - Internal boolean added to indicate options come from the `init` command.
+ */
+
+/**
+ * @typedef {Object} RunOptions
+ * Contains options for the running scripts defined in modpack.json.
+ * @property {string} folder - The folder to look for modpack.json in
+ * @property {boolean} debug - Whether to print debug information about the executed script
+ * @property {boolean} _run - Internal boolean added to indicate options come from the `run` command.
+ */
+
 export {};

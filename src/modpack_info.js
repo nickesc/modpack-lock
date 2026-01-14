@@ -14,8 +14,6 @@ function validateNotEmpty(value, field) {
 
 /**
  * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
- * @typedef {import('./config/types.js').Options} Options
- * @typedef {import('./config/types.js').Lockfile} Lockfile
  */
 
 /**

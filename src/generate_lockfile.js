@@ -6,6 +6,7 @@ import * as config from './config/index.js';
 
 /**
  * @typedef {import('./config/types.js').Options} Options
+ * @typedef {import('./config/types.js').InitOptions} InitOptions
  * @typedef {import('./config/types.js').Lockfile} Lockfile
  */
 
@@ -174,7 +175,7 @@ export function generateGitignoreRules(lockfile) {
  * Generate the README.md files for each category
  * @param {Lockfile} lockfile - The lockfile object
  * @param {string} workingDir - The working directory
- * @param {Options} options - The options object
+ * @param {Options | InitOptions} options - The options object
  */
 export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
     // Collect unique project IDs and author IDs from version data
