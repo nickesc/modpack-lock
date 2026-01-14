@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi, beforeEach } from 'vitest';
 import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
@@ -14,6 +14,7 @@ import { generateModpackFiles,
     generateLockfile,
     generateGitignoreRules,
     generateReadmeFiles,
+    generateLicense,
     getModpackInfo,
     getLockfile,
 } from '../src/modpack-lock.js';
@@ -299,6 +300,241 @@ describe('Package API', () => {
                     expect(content).toContain(`# ${categoryTitle}`);
                 }
             }
+        });
+    });
+
+    describe('generateLicense', () => {
+        beforeEach(() => {
+            // Clear any previous mocks
+            vi.clearAllMocks();
+        });
+
+        it('generates license with valid SPDX ID from GitHub', async () => {
+            const licenseWorkspace = await createTempDir('modpack-lock-license-');
+            const mockLicenseText = 'MIT License\n\nCopyright (c) [year] [fullname]\n\nPermission is hereby granted...';
+
+            const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({ body: mockLicenseText })
+            });
+
+            const modpackInfo = {
+                name: 'Test Modpack',
+                version: '1.0.0',
+                id: 'test-modpack',
+                author: 'Test Author',
+                modloader: 'fabric',
+                targetMinecraftVersion: '1.21.1',
+                license: 'MIT',
+            };
+
+            const result = await generateLicense(modpackInfo, licenseWorkspace);
+
+            expect(result).not.toBeNull();
+            expect(result).toContain('MIT License');
+            expect(fetchSpy).toHaveBeenCalled();
+
+            const licensePath = path.join(licenseWorkspace, 'LICENSE');
+            expect(await fileExists(licensePath)).toBe(true);
+
+            const writtenContent = await fs.readFile(licensePath, 'utf-8');
+            expect(writtenContent).toContain('MIT License');
+        });
+
+        it('replaces placeholders in license text', async () => {
+            const licenseWorkspace = await createTempDir('modpack-lock-license-');
+            const currentYear = new Date().getFullYear();
+            const mockLicenseText = 'Copyright (c) [year] {{fullname}}';
+
+            vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({ body: mockLicenseText })
+            });
+
+            const modpackInfo = {
+                name: 'My Test Modpack',
+                version: '1.0.0',
+                id: 'test-modpack',
+                author: 'John Doe',
+                modloader: 'fabric',
+                targetMinecraftVersion: '1.21.1',
+                license: 'MIT',
+            };
+
+            const result = await generateLicense(modpackInfo, licenseWorkspace);
+
+            expect(result).toContain(currentYear.toString());
+            expect(result).toContain('John Doe');
+            expect(result).not.toContain('[year]');
+            expect(result).not.toContain('{{fullname}}');
+
+            const writtenContent = await fs.readFile(path.join(licenseWorkspace, 'LICENSE'), 'utf-8');
+            expect(writtenContent).toContain(currentYear.toString());
+            expect(writtenContent).toContain('John Doe');
+        });
+
+        it('generates all-rights-reserved license', async () => {
+            const licenseWorkspace = await createTempDir('modpack-lock-license-');
+            const currentYear = new Date().getFullYear();
+
+            // Verify that fetch is not called for all-rights-reserved
+            const fetchSpy = vi.spyOn(global, 'fetch');
+
+            const modpackInfo = {
+                name: 'Test Modpack',
+                version: '1.0.0',
+                id: 'test-modpack',
+                author: 'Test Author',
+                modloader: 'fabric',
+                targetMinecraftVersion: '1.21.1',
+                license: 'all-rights-reserved',
+            };
+
+            const result = await generateLicense(modpackInfo, licenseWorkspace);
+
+            expect(result).toContain('All rights reserved');
+
+            // all-rights-reserved doesn't use GitHub API
+            expect(fetchSpy).not.toHaveBeenCalled();
+
+            const licensePath = path.join(licenseWorkspace, 'LICENSE');
+            expect(await fileExists(licensePath)).toBe(true);
+
+            const writtenContent = await fs.readFile(licensePath, 'utf-8');
+            expect(writtenContent).toContain('All rights reserved');
+        });
+
+        it('does not write file in dry-run mode', async () => {
+            const licenseWorkspace = await createTempDir('modpack-lock-license-');
+            const mockLicenseText = 'MIT License\n\nCopyright (c) [year] [fullname]';
+
+            vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({ body: mockLicenseText })
+            });
+
+            const modpackInfo = {
+                name: 'Test Modpack',
+                version: '1.0.0',
+                id: 'test-modpack',
+                author: 'Test Author',
+                modloader: 'fabric',
+                targetMinecraftVersion: '1.21.1',
+                license: 'MIT',
+            };
+
+            const result = await generateLicense(modpackInfo, licenseWorkspace, { dryRun: true });
+
+            expect(result).not.toBeNull();
+
+            const licensePath = path.join(licenseWorkspace, 'LICENSE');
+            expect(await fileExists(licensePath)).toBe(false);
+        });
+
+        it('uses licenseTextOverride when provided', async () => {
+            const licenseWorkspace = await createTempDir('modpack-lock-license-');
+            const overrideText = 'Custom License Text\n\nCopyright (c) [year] [fullname]';
+
+            // Verify that fetch is not called when override is provided
+            const fetchSpy = vi.spyOn(global, 'fetch');
+
+            const modpackInfo = {
+                name: 'Test Modpack',
+                version: '1.0.0',
+                id: 'test-modpack',
+                author: 'Test Author',
+                modloader: 'fabric',
+                targetMinecraftVersion: '1.21.1',
+                license: 'MIT',
+            };
+
+            const result = await generateLicense(modpackInfo, licenseWorkspace, {}, overrideText);
+
+            expect(result).toContain('Custom License Text');
+            // licenseTextOverride doesn't use GitHub API
+            expect(fetchSpy).not.toHaveBeenCalled();
+
+            const licensePath = path.join(licenseWorkspace, 'LICENSE');
+            expect(await fileExists(licensePath)).toBe(true);
+
+            const writtenContent = await fs.readFile(licensePath, 'utf-8');
+            expect(writtenContent).toContain('Custom License Text');
+        });
+
+        it('returns null when license text cannot be fetched', async () => {
+            const licenseWorkspace = await createTempDir('modpack-lock-license-');
+
+            vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+                ok: false,
+                status: 404,
+                text: async () => 'Not Found'
+            });
+
+            const modpackInfo = {
+                name: 'Test Modpack',
+                version: '1.0.0',
+                id: 'test-modpack',
+                author: 'Test Author',
+                modloader: 'fabric',
+                targetMinecraftVersion: '1.21.1',
+                license: 'INVALID-LICENSE',
+            };
+
+            const result = await generateLicense(modpackInfo, licenseWorkspace);
+
+            expect(result).toBeNull();
+
+            const licensePath = path.join(licenseWorkspace, 'LICENSE');
+            expect(await fileExists(licensePath)).toBe(false);
+        });
+
+        it('handles network errors gracefully', async () => {
+            const licenseWorkspace = await createTempDir('modpack-lock-license-');
+
+            vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network error'));
+
+            const modpackInfo = {
+                name: 'Test Modpack',
+                version: '1.0.0',
+                id: 'test-modpack',
+                author: 'Test Author',
+                modloader: 'fabric',
+                targetMinecraftVersion: '1.21.1',
+                license: 'MIT',
+            };
+
+            const result = await generateLicense(modpackInfo, licenseWorkspace);
+
+            expect(result).toBeNull();
+
+            const licensePath = path.join(licenseWorkspace, 'LICENSE');
+            expect(await fileExists(licensePath)).toBe(false);
+        });
+
+        it('handles missing body in GitHub API response', async () => {
+            const licenseWorkspace = await createTempDir('modpack-lock-license-');
+
+            vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({}) // Missing body field
+            });
+
+            const modpackInfo = {
+                name: 'Test Modpack',
+                version: '1.0.0',
+                id: 'test-modpack',
+                author: 'Test Author',
+                modloader: 'fabric',
+                targetMinecraftVersion: '1.21.1',
+                license: 'MIT',
+            };
+
+            const result = await generateLicense(modpackInfo, licenseWorkspace);
+
+            expect(result).toBeNull();
+
+            const licensePath = path.join(licenseWorkspace, 'LICENSE');
+            expect(await fileExists(licensePath)).toBe(false);
         });
     });
 

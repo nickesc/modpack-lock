@@ -106,3 +106,59 @@ export async function getUsers(userIds) {
 
     return results;
 }
+
+/**
+ * Fetch Minecraft versions from Modrinth
+ * @returns {Promise<Array<Object>>} The Minecraft versions
+ */
+export async function getMinecraftVersions() {
+    try {
+        const url = config.MODRINTH_MINECRAFT_VERSIONS_ENDPOINT;
+        const response = await fetch(url);
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Modrinth API error (${response.status}): ${errorText}`);
+        }
+
+        const json = await response.json();
+        if (json) {
+            //sort by version type (in the order of the MINECRAFT_VERSION_TYPES array)
+            json.sort((a, b) => {
+                return config.MINECRAFT_VERSION_TYPES.indexOf(a.version_type) - config.MINECRAFT_VERSION_TYPES.indexOf(b.version_type);
+            });
+            return json.map(version => ({ title: version.version, value: version.version }));
+        } else {
+            throw new Error();
+        }
+        return null;
+    } catch (error) {
+        console.warn(`Warning: unable to fetch Minecraft versions. Using fallbacks.`, error);
+        return config.FALLBACK_TARGET_MINECRAFT_VERSIONS;
+    }
+}
+
+/**
+ * Fetch Modloaders from Modrinth
+ * @returns {Promise<Array<Object>>} The Modloaders
+ */
+export async function getModloaders() {
+    try {
+        const url = config.MODRINTH_MODLOADERS_ENDPOINT;
+        const response = await fetch(url);
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Modrinth API error (${response.status}): ${errorText}`);
+        }
+
+        const json = await response.json();
+        if (json) {
+            return json.map(loader => ({ title: loader.name, value: loader.name }));
+        } else {
+            throw new Error();
+        }
+        return null;
+    } catch (error) {
+        console.warn(`Warning: unable to fetch Modloaders. Using fallbacks.`, error);
+        return config.FALLBACK_MODLOADERS;
+    }
+}

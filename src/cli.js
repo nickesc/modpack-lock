@@ -6,8 +6,9 @@ import path from 'path';
 import { spawn } from 'child_process';
 import {generateLockfile} from './generate_lockfile.js';
 import { generateModpackFiles } from './modpack-lock.js';
-import promptUserForInfo from './modpack_info.js';
+import { promptUserForInfo, promptUserAboutLicenseText } from './modpack_info.js';
 import { getModpackInfo } from './directory_scanning.js';
+import generateLicense from './generate_license.js';
 import * as config from './config/index.js';
 import pkg from '../package.json' with { type: 'json' };
 
@@ -110,6 +111,7 @@ modpackLock.command('init')
     .optionsGroup("Options:")
     .option('-f, --folder <path>', 'Path to the modpack directory')
     .option("-n, --noninteractive", 'Non-interactive mode - must provide options for required fields')
+    .option('--add-license', 'Add the license file to the modpack')
     .optionsGroup("MODPACK INFORMATION")
     .option('--name <name>', 'Modpack name; defaults to the directory name')
     .option('--version <version>', 'Modpack version; defaults to 1.0.0')
@@ -125,6 +127,7 @@ modpackLock.command('init')
     .optionsGroup("INFORMATION")
     .helpOption("-h, --help", `display help for ${pkg.name} init`)
     .action(async (options) => {
+        options._init = true;
         const currDir = options.folder || process.cwd();
 
         let existingInfo = await getModpackInfo(currDir);
@@ -153,8 +156,14 @@ modpackLock.command('init')
 
                 const modpackInfo = mergeModpackInfo(existingInfo, options, defaults);
                 modpackInfo.id = slugify(modpackInfo.id, config.SLUGIFY_OPTIONS);
+
+                if (options.addLicense) {
+                    await generateLicense(modpackInfo, currDir, options);
+                }
+
+                // generate the modpack files
                 try {
-                    await generateModpackFiles(modpackInfo, currDir, { dryRun: false });
+                    await generateModpackFiles(modpackInfo, currDir, options);
                 } catch (error) {
                     console.error('Error:', error);
                     process.exitCode = 1;
@@ -179,11 +188,21 @@ modpackLock.command('init')
                     targetMinecraftVersion: undefined,
                 };
 
+                // prompt user for modpack information
                 const modpackInfo = await promptUserForInfo(
                     mergeModpackInfo(existingInfo, options, defaults)
                 );
 
-                await generateModpackFiles(modpackInfo, currDir, { dryRun: false });
+                // prompt user if they want to add the license text
+                const licenseText = options.addLicense ? await promptUserAboutLicenseText(modpackInfo) : false;
+                console.log();
+                if (licenseText) {
+                    await generateLicense(modpackInfo, currDir, options);
+                }
+                console.log();
+
+                // generate the modpack files
+                await generateModpackFiles(modpackInfo, currDir, options);
             } catch (error) {
                 console.error('Error:', error);
                 process.exitCode = 1;
@@ -200,6 +219,7 @@ modpackLock.command('run')
     .allowExcessArguments(true)
     .allowUnknownOption(true)
     .action(async (script, options, command) => {
+        options._run = true;
         try {
             if (options.debug) {
                 console.log("COMMAND:", command);

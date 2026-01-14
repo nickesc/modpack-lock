@@ -6,6 +6,7 @@ import * as config from './config/index.js';
 /**
  * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
  * @typedef {import('./config/types.js').Options} Options
+ * @typedef {import('./config/types.js').InitOptions} InitOptions
  * @typedef {import('./config/types.js').Lockfile} Lockfile
  */
 
@@ -33,7 +34,7 @@ async function writeJson(jsonObject, outputPath) {
  * @param {ModpackInfo} modpackInfo - The modpack information
  * @param {Lockfile} lockfile - The lockfile
  * @param {string} outputDir - The path to write the JSON object to
- * @param {Options} options - The options object
+ * @param {Options | InitOptions} options - The options object
  * @returns {Promise<Lockfile>} The JSON file's object
  */
 export default async function generateJson(modpackInfo, lockfile, outputDir, options = {}) {

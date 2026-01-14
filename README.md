@@ -12,11 +12,9 @@ Creates a modpack lockfile for files hosted on Modrinth (mods, resource packs, s
 
 Many mod and pack authors request that modpack creators link to Modrinth or CurseForge downloads rather than re-hosting files. This makes it difficult to track content files in version control when pushing to a remote server.
 
-This script generates a `modpack.lock` file in the current directory containing a plaintext representation of the modpack's contents. This object contains the metadata for the content available on Modrinth, including hashes, versions, names, download URLs and more. An optional `modpack.json` file can also be created to store your modpack's metadata (name, version, modloader, dependencies, etc.) alongside the lockfile. This setup allows for easy diffing and clear version history.
+This script generates a `modpack.lock` file containing a plaintext representation of the modpack's contents. This object contains the metadata for the content available on Modrinth, including hashes, versions, names, download URLs and more. An optional `modpack.json` file can also be created to store your modpack's metadata (name, version, modloader, dependencies, etc.) alongside the lockfile. This setup allows for easy diffing and clear version history.
 
 > While an `.mrpack` file could be used to track changes to the modpack, it is a large, binary file that cannot be diffed and can contain large amounts of duplicate data from the rest of the repository.
-
-The lockfile could also serve as a basis for restoring modpack contents after cloning the repository to a new machine.
 
 Using the `scripts` field in `modpack.json`, you can also define reusable, tracked shell commands for common modpack tasks (like publishing, generating assets or CI/CD workflows).
 
@@ -36,7 +34,7 @@ npx modpack-lock
 
 ## CLI
 
-Navigate to your Minecraft profile directory (the folder containing `mods`, `resourcepacks`, `datapacks`, and `shaderpacks` folders) and run:
+To generate a lockfile for your modpack, run:
 
 ```bash
 modpack-lock
@@ -44,14 +42,12 @@ modpack-lock
 
 The script will:
 
-1. Scan the `mods`, `resourcepacks`, `datapacks`, and `shaderpacks` directories for `.jar` and `.zip` files
-2. Calculate SHA1 hashes for each file
-3. Query the Modrinth API to find version information
-4. Generate a `modpack.lock` file in the current directory
+- Scan target directory's `mods`, `resourcepacks`, `datapacks`, and `shaderpacks` directories for `.jar` and `.zip` files
+- Calculate SHA1 hashes for each file
+- Query the Modrinth API for matching versions
+- Generate a `modpack.lock` file (and update `modpack.json` dependencies if present)
 
-If a `modpack.json` file exists in the directory, the lockfile's dependency list will also be written to it. Run `modpack-lock init` to create this file.
-
-Then, commit the `modpack.lock` (and `modpack.json`) to your repository and push it to your remote.
+Use flags to generate `README.md` files for each category or print `.gitignore` rules for files that are not hosted on Modrinth.
 
 ```text
 Usage: modpack-lock [options] [command]
@@ -59,23 +55,24 @@ Usage: modpack-lock [options] [command]
 Creates a modpack lockfile for files hosted on Modrinth (mods, resource packs, shaders and datapacks)
 
 Options:
-  -p, --path <path>  Path to the modpack directory
-  -d, --dry-run      Dry-run mode - no files will be written
+  -p, --path <path>       Path to the modpack directory
+  -d, --dry-run           Dry-run mode - no files will be written
 
 GENERATION
-  -g, --gitignore    Print .gitignore rules for files not hosted on Modrinth
-  -r, --readme       Generate README.md files for each category
+  -g, --gitignore         Print .gitignore rules for files not hosted on Modrinth
+  -r, --readme            Generate README.md files for each category
 
 LOGGING
-  -q, --quiet        Quiet mode - only show errors and warnings
-  -s, --silent       Silent mode - no output
+  -q, --quiet             Quiet mode - only show errors and warnings
+  -s, --silent            Silent mode - no output
 
 INFORMATION
-  -V                 output the version number
-  -h, --help         display help for modpack-lock
+  -V                      output the version number
+  -h, --help              display help for modpack-lock
 
 Commands:
-  init [options]     This utility will walk you through creating a modpack.json file. It only covers the most common items, and tries to guess sensible defaults.
+  init [options]          This utility will walk you through creating a modpack.json file. It only covers the most common items, and tries to guess sensible defaults.
+  run [options] <script>  Run a script (shell command) defined in modpack.json's 'scripts' object
 ```
 
 
@@ -87,9 +84,13 @@ To initialize a new modpack, run:
 modpack-lock init
 ```
 
-This will create a `modpack.json` file that stores your modpack's metadata (name, version, author, etc.), including a list of dependency slugs. This file is optional, but when present, the main command will also write the lockfile dependencies to `modpack.json`. It will also regenerate the lockfile.
+This command will:
 
-The interactive mode will prompt you for each field. Set their initial values using the available option flags. Use `--noninteractive` with the required options (`--author`, `--modloader`, `--targetMinecraftVersion`) to skip prompts.
+- Prompt the user for the modpack's metadata (name, version, author, etc.)
+- Generate the lockfile
+- Generate a `modpack.json` file that stores your modpack's metadata (name, version, author, etc.), including a list of dependencies
+
+The interactive mode will prompt you for each field. Set their initial values using the available option flags. Use `--noninteractive` with the required options to skip the interactive-prompt and use the provided values.
 
 ```text
 Usage: modpack-lock init [options]
@@ -99,11 +100,12 @@ This utility will walk you through creating a modpack.json file. It only covers 
 Options:
   -f, --folder <path>                                Path to the modpack directory
   -n, --noninteractive                               Non-interactive mode - must provide options for required fields
+  --add-license                                      Add the license file to the modpack
 
 MODPACK INFORMATION
-  --name <name>                                      Modpack name; defaults to the directory name; required
-  --version <version>                                Modpack version; defaults to 1.0.0; required
-  --id <id>                                          Modpack slug/ID; defaults to the directory name slugified; required
+  --name <name>                                      Modpack name; defaults to the directory name
+  --version <version>                                Modpack version; defaults to 1.0.0
+  --id <id>                                          Modpack slug/ID; defaults to the directory name slugified
   --description <description>                        Modpack description
   --author <author>                                  Modpack author; required
   --projectUrl <projectUrl>                          Modpack URL
@@ -114,24 +116,28 @@ MODPACK INFORMATION
   --targetMinecraftVersion <targetMinecraftVersion>  Target Minecraft version; required
 
 INFORMATION
-  --help                                             display help for modpack-lock init
+  -h, --help                                         display help for modpack-lock init
 ```
 
 ### Running Scripts
 
-To run a script defined in `modpack.json` run:
+To run a script defined in `modpack.json`, run:
 
 ```bash
 modpack-lock run <script>
 ```
 
-This command takes the name of the script as its first argument. Use the `-f` option to specify a different path to the modpack directory. For debug logging, use the `-D` option.
+This command takes the name of the script as its first argument:
 
-To pass additional arguments and options to the script, write them after a `--` separator:
+- It searches for a scripts fiels in `modpack.json` in the current directory by default.
+- Use the `-f` option to specify a different path to the modpack directory.
+- For debug logging, use the `-D` option.
 
-```bash
-modpack-lock run <script> -- [options] <args> 
-```
+> To pass additional arguments and options to the script, write them after a `--` separator:
+>
+> ```bash
+> modpack-lock run <script> -- [options] <args>
+> ```
 
 The `scripts` field in `modpack.json` is a key-value pair of script names and their corresponding shell commands. The `scripts` field is optional and is omitted by default.
 
@@ -149,22 +155,6 @@ Options:
   -h, --help           display help for modpack-lock run
 ```
 
-> [!TIP]
->
-> You can run this script as a pre-commit hook to ensure that the modpack lockfile is up to date before committing your changes to your repository.
->
-> Also, consider adding these rules to your `.gitignore` to ensure you don't commit the modpack contents to your repository, with exceptions for any files that are not Modrinth-hosted:
->
-> ```txt
-> mods/*.jar
-> resourcepacks/*.zip
-> datapacks/*.zip
-> shaderpacks/*.zip
-> 
-> ## Exceptions
-> # !mods/example.jar
-> ```
-
 ## API
 
 For programmatic usage, `modpack-lock` exports these functions:
@@ -174,6 +164,7 @@ For programmatic usage, `modpack-lock` exports these functions:
 - `generateJson()`
 - `generateGitignoreRules()`
 - `generateReadmeFiles()`
+- `generateLicense()`
 - `generateLockfile()`
 - `generateModpackFiles()`
 - `promptUserForInfo()`
@@ -184,7 +175,7 @@ See the [API documentation](https://nickesc.github.io/modpack-lock) for full det
 
 ### `modpack.lock`
 
-The lockfile contains metadata about Modrinth-hosted files found in your modpack directories:
+The lockfile contains metadata about Modrinth-hosted files found in modpack directories:
 
 ```json
 {
@@ -213,7 +204,7 @@ The lockfile contains metadata about Modrinth-hosted files found in your modpack
 
 ### `modpack.json`
 
-If created via `modpack-lock init`, the JSON file combines your modpack metadata with the lockfile's dependency list:
+The JSON file contains your modpack metadata and a dependency list:
 
 ```json
 {
@@ -228,17 +219,33 @@ If created via `modpack-lock init`, the JSON file combines your modpack metadata
   "modloader": "modloader",
   "targetModloaderVersion": "",
   "targetMinecraftVersion": "x.y.z",
+  "scripts": {
+    "example": "echo 'example script'"
+  },
   "dependencies": {
     "mods": [ ... ],
     "resourcepacks": [ ... ],
     "datapacks": [ ... ],
     "shaderpacks": [ ... ]
-  },
-  "scripts": {
-    "example": "echo 'example script'"
   }
 }
 ```
+
+> [!TIP] Don't commit binaries
+>
+> Consider adding these rules to your `.gitignore` to ensure you don't commit the modpack contents to your repository, with exceptions for any files that are not Modrinth-hosted:
+>
+> ```txt
+> mods/*.jar
+> resourcepacks/*.zip
+> datapacks/*.zip
+> shaderpacks/*.zip
+> 
+> ## Exceptions
+> # !mods/example.jar
+> ```
+>
+> Use `modpack-lock -g` to generate and print the rules for your project to the console.
 
 ## License
 
