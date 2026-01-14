@@ -137,3 +137,28 @@ export async function getMinecraftVersions() {
     }
 }
 
+/**
+ * Fetch Modloaders from Modrinth
+ * @returns {Promise<Array<Object>>} The Modloaders
+ */
+export async function getModloaders() {
+    try {
+        const url = config.MODRINTH_MODLOADERS_ENDPOINT;
+        const response = await fetch(url);
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Modrinth API error (${response.status}): ${errorText}`);
+        }
+
+        const json = await response.json();
+        if (json) {
+            return json.map(loader => ({ title: loader.name, value: loader.name }));
+        } else {
+            throw new Error();
+        }
+        return null;
+    } catch (error) {
+        console.warn(`Warning: unable to fetch Modloaders. Using fallbacks.`, error);
+        return config.FALLBACK_MODLOADERS;
+    }
+}
