@@ -173,7 +173,7 @@ export async function promptUserAboutLicenseText(modpackInfo) {
             message: 'Add the LICENSE file to the modpack?',
             initial: true,
         });
-        return licenseText;
+        return answer.licenseText;
     }
     return false;
 }
