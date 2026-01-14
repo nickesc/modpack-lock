@@ -7,10 +7,39 @@ import { getLicenseList, getLicenseText } from './github_interactions.js';
  * Validate that a value is not empty
  */
 function validateNotEmpty(value, field) {
-    if (value.trim().length === 0) {
+    if (value && value.trim().length === 0) {
         return `${field} cannot be empty`;
     }
     return true;
+}
+
+/**
+ * Test if the process was interrupted
+ */
+function testInterrupt(questions, expectedAnswers) {
+    if (Object.keys(questions).length < expectedAnswers) {
+        console.warn('Modpack initialization was interrupted');
+        process.exit(1);
+    }
+}
+
+/**
+ * Get an other answer from the user
+ */
+async function getOtherAnswer(value, message) {
+    if (value && value !== config.OTHER_OPTION.value) {
+        return value;
+    }
+    const question = await prompts({
+        type: 'text',
+        name: 'other',
+        message: message,
+        initial: config.OTHER_OPTION.value,
+    });
+
+    testInterrupt(question, 1);
+
+    return question.other || config.OTHER_OPTION.value;
 }
 
 /**
@@ -87,6 +116,9 @@ export async function promptUserForInfo(defaults = {}) {
         initial: defaults.license || config.DEFAULT_MODPACK_LICENSE,
         choices: licenseList,
         fallback: 'other',
+        format: async (value) => {
+            return await getOtherAnswer(value, 'Other license ID (SPDX ID)');
+        },
     },
     {
         type: 'autocomplete',
@@ -95,8 +127,8 @@ export async function promptUserForInfo(defaults = {}) {
         initial: defaults.modloader,
         choices: config.FALLBACK_MODLOADERS,
         fallback: 'other',
-        validate: (value) => {
-            return validateNotEmpty(value, 'Modloader');
+        format: async (value) => {
+            return await getOtherAnswer(value, 'Other modloader');
         },
     },
     {
@@ -119,10 +151,7 @@ export async function promptUserForInfo(defaults = {}) {
     let modpackInfo = { ...answers };
 
     // TODO: this might not be right. find a better way to ensure the user did not interrupt the prompts. need to do that for any other prompts we use as well, including the license text prompt.
-    if (Object.keys(modpackInfo).length < 11) {
-        console.warn('Modpack initialization was interrupted');
-        process.exit(1);
-    }
+    testInterrupt(answers, 11);
 
     return modpackInfo;
 }
