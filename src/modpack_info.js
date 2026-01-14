@@ -1,6 +1,7 @@
 import prompts from 'prompts';
 import slugify from 'slugify';
 import * as config from './config/index.js';
+import { getLicenseList, getLicenseText } from './github_interactions.js';
 
 /**
  * Validate that a value is not empty
