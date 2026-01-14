@@ -51,6 +51,8 @@ The script will:
 
 If a `modpack.json` file exists in the directory, the lockfile's dependency list will also be written to it. Run `modpack-lock init` to create this file.
 
+You can also use flags to generate lists of your content as README.md files or print .gitignore rules for files that are not hosted on Modrinth.
+
 Then, commit the `modpack.lock` (and `modpack.json`) to your repository and push it to your remote.
 
 ```text
@@ -151,22 +153,6 @@ Options:
   -h, --help           display help for modpack-lock run
 ```
 
-> [!TIP]
->
-> You can run this script as a pre-commit hook to ensure that the modpack lockfile is up to date before committing your changes to your repository.
->
-> Also, consider adding these rules to your `.gitignore` to ensure you don't commit the modpack contents to your repository, with exceptions for any files that are not Modrinth-hosted:
->
-> ```txt
-> mods/*.jar
-> resourcepacks/*.zip
-> datapacks/*.zip
-> shaderpacks/*.zip
-> 
-> ## Exceptions
-> # !mods/example.jar
-> ```
-
 ## API
 
 For programmatic usage, `modpack-lock` exports these functions:
@@ -241,6 +227,22 @@ If created via `modpack-lock init`, the JSON file combines your modpack metadata
   }
 }
 ```
+
+> [!TIP]
+>
+> Consider adding these rules to your `.gitignore` to ensure you don't commit the modpack contents to your repository, with exceptions for any files that are not Modrinth-hosted:
+>
+> ```txt
+> mods/*.jar
+> resourcepacks/*.zip
+> datapacks/*.zip
+> shaderpacks/*.zip
+> 
+> ## Exceptions
+> # !mods/example.jar
+> ```
+>
+> These rules can also be generated using the `-g, --gitignore` flag when running the `modpack-lock` command.
 
 ## License
 
