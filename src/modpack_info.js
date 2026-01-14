@@ -24,6 +24,7 @@ function validateNotEmpty(value, field) {
  */
 export async function promptUserForInfo(defaults = {}) {
     const licenseList = await getLicenseList();
+    //licenseList.push({ title: 'Other', value: 'other' });
     let answers = await prompts([{
         type: 'text',
         name: 'name',
@@ -85,27 +86,15 @@ export async function promptUserForInfo(defaults = {}) {
         limit: 20,
         initial: defaults.license || config.DEFAULT_MODPACK_LICENSE,
         choices: licenseList,
+        fallback: 'other',
     },
     {
         type: 'autocomplete',
         name: 'modloader',
         message: 'Modpack modloader',
         initial: defaults.modloader,
-        choices: [
-            { title: 'fabric' },
-            { title: 'forge' },
-            { title: 'quilt' },
-            { title: 'neoforge' },
-            { title: 'sponge' },
-            { title: 'paper' },
-            { title: 'velocity' },
-            { title: 'bungeecord' },
-            { title: 'waterfall' },
-            { title: 'travertia' },
-            { title: 'nukkit' },
-            { title: 'pufferfish' },
-            { title: 'purpur' },
-        ],
+        choices: config.FALLBACK_MODLOADERS,
+        fallback: 'other',
         validate: (value) => {
             return validateNotEmpty(value, 'Modloader');
         },
