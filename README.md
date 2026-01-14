@@ -231,7 +231,9 @@ The JSON file contains your modpack metadata and a dependency list:
 }
 ```
 
-> [!TIP] Don't commit binaries
+> [!TIP]
+>
+> ### Don't commit binaries
 >
 > Consider adding these rules to your `.gitignore` to ensure you don't commit the modpack contents to your repository, with exceptions for any files that are not Modrinth-hosted:
 >
