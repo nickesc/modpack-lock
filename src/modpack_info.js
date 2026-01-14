@@ -2,6 +2,7 @@ import prompts from 'prompts';
 import slugify from 'slugify';
 import * as config from './config/index.js';
 import { getLicenseList, getLicenseText } from './github_interactions.js';
+import { getMinecraftVersions, getModloaders } from './modrinth_interactions.js';
 
 /**
  * Validate that a value is not empty
@@ -53,7 +54,8 @@ async function getOtherAnswer(value, message) {
  */
 export async function promptUserForInfo(defaults = {}) {
     const licenseList = await getLicenseList();
-    //licenseList.push({ title: 'Other', value: 'other' });
+    const minecraftVersions = await getMinecraftVersions();
+    const modloaders = await getModloaders();
     let answers = await prompts([{
         type: 'text',
         name: 'name',
@@ -112,7 +114,6 @@ export async function promptUserForInfo(defaults = {}) {
         type: 'autocomplete',
         name: 'license',
         message: 'Modpack license',
-        limit: 20,
         initial: defaults.license || config.DEFAULT_MODPACK_LICENSE,
         choices: licenseList,
         fallback: 'other',
@@ -124,8 +125,8 @@ export async function promptUserForInfo(defaults = {}) {
         type: 'autocomplete',
         name: 'modloader',
         message: 'Modpack modloader',
-        initial: defaults.modloader,
-        choices: config.FALLBACK_MODLOADERS,
+        initial: defaults.modloader || config.FALLBACK_MODLOADERS[0].value,
+        choices: modloaders,
         fallback: 'other',
         format: async (value) => {
             return await getOtherAnswer(value, 'Other modloader');
@@ -138,13 +139,15 @@ export async function promptUserForInfo(defaults = {}) {
         initial: defaults.targetModloaderVersion,
     },
     {
-        type: 'text',
+        type: 'autocomplete',
         name: 'targetMinecraftVersion',
         message: 'Target Minecraft version',
-        initial: defaults.targetMinecraftVersion,
-        validate: (value) => {
-            return validateNotEmpty(value, 'Minecraft Version');
-        },
+        initial: defaults.targetMinecraftVersion || minecraftVersions[0].value,
+        choices: minecraftVersions,
+        fallback: 'other',
+        format: async (value) => {
+            return await getOtherAnswer(value, 'Other Minecraft version');
+        }
     }
     ]);
 
