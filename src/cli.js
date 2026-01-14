@@ -6,7 +6,7 @@ import path from 'path';
 import { spawn } from 'child_process';
 import {generateLockfile} from './generate_lockfile.js';
 import { generateModpackFiles } from './modpack-lock.js';
-import promptUserForInfo from './modpack_info.js';
+import { promptUserForInfo } from './modpack_info.js';
 import { getModpackInfo } from './directory_scanning.js';
 import * as config from './config/index.js';
 import pkg from '../package.json' with { type: 'json' };

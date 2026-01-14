@@ -1,6 +1,6 @@
 import { generateLockfile, generateReadmeFiles, generateGitignoreRules } from './generate_lockfile.js';
 import generateJson from './generate_json.js';
-import promptUserForInfo from './modpack_info.js';
+import { promptUserForInfo } from './modpack_info.js';
 import { getModpackInfo, getLockfile } from './directory_scanning.js';
 
 /**

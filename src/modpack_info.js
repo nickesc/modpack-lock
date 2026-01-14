@@ -21,7 +21,7 @@ function validateNotEmpty(value, field) {
  * @param {ModpackInfo} defaults - The initial/default modpack information
  * @returns {Promise<ModpackInfo>} The modpack information from the user
  */
-export default async function promptUserForInfo(defaults = {}) {
+export async function promptUserForInfo(defaults = {}) {
     let name = await prompts({
         type: 'text',
         name: 'name',
