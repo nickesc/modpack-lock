@@ -4,6 +4,13 @@ import * as config from './config/index.js';
 import { getLicenseList, getLicenseText } from './github_interactions.js';
 import { getMinecraftVersions, getModloaders } from './modrinth_interactions.js';
 
+/**
+ * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
+ */
+
+/**
+* Capitalizes a string
+*/
 function capitalize(string) {
     return `${string.charAt(0).toUpperCase()}${string.slice(1)}`;
 }
@@ -37,6 +44,9 @@ async function getOtherAnswer(value, message, initial) {
     return question.other || config.OTHER_OPTION.value;
 }
 
+/**
+* Returns a required text prompt
+*/
 function requiredText(name, message, initial) {
     return {
         type: 'text',
@@ -49,6 +59,9 @@ function requiredText(name, message, initial) {
     }
 }
 
+/**
+* Returns an optional text prompt
+*/
 function optionalText(name, message, initial) {
     return {
         type: 'text',
@@ -58,12 +71,9 @@ function optionalText(name, message, initial) {
     }
 }
 
-/*
-defaults.license = a = initial
-config.DEFAULT_MODPACK_LICENSE = b = fallback
-licenselist = c = choices
+/**
+* Returns a required autocomplete prompt with a fallback to the other option
 */
-
 function requiredAutocomplete(name, message, initial, choices, defaultValue) {
     initial = initial || defaultValue || config.OTHER_OPTION.value;
     if (initial && !choices.some(choice => choice.value === initial)) {
@@ -84,8 +94,8 @@ function requiredAutocomplete(name, message, initial, choices, defaultValue) {
 }
 
 /**
- * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
- */
+* Returns an confirmation prompt to generate an optional file
+*/
 function fileGenerationConfirm(name, message, showPrompt) {
     return {
         type: showPrompt ? 'confirm' : null,
