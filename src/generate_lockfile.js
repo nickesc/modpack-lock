@@ -321,7 +321,7 @@ export async function generateLockfile(workingDir, options = {}) {
     // Generate README files
     if (options.readme) {
         console.log('\nGenerating README files...');
-        await generateReadmeFiles(lockfile, workingDir, options = {});
+        await generateReadmeFiles(lockfile, workingDir, options);
     }
 
     return lockfile;
