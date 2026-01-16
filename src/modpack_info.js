@@ -151,29 +151,46 @@ export async function promptUserForInfo(defaults = {}) {
     }
     ]);
 
-    let modpackInfo = { ...answers };
-
-    // TODO: this might not be right. find a better way to ensure the user did not interrupt the prompts. need to do that for any other prompts we use as well, including the license text prompt.
+    // TODO: this might not be right. find a better way to ensure the user did not interrupt the prompts. need to do that for any other prompts we use as well.
     testInterrupt(answers, 11);
 
-    return modpackInfo;
+    return answers;
 }
 
 /**
  * Prompt the user about adding the license text to the modpack
  * @param {ModpackInfo} modpackInfo - The modpack information
- * @returns {Promise<boolean>} Whether the user wants to add the license text to the modpack
+ * @returns {Promise<Object>} The answers from the user
  */
-export async function promptUserAboutLicenseText(modpackInfo) {
+export async function promptUserAboutOptionalFiles(modpackInfo, defaults = {}) {
+
     const licenseText = await getLicenseText(modpackInfo.license);
-    if (licenseText) {
-        const answer = await prompts({
-            type: 'confirm',
-            name: 'licenseText',
+    const answers = await (prompts([
+        {
+            type: (licenseText && defaults.addLicense === undefined) ? 'confirm' : null,
+            name: 'addLicense',
             message: 'Add the LICENSE file to the modpack?',
             initial: true,
-        });
-        return answer.licenseText;
-    }
-    return false;
+        },
+        {
+            type: (defaults.addReadme === undefined) ? 'confirm' : null,
+            name: 'addReadme',
+            message: 'Generate README.md files for each category?',
+            initial: true,
+        },
+        {
+            type: (defaults.addGitignore === undefined) ? 'confirm' : null,
+            name: 'addGitignore',
+            message: 'Print .gitignore rules for files not hosted on Modrinth?',
+            initial: true,
+        }
+    ]));
+
+    answers.addLicense = answers.addLicense === undefined ? (licenseText ? defaults.addLicense : false) : answers.addLicense;
+    answers.addReadme = answers.addReadme === undefined ? defaults.addReadme : answers.addReadme;
+    answers.addGitignore = answers.addGitignore === undefined ? defaults.addGitignore : answers.addGitignore;
+
+    testInterrupt(answers, 3);
+
+    return answers;
 }

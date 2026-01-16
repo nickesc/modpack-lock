@@ -6,7 +6,7 @@ import path from 'path';
 import { spawn } from 'child_process';
 import {generateLockfile} from './generate_lockfile.js';
 import { generateModpackFiles } from './modpack-lock.js';
-import { promptUserForInfo, promptUserAboutLicenseText } from './modpack_info.js';
+import { promptUserForInfo, promptUserAboutOptionalFiles } from './modpack_info.js';
 import { getModpackInfo } from './directory_scanning.js';
 import generateLicense from './generate_license.js';
 import * as config from './config/index.js';
@@ -112,6 +112,8 @@ modpackLock.command('init')
     .option('-f, --folder <path>', 'Path to the modpack directory')
     .option("-n, --noninteractive", 'Non-interactive mode - must provide options for required fields')
     .option('--add-license', 'Add the license file to the modpack')
+    .option('--add-gitignore', 'Print .gitignore rules for files not hosted on Modrinth')
+    .option('--add-readme', 'Generate README.md files for each category')
     .optionsGroup("MODPACK INFORMATION")
     .option('--name <name>', 'Modpack name; defaults to the directory name')
     .option('--version <version>', 'Modpack version; defaults to 1.0.0')
@@ -161,6 +163,9 @@ modpackLock.command('init')
                     await generateLicense(modpackInfo, currDir, options);
                 }
 
+                options.readme = options.addReadme;
+                options.gitignore = options.addGitignore;
+
                 // generate the modpack files
                 try {
                     await generateModpackFiles(modpackInfo, currDir, options);
@@ -194,14 +199,16 @@ modpackLock.command('init')
                 );
 
                 // prompt user if they want to add the license text
-                const licenseText = options.addLicense === undefined ? await promptUserAboutLicenseText(modpackInfo) : options.addLicense;
+                const optionalFiles = await promptUserAboutOptionalFiles(modpackInfo, options);
                 console.log();
-                if (licenseText) {
+                if (options.addLicense || optionalFiles.addLicense) {
                     await generateLicense(modpackInfo, currDir, options);
                 }
                 console.log();
 
                 // generate the modpack files
+                options.readme = optionalFiles.addReadme;
+                options.gitignore = optionalFiles.addGitignore;
                 await generateModpackFiles(modpackInfo, currDir, options);
             } catch (error) {
                 console.error('Error:', error);
