@@ -26,25 +26,6 @@ function validateNotEmpty(value, field) {
 }
 
 /**
- * Get an other answer from the user
- */
-async function getOtherAnswer(value, message, initial) {
-    if (value && value !== config.OTHER_OPTION.value) {
-        return value;
-    }
-    const question = await prompts(
-        requiredText(
-            'other',
-            message,
-            initial
-        ),
-        config.PROMPTS_OPTIONS
-    );
-
-    return question.other || config.OTHER_OPTION.value;
-}
-
-/**
 * Returns a required text prompt
 */
 function requiredText(name, message, initial) {
@@ -69,6 +50,25 @@ function optionalText(name, message, initial) {
         message: `${capitalize(message)}`,
         initial: initial,
     }
+}
+
+/**
+ * Get an other answer from the user
+ */
+async function getOtherAnswer(value, message, initial) {
+    if (value && value !== config.OTHER_OPTION.value) {
+        return value;
+    }
+    const question = await prompts(
+        requiredText(
+            'other',
+            message,
+            initial
+        ),
+        config.PROMPTS_OPTIONS
+    );
+
+    return question.other || config.OTHER_OPTION.value;
 }
 
 /**
