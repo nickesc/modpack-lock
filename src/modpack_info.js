@@ -27,7 +27,7 @@ function testInterrupt(questions, expectedAnswers) {
 /**
  * Get an other answer from the user
  */
-async function getOtherAnswer(value, message) {
+async function getOtherAnswer(value, message, initial) {
     if (value && value !== config.OTHER_OPTION.value) {
         return value;
     }
@@ -35,7 +35,7 @@ async function getOtherAnswer(value, message) {
         type: 'text',
         name: 'other',
         message: message,
-        initial: config.OTHER_OPTION.value,
+        initial: initial,
     });
 
     testInterrupt(question, 1);
@@ -115,10 +115,10 @@ export async function promptUserForInfo(defaults = {}) {
         name: 'license',
         message: 'Modpack license',
         initial: defaults.license || config.DEFAULT_MODPACK_LICENSE,
-        choices: licenseList,
-        fallback: 'other',
+        choices: (defaults.license && licenseList.some(license => license.value === defaults.license)) ? [...licenseList, { title: defaults.license }] : licenseList,
+        fallback: config.OTHER_OPTION.value,
         format: async (value) => {
-            return await getOtherAnswer(value, 'Other license ID (SPDX ID)');
+            return await getOtherAnswer(value, 'Other license ID (SPDX ID)', defaults.license || config.OTHER_OPTION.value);
         },
     },
     {
@@ -126,10 +126,10 @@ export async function promptUserForInfo(defaults = {}) {
         name: 'modloader',
         message: 'Modpack modloader',
         initial: defaults.modloader || config.FALLBACK_MODLOADERS[0].value,
-        choices: modloaders,
-        fallback: 'other',
+        choices: (defaults.modloader && modloaders.some(loader => loader.value === defaults.modloader)) ? [...modloaders, { title: defaults.modloader }] : modloaders,
+        fallback: config.OTHER_OPTION.value,
         format: async (value) => {
-            return await getOtherAnswer(value, 'Other modloader');
+            return await getOtherAnswer(value, 'Other modloader', defaults.modloader || config.OTHER_OPTION.value);
         },
     },
     {
@@ -143,10 +143,10 @@ export async function promptUserForInfo(defaults = {}) {
         name: 'targetMinecraftVersion',
         message: 'Target Minecraft version',
         initial: defaults.targetMinecraftVersion || minecraftVersions[0].value,
-        choices: minecraftVersions,
-        fallback: 'other',
+        choices: (defaults.targetMinecraftVersion && minecraftVersions.some(version => version.value === defaults.targetMinecraftVersion)) ? [...minecraftVersions, { title: defaults.targetMinecraftVersion }] : minecraftVersions,
+        fallback: config.OTHER_OPTION.value,
         format: async (value) => {
-            return await getOtherAnswer(value, 'Other Minecraft version');
+            return await getOtherAnswer(value, 'Other Minecraft version', defaults.targetMinecraftVersion || config.OTHER_OPTION.value);
         }
     }
     ]);
