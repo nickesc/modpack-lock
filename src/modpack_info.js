@@ -4,6 +4,10 @@ import * as config from './config/index.js';
 import { getLicenseList, getLicenseText } from './github_interactions.js';
 import { getMinecraftVersions, getModloaders } from './modrinth_interactions.js';
 
+function capitalize(string) {
+    return `${string.charAt(0).toUpperCase()}${string.slice(1)}`;
+}
+
 /**
  * Validate that a value is not empty
  */
@@ -34,7 +38,7 @@ async function getOtherAnswer(value, message, initial) {
     const question = await prompts({
         type: 'text',
         name: 'other',
-        message: message,
+        message: `${capitalize(message)}`,
         initial: initial,
     });
 
@@ -47,7 +51,7 @@ function requiredText(name, message, initial) {
     return {
         type: 'text',
         name: name,
-        message: message,
+        message: `${capitalize(message)}`,
         initial: initial,
         validate: (value) => {
             return validateNotEmpty(value, name);
@@ -59,7 +63,7 @@ function optionalText(name, message, initial) {
     return {
         type: 'text',
         name: name,
-        message: message,
+        message: `${capitalize(message)}`,
         initial: initial,
     }
 }
@@ -79,7 +83,7 @@ function requiredAutocomplete(name, message, initial, choices, defaultValue) {
     return {
         type: 'autocomplete',
         name: name,
-        message: message,
+        message: `${capitalize(message)}`,
         initial: initial,
         choices: choices,
         fallback: config.OTHER_OPTION.value,
@@ -109,56 +113,56 @@ export async function promptUserForInfo(defaults = {}) {
         ),
         requiredText(
             'version',
-            'Modpack version',
+            'modpack version',
             defaults.version || config.DEFAULT_MODPACK_VERSION
         ),
         requiredText(
             'id',
-            'Modpack slug/ID',
+            'modpack slug/ID',
             (prev, values) => slugify(defaults.id || values.name, config.SLUGIFY_OPTIONS)
         ),
         optionalText(
             'description',
-            'Modpack description',
+            'modpack description',
             defaults.description
         ),
         requiredText(
             'author',
-            'Modpack author',
+            'modpack author',
             defaults.author
         ),
         optionalText(
             'projectUrl',
-            'Modpack URL',
+            'modpack URL',
             (prev, values) => defaults.projectUrl || config.DEFAULT_PROJECT_URL(values.id)
         ),
         optionalText(
             'sourceUrl',
-            'Modpack source code URL',
+            'modpack source code URL',
             (prev, values) => defaults.sourceUrl || config.DEFAULT_SOURCE_URL(values.id, values.author)
         ),
         requiredAutocomplete(
             'license',
-            'Modpack license',
+            'modpack license',
             defaults.license,
             licenseList,
             config.DEFAULT_MODPACK_LICENSE
         ),
         requiredAutocomplete(
             'modloader',
-            'Modpack modloader',
+            'modpack modloader',
             defaults.modloader,
             modloaders,
             config.FALLBACK_MODLOADERS[0].value
         ),
         optionalText(
             'targetModloaderVersion',
-            'Target modloader version',
+            'target modloader version',
             defaults.targetModloaderVersion
         ),
         requiredAutocomplete(
             'targetMinecraftVersion',
-            'Target Minecraft version',
+            'target Minecraft version',
             defaults.targetMinecraftVersion,
             minecraftVersions,
             minecraftVersions[0].value
