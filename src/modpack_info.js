@@ -21,11 +21,9 @@ function validateNotEmpty(value, field) {
 /**
  * Test if the process was interrupted
  */
-function testInterrupt(questions, expectedAnswers) {
-    if (Object.keys(questions).length < expectedAnswers) {
-        console.warn('Modpack initialization was interrupted');
-        process.exit(1);
-    }
+function exitOnCancel() {
+    console.warn('Modpack initialization was interrupted');
+    process.exit(1);
 }
 
 /**
@@ -167,10 +165,9 @@ export async function promptUserForInfo(defaults = {}) {
             minecraftVersions,
             minecraftVersions[0].value
         )
-    ]);
-
-    // TODO: this might not be right. find a better way to ensure the user did not interrupt the prompts. need to do that for any other prompts we use as well.
-    testInterrupt(answers, 11);
+    ], {
+        onCancel: exitOnCancel
+    });
 
     return answers;
 }
@@ -202,13 +199,13 @@ export async function promptUserAboutOptionalFiles(modpackInfo, defaults = {}) {
             message: 'Print .gitignore rules for files not hosted on Modrinth?',
             initial: true,
         }
-    ]));
+    ], {
+        onCancel: exitOnCancel
+    }));
 
     answers.addLicense = answers.addLicense === undefined ? (licenseText ? defaults.addLicense : false) : answers.addLicense;
     answers.addReadme = answers.addReadme === undefined ? defaults.addReadme : answers.addReadme;
     answers.addGitignore = answers.addGitignore === undefined ? defaults.addGitignore : answers.addGitignore;
-
-    testInterrupt(answers, 3);
 
     return answers;
 }
