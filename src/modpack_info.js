@@ -74,8 +74,8 @@ licenselist = c = choices
 
 function requiredAutocomplete(name, message, initial, choices, defaultValue) {
     initial = initial || defaultValue || config.OTHER_OPTION.value;
-    if (initial && !choices.includes(initial)) {
-        choices.push({ title: initial });
+    if (initial && !choices.some(choice => choice.value === initial)) {
+        choices.push({ title: initial, value: initial });
     }
 
     return {
