@@ -47,7 +47,7 @@ The script will:
 - Query the Modrinth API for matching versions
 - Generate a `modpack.lock` file (and update `modpack.json` dependencies if present)
 
-Use flags to generate `README.md` files for each category or print `.gitignore` rules for files that are not hosted on Modrinth.
+Use flags to generate `README.md` files for each category or update the `.gitignore` file with rules for files that are not hosted on Modrinth.
 
 ```text
 Usage: modpack-lock [options] [command]
@@ -59,7 +59,7 @@ Options:
   -d, --dry-run           Dry-run mode - no files will be written
 
 GENERATION
-  -g, --gitignore         Print .gitignore rules for files not hosted on Modrinth
+  -g, --gitignore         Update .gitignore file with rules for files not hosted on Modrinth
   -r, --readme            Generate README.md files for each category
 
 LOGGING
@@ -75,6 +75,10 @@ Commands:
   run [options] <script>  Run a script (shell command) defined in modpack.json's 'scripts' object
 ```
 
+> ### [!TIP] Did you know?
+>
+>
+> You can generate summary files for each category by running `modpack-lock -r`. This will generate a `README.md` file in each of the content folders, detailing the scanned files and important attribution information for them.
 
 ### Initialization
 
@@ -101,6 +105,8 @@ Options:
   -f, --folder <path>                                Path to the modpack directory
   -n, --noninteractive                               Non-interactive mode - must provide options for required fields
   --add-license                                      Add the license file to the modpack
+  --add-gitignore                                    Update .gitignore file with rules for files not hosted on Modrinth
+  --add-readme                                       Generate README.md files for each category
 
 MODPACK INFORMATION
   --name <name>                                      Modpack name; defaults to the directory name
@@ -231,23 +237,25 @@ The JSON file contains your modpack metadata and a dependency list:
 }
 ```
 
-> [!TIP]
+> ### [!IMPORTANT] Don't commit binaries
 >
-> ### Don't commit binaries
->
-> Consider adding these rules to your `.gitignore` to ensure you don't commit the modpack contents to your repository, with exceptions for any files that are not Modrinth-hosted:
+> Use `modpack-lock -g` to automatically update your `.gitignore` file with rules to ignore modpack contents, with exceptions for any files that are not Modrinth-hosted:
 >
 > ```txt
+> # .gitignore
+>
+> # modpack-lock:start
 > mods/*.jar
 > resourcepacks/*.zip
 > datapacks/*.zip
 > shaderpacks/*.zip
 > 
 > ## Exceptions
-> # !mods/example.jar
+> !mods/example.jar
+> # modpack-lock:end
 > ```
 >
-> Use `modpack-lock -g` to generate and print the rules for your project to the console.
+> This section is managed by modpack-lock and will be updated automatically when you run `modpack-lock -g`. Changes made inside this section will be overwritten, but any changes you make to the `.gitignore` file outside of this section will be preserved.
 
 ## License
 
