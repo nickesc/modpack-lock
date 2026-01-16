@@ -19,14 +19,6 @@ function validateNotEmpty(value, field) {
 }
 
 /**
- * Test if the process was interrupted
- */
-function exitOnCancel() {
-    console.warn('Modpack initialization was interrupted');
-    process.exit(1);
-}
-
-/**
  * Get an other answer from the user
  */
 async function getOtherAnswer(value, message, initial) {
@@ -39,7 +31,7 @@ async function getOtherAnswer(value, message, initial) {
             message,
             initial
         ),
-        {onCancel: exitOnCancel}
+        config.PROMPTS_OPTIONS
     );
 
     return question.other || config.OTHER_OPTION.value;
@@ -165,9 +157,7 @@ export async function promptUserForInfo(defaults = {}) {
             minecraftVersions,
             minecraftVersions[0].value
         )
-    ], {
-        onCancel: exitOnCancel
-    });
+    ], config.PROMPTS_OPTIONS);
 
     return answers;
 }
