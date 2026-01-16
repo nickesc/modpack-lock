@@ -245,28 +245,36 @@ describe('Package API', () => {
     });
 
     describe('generateGitignoreRules', () => {
-        it('generates rules for all dependency categories', () => {
-            const rules = generateGitignoreRules(lockfile);
+        it('generates rules for all dependency categories', async () => {
+            const testDir = await createTempDir('modpack-lock-gitignore-');
+            await generateGitignoreRules(lockfile, testDir);
 
-            expect(rules).toContain('mods/*.jar');
-            expect(rules).toContain('resourcepacks/*.zip');
-            expect(rules).toContain('shaderpacks/*.zip');
-            expect(rules).toContain('datapacks/*.zip');
+            const gitignorePath = path.join(testDir, '.gitignore');
+            const gitignoreContent = await fs.readFile(gitignorePath, 'utf-8');
+
+            expect(gitignoreContent).toContain('mods/*.jar');
+            expect(gitignoreContent).toContain('resourcepacks/*.zip');
+            expect(gitignoreContent).toContain('shaderpacks/*.zip');
+            expect(gitignoreContent).toContain('datapacks/*.zip');
         });
 
-        it('includes exceptions for files not on Modrinth', () => {
-            const rules = generateGitignoreRules(lockfile);
+        it('includes exceptions for files not on Modrinth', async () => {
+            const testDir = await createTempDir('modpack-lock-gitignore-');
+            await generateGitignoreRules(lockfile, testDir);
+
+            const gitignorePath = path.join(testDir, '.gitignore');
+            const gitignoreContent = await fs.readFile(gitignorePath, 'utf-8');
 
             // Find files without versions (not on Modrinth)
             const allEntries = Object.values(lockfile.dependencies).flat();
             const entriesWithoutVersion = allEntries.filter(e => e.version === null);
 
             for (const entry of entriesWithoutVersion) {
-                expect(rules).toContain(`!${entry.path}`);
+                expect(gitignoreContent).toContain(`!${entry.path}`);
             }
         });
 
-        it('handles lockfile with all files on Modrinth', () => {
+        it('handles lockfile with all files on Modrinth', async () => {
             // Create a mock lockfile where all files have versions
             const mockLockfile = {
                 dependencies: {
@@ -274,8 +282,97 @@ describe('Package API', () => {
                 },
             };
 
-            const rules = generateGitignoreRules(mockLockfile);
-            expect(rules).toContain('# No exceptions needed');
+            const testDir = await createTempDir('modpack-lock-gitignore-');
+            await generateGitignoreRules(mockLockfile, testDir);
+
+            const gitignorePath = path.join(testDir, '.gitignore');
+            const gitignoreContent = await fs.readFile(gitignorePath, 'utf-8');
+            expect(gitignoreContent).toContain('# No exceptions needed');
+        });
+
+        it('wraps rules with start and end markers', async () => {
+            const testDir = await createTempDir('modpack-lock-gitignore-');
+            await generateGitignoreRules(lockfile, testDir);
+
+            const gitignorePath = path.join(testDir, '.gitignore');
+            const gitignoreContent = await fs.readFile(gitignorePath, 'utf-8');
+
+            expect(gitignoreContent).toContain('# modpack-lock:start');
+            expect(gitignoreContent).toContain('# modpack-lock:end');
+        });
+
+        it('replaces content between existing markers', async () => {
+            const testDir = await createTempDir('modpack-lock-gitignore-');
+            const gitignorePath = path.join(testDir, '.gitignore');
+            
+            // Create initial .gitignore with markers and old content
+            const initialContent = `# Custom rule
+# modpack-lock:start
+old content here
+# modpack-lock:end
+# Another custom rule`;
+            await fs.writeFile(gitignorePath, initialContent, 'utf-8');
+
+            await generateGitignoreRules(lockfile, testDir);
+
+            const gitignoreContent = await fs.readFile(gitignorePath, 'utf-8');
+            
+            // Should preserve content outside markers
+            expect(gitignoreContent).toContain('# Custom rule');
+            expect(gitignoreContent).toContain('# Another custom rule');
+            
+            // Should replace content between markers
+            expect(gitignoreContent).not.toContain('old content here');
+            expect(gitignoreContent).toContain('mods/*.jar');
+        });
+
+        it('appends markers and rules when no markers exist', async () => {
+            const testDir = await createTempDir('modpack-lock-gitignore-');
+            const gitignorePath = path.join(testDir, '.gitignore');
+            
+            // Create initial .gitignore without markers
+            const initialContent = '# Custom rule\nnode_modules/';
+            await fs.writeFile(gitignorePath, initialContent, 'utf-8');
+
+            await generateGitignoreRules(lockfile, testDir);
+
+            const gitignoreContent = await fs.readFile(gitignorePath, 'utf-8');
+            
+            // Should preserve existing content
+            expect(gitignoreContent).toContain('# Custom rule');
+            expect(gitignoreContent).toContain('node_modules/');
+            
+            // Should append markers and rules
+            expect(gitignoreContent).toContain('# modpack-lock:start');
+            expect(gitignoreContent).toContain('# modpack-lock:end');
+            expect(gitignoreContent).toContain('mods/*.jar');
+        });
+
+        it('creates .gitignore file when it does not exist', async () => {
+            const testDir = await createTempDir('modpack-lock-gitignore-');
+            const gitignorePath = path.join(testDir, '.gitignore');
+            
+            // Verify file doesn't exist
+            expect(await fileExists(gitignorePath)).toBe(false);
+
+            await generateGitignoreRules(lockfile, testDir);
+
+            // Verify file was created
+            expect(await fileExists(gitignorePath)).toBe(true);
+            
+            const gitignoreContent = await fs.readFile(gitignorePath, 'utf-8');
+            expect(gitignoreContent).toContain('# modpack-lock:start');
+            expect(gitignoreContent).toContain('# modpack-lock:end');
+        });
+
+        it('respects dry-run mode', async () => {
+            const testDir = await createTempDir('modpack-lock-gitignore-');
+            const gitignorePath = path.join(testDir, '.gitignore');
+            
+            await generateGitignoreRules(lockfile, testDir, { dryRun: true });
+
+            // File should not be created in dry-run mode
+            expect(await fileExists(gitignorePath)).toBe(false);
         });
     });
 
