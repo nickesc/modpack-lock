@@ -138,11 +138,12 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
 }
 
 /**
- * Generate .gitignore rules for files not hosted on Modrinth
+ * Generate .gitignore rules for files not hosted on Modrinth and write them to .gitignore file
  * @param {Lockfile} lockfile - The lockfile object
- * @returns {string} The .gitignore rules
+ * @param {string} workingDir - The working directory
+ * @param {Options | InitOptions} options - The options object
  */
-export function generateGitignoreRules(lockfile) {
+export async function generateGitignoreRules(lockfile, workingDir, options = {}) {
     const rules = [];
     const exceptions = [];
 
@@ -168,7 +169,93 @@ export function generateGitignoreRules(lockfile) {
         rules.push('# No exceptions needed - all files are hosted on Modrinth');
     }
 
-    return rules.join('\n');
+    const rulesContent = rules.join('\n');
+    const gitignorePath = path.join(workingDir, '.gitignore');
+
+    // Read existing .gitignore file if it exists
+    let existingContent = '';
+    try {
+        existingContent = await fs.readFile(gitignorePath, 'utf-8');
+    } catch (error) {
+        // File doesn't exist, that's okay - we'll create it
+        if (error.code !== 'ENOENT') {
+            console.warn(`Warning: Could not read .gitignore file: ${error.message}`);
+            return;
+        }
+    }
+
+    // Find markers in existing content
+    const startMarkerIndex = existingContent.indexOf(config.GITIGNORE_START_MARKER);
+    const endMarkerIndex = existingContent.indexOf(config.GITIGNORE_END_MARKER);
+
+    let newContent = '';
+
+    if (startMarkerIndex !== -1 && endMarkerIndex !== -1 && endMarkerIndex > startMarkerIndex) {
+        // Both markers exist, replace content between them
+        const beforeSection = existingContent.substring(0, startMarkerIndex);
+        const afterSection = existingContent.substring(endMarkerIndex + config.GITIGNORE_END_MARKER.length);
+
+        // Remove trailing newlines from before section and leading newlines from after section
+        const beforeTrimmed = beforeSection.replace(/\n+$/, '');
+        const afterTrimmed = afterSection.replace(/^\n+/, '');
+
+        const parts = [beforeTrimmed];
+        if (beforeTrimmed) parts.push(''); // Add separator if there's content before
+        parts.push(
+            config.GITIGNORE_START_MARKER,
+            rulesContent,
+            config.GITIGNORE_END_MARKER
+        );
+        if (afterTrimmed) {
+            parts.push(''); // Add separator if there's content after
+            parts.push(afterTrimmed);
+        }
+
+        newContent = parts.join('\n');
+    } else if (startMarkerIndex !== -1 || endMarkerIndex !== -1) {
+        // Only one marker exists, append to end
+        const trimmed = existingContent.replace(/\n+$/, '');
+        newContent = [
+            trimmed,
+            '',
+            config.GITIGNORE_START_MARKER,
+            rulesContent,
+            config.GITIGNORE_END_MARKER
+        ].join('\n');
+    } else {
+        // No markers exist, append to end
+        if (existingContent.trim() === '') {
+            // File is empty or only whitespace
+            newContent = [
+                config.GITIGNORE_START_MARKER,
+                rulesContent,
+                config.GITIGNORE_END_MARKER
+            ].join('\n');
+        } else {
+            // File has content, append with newline
+            const trimmed = existingContent.replace(/\n+$/, '');
+            newContent = [
+                trimmed,
+                '',
+                config.GITIGNORE_START_MARKER,
+                rulesContent,
+                config.GITIGNORE_END_MARKER
+            ].join('\n');
+        }
+    }
+
+    // Write the updated content
+    if (options.dryRun) {
+        console.log(`[DRY RUN] Would write .gitignore to: ${gitignorePath}`);
+        console.log();
+    } else {
+        try {
+            await fs.writeFile(gitignorePath, newContent, 'utf-8');
+            console.log(`Updated .gitignore: ${gitignorePath}`);
+        } catch (error) {
+            console.warn(`Warning: Could not write .gitignore file: ${error.message}`);
+        }
+    }
 }
 
 /**
@@ -313,9 +400,7 @@ export async function generateLockfile(workingDir, options = {}) {
 
     // Generate .gitignore rules
     if (options.gitignore) {
-        console.log('\n=== .gitignore Rules ===\n');
-        console.log(generateGitignoreRules(lockfile));
-        console.log();
+        await generateGitignoreRules(lockfile, workingDir, options);
     }
 
     // Generate README files
