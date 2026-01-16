@@ -43,6 +43,46 @@ async function getOtherAnswer(value, message, initial) {
     return question.other || config.OTHER_OPTION.value;
 }
 
+function requiredText(name, message, initial) {
+    return {
+        type: 'text',
+        name: name,
+        message: message,
+        initial: initial,
+        validate: (value) => {
+            return validateNotEmpty(value, name);
+        }
+    }
+}
+
+function optionalText(name, message, initial) {
+    return {
+        type: 'text',
+        name: name,
+        message: message,
+        initial: initial,
+    }
+}
+
+/*
+defaults.license = a = initial
+config.DEFAULT_MODPACK_LICENSE = b = fallback
+licenselist = c = choices
+*/
+
+function requiredAutocomplete(name, message, initial, choices, defaultValue) {
+    return {
+        type: 'autocomplete',
+        name: name,
+        message: message,
+        initial: initial || defaultValue,
+        choices: (initial && choices.some(entry => entry.value === initial)) ? [...choices, { title: initial }] : choices,
+        fallback: config.OTHER_OPTION.value,
+        format: async (value) => {
+            return await getOtherAnswer(value, `Other ${message}`, initial || config.OTHER_OPTION.value);
+        }
+    }
+}
 /**
  * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
  */
@@ -56,99 +96,68 @@ export async function promptUserForInfo(defaults = {}) {
     const licenseList = await getLicenseList();
     const minecraftVersions = await getMinecraftVersions();
     const modloaders = await getModloaders();
-    let answers = await prompts([{
-        type: 'text',
-        name: 'name',
-        message: 'Modpack name',
-        initial: defaults.name,
-        validate: (value) => {
-            return validateNotEmpty(value, 'Name');
-        }
-    },
-    {
-        type: 'text',
-        name: 'version',
-        message: 'Modpack version',
-        initial: defaults.version || config.DEFAULT_MODPACK_VERSION,
-        validate: (value) => {
-            return validateNotEmpty(value, 'Version');
-        }
-    },
-    {
-        type: 'text',
-        name: 'id',
-        message: 'Modpack slug/ID',
-        initial: (prev, values) => slugify(defaults.id || values.name, config.SLUGIFY_OPTIONS),
-        validate: (value) => {
-            return validateNotEmpty(value, 'ID');
-        }
-    },
-    {
-        type: 'text',
-        name: 'description',
-        message: 'Modpack description',
-        initial: defaults.description,
-    },
-    {
-        type: 'text',
-        name: 'author',
-        message: 'Modpack author',
-        initial: defaults.author,
-        validate: (value) => {
-            return validateNotEmpty(value, 'Author');
-        }
-    },
-    {
-        type: 'text',
-        name: 'projectUrl',
-        message: 'Modpack URL',
-        initial: (prev, values) => defaults.projectUrl || config.DEFAULT_PROJECT_URL(values.id),
-    },
-    {
-        type: 'text',
-        name: 'sourceUrl',
-        message: 'Modpack source code URL',
-        initial: (prev, values) => defaults.sourceUrl || config.DEFAULT_SOURCE_URL(values.id, values.author),
-    },
-    {
-        type: 'autocomplete',
-        name: 'license',
-        message: 'Modpack license',
-        initial: defaults.license || config.DEFAULT_MODPACK_LICENSE,
-        choices: (defaults.license && licenseList.some(license => license.value === defaults.license)) ? [...licenseList, { title: defaults.license }] : licenseList,
-        fallback: config.OTHER_OPTION.value,
-        format: async (value) => {
-            return await getOtherAnswer(value, 'Other license ID (SPDX ID)', defaults.license || config.OTHER_OPTION.value);
-        },
-    },
-    {
-        type: 'autocomplete',
-        name: 'modloader',
-        message: 'Modpack modloader',
-        initial: defaults.modloader || config.FALLBACK_MODLOADERS[0].value,
-        choices: (defaults.modloader && modloaders.some(loader => loader.value === defaults.modloader)) ? [...modloaders, { title: defaults.modloader }] : modloaders,
-        fallback: config.OTHER_OPTION.value,
-        format: async (value) => {
-            return await getOtherAnswer(value, 'Other modloader', defaults.modloader || config.OTHER_OPTION.value);
-        },
-    },
-    {
-        type: 'text',
-        name: 'targetModloaderVersion',
-        message: 'Target modloader version',
-        initial: defaults.targetModloaderVersion,
-    },
-    {
-        type: 'autocomplete',
-        name: 'targetMinecraftVersion',
-        message: 'Target Minecraft version',
-        initial: defaults.targetMinecraftVersion || minecraftVersions[0].value,
-        choices: (defaults.targetMinecraftVersion && minecraftVersions.some(version => version.value === defaults.targetMinecraftVersion)) ? [...minecraftVersions, { title: defaults.targetMinecraftVersion }] : minecraftVersions,
-        fallback: config.OTHER_OPTION.value,
-        format: async (value) => {
-            return await getOtherAnswer(value, 'Other Minecraft version', defaults.targetMinecraftVersion || config.OTHER_OPTION.value);
-        }
-    }
+    let answers = await prompts([
+        requiredText(
+            'name',
+            'Modpack name',
+            defaults.name
+        ),
+        requiredText(
+            'version',
+            'Modpack version',
+            defaults.version || config.DEFAULT_MODPACK_VERSION
+        ),
+        requiredText(
+            'id',
+            'Modpack slug/ID',
+            (prev, values) => slugify(defaults.id || values.name, config.SLUGIFY_OPTIONS)
+        ),
+        optionalText(
+            'description',
+            'Modpack description',
+            defaults.description
+        ),
+        requiredText(
+            'author',
+            'Modpack author',
+            defaults.author
+        ),
+        optionalText(
+            'projectUrl',
+            'Modpack URL',
+            (prev, values) => defaults.projectUrl || config.DEFAULT_PROJECT_URL(values.id)
+        ),
+        optionalText(
+            'sourceUrl',
+            'Modpack source code URL',
+            (prev, values) => defaults.sourceUrl || config.DEFAULT_SOURCE_URL(values.id, values.author)
+        ),
+        requiredAutocomplete(
+            'license',
+            'Modpack license',
+            defaults.license,
+            licenseList,
+            config.DEFAULT_MODPACK_LICENSE
+        ),
+        requiredAutocomplete(
+            'modloader',
+            'Modpack modloader',
+            defaults.modloader,
+            modloaders,
+            config.FALLBACK_MODLOADERS[0].value
+        ),
+        optionalText(
+            'targetModloaderVersion',
+            'Target modloader version',
+            defaults.targetModloaderVersion
+        ),
+        requiredAutocomplete(
+            'targetMinecraftVersion',
+            'Target Minecraft version',
+            defaults.targetMinecraftVersion,
+            minecraftVersions,
+            minecraftVersions[0].value
+        )
     ]);
 
     // TODO: this might not be right. find a better way to ensure the user did not interrupt the prompts. need to do that for any other prompts we use as well.
