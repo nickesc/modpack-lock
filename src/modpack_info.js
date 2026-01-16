@@ -8,7 +8,7 @@ import { getMinecraftVersions, getModloaders } from './modrinth_interactions.js'
  * Validate that a value is not empty
  */
 function validateNotEmpty(value, field) {
-    if (value && value.trim().length === 0) {
+    if (value === undefined || value?.trim().length === 0) {
         return `${field} cannot be empty`;
     }
     return true;
