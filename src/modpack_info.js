@@ -71,15 +71,20 @@ licenselist = c = choices
 */
 
 function requiredAutocomplete(name, message, initial, choices, defaultValue) {
+    initial = initial || defaultValue || config.OTHER_OPTION.value;
+    if (initial && !choices.includes(initial)) {
+        choices.push({ title: initial });
+    }
+
     return {
         type: 'autocomplete',
         name: name,
         message: message,
-        initial: initial || defaultValue,
-        choices: (initial && choices.some(entry => entry.value === initial)) ? [...choices, { title: initial }] : choices,
+        initial: initial,
+        choices: choices,
         fallback: config.OTHER_OPTION.value,
         format: async (value) => {
-            return await getOtherAnswer(value, `Other ${message}`, initial || config.OTHER_OPTION.value);
+            return await getOtherAnswer(value, ` └─𜰙 Other ${message}`, initial);
         }
     }
 }
