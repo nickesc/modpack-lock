@@ -163,6 +163,7 @@ export async function promptUserForInfo(defaults = {}) {
 }
 
 function optionalGenerationPrompt(name, message, showPrompt) {
+function fileGenerationPrompt(name, message, showPrompt) {
     return {
         type: showPrompt ? 'confirm' : null,
         name: name,
@@ -180,17 +181,17 @@ export async function promptUserAboutOptionalFiles(modpackInfo, defaults = {}) {
 
     const licenseText = await getLicenseText(modpackInfo.license);
     const answers = await (prompts([
-        optionalGenerationPrompt(
+        fileGenerationPrompt(
             'addLicense',
             'Add the LICENSE file to the modpack?',
             licenseText && defaults.addLicense === undefined
         ),
-        optionalGenerationPrompt(
+        fileGenerationPrompt(
             'addReadme',
             'Generate README.md files for each category?',
             defaults.addReadme === undefined
         ),
-        optionalGenerationPrompt(
+        fileGenerationPrompt(
             'addGitignore',
             'Update .gitignore file with rules for files not hosted on Modrinth?',
             defaults.addGitignore === undefined
