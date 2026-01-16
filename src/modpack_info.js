@@ -172,6 +172,15 @@ export async function promptUserForInfo(defaults = {}) {
     return answers;
 }
 
+function optionalGenerationPrompt(name, message, showPrompt) {
+    return {
+        type: showPrompt ? 'confirm' : null,
+        name: name,
+        message: `${capitalize(message)}`,
+        initial: true,
+    }
+}
+
 /**
  * Prompt the user about adding the license text to the modpack
  * @param {ModpackInfo} modpackInfo - The modpack information
@@ -181,24 +190,21 @@ export async function promptUserAboutOptionalFiles(modpackInfo, defaults = {}) {
 
     const licenseText = await getLicenseText(modpackInfo.license);
     const answers = await (prompts([
-        {
-            type: (licenseText && defaults.addLicense === undefined) ? 'confirm' : null,
-            name: 'addLicense',
-            message: 'Add the LICENSE file to the modpack?',
-            initial: true,
-        },
-        {
-            type: (defaults.addReadme === undefined) ? 'confirm' : null,
-            name: 'addReadme',
-            message: 'Generate README.md files for each category?',
-            initial: true,
-        },
-        {
-            type: (defaults.addGitignore === undefined) ? 'confirm' : null,
-            name: 'addGitignore',
-            message: 'Print .gitignore rules for files not hosted on Modrinth?',
-            initial: true,
-        }
+        optionalGenerationPrompt(
+            'addLicense',
+            'Add the LICENSE file to the modpack?',
+            licenseText && defaults.addLicense === undefined
+        ),
+        optionalGenerationPrompt(
+            'addReadme',
+            'Generate README.md files for each category?',
+            defaults.addReadme === undefined
+        ),
+        optionalGenerationPrompt(
+            'addGitignore',
+            'Print .gitignore rules for files not hosted on Modrinth?',
+            defaults.addGitignore === undefined
+        ),
     ], {
         onCancel: exitOnCancel
     }));
