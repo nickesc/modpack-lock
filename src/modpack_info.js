@@ -205,9 +205,7 @@ export async function promptUserAboutOptionalFiles(modpackInfo, defaults = {}) {
             'Update .gitignore file with rules for files not hosted on Modrinth?',
             defaults.addGitignore === undefined
         ),
-    ], {
-        onCancel: exitOnCancel
-    }));
+    ], config.PROMPTS_OPTIONS));
 
     answers.addLicense = answers.addLicense === undefined ? (licenseText ? defaults.addLicense : false) : answers.addLicense;
     answers.addReadme = answers.addReadme === undefined ? defaults.addReadme : answers.addReadme;
