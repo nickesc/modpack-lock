@@ -44,7 +44,7 @@ export default async function generateLicense(modpackInfo, outputPath, options =
         }
         return licenseText;
     } catch (error) {
-        console.warn(`Warning: unable to generate license for: ${modpackInfo.license}`, error);
+        console.warn(`Warning: unable to generate license for: ${modpackInfo.license}`);
         return null;
     }
 }
