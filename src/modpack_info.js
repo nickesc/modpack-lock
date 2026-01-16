@@ -33,14 +33,14 @@ async function getOtherAnswer(value, message, initial) {
     if (value && value !== config.OTHER_OPTION.value) {
         return value;
     }
-    const question = await prompts({
-        type: 'text',
-        name: 'other',
-        message: `${capitalize(message)}`,
-        initial: initial,
-    });
-
-    testInterrupt(question, 1);
+    const question = await prompts(
+        requiredText(
+            'other',
+            message,
+            initial
+        ),
+        {onCancel: exitOnCancel}
+    );
 
     return question.other || config.OTHER_OPTION.value;
 }
