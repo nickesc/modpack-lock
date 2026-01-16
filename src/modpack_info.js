@@ -4,6 +4,10 @@ import * as config from './config/index.js';
 import { getLicenseList, getLicenseText } from './github_interactions.js';
 import { getMinecraftVersions, getModloaders } from './modrinth_interactions.js';
 
+function capitalize(string) {
+    return `${string.charAt(0).toUpperCase()}${string.slice(1)}`;
+}
+
 /**
  * Validate that a value is not empty
  */
@@ -17,11 +21,9 @@ function validateNotEmpty(value, field) {
 /**
  * Test if the process was interrupted
  */
-function testInterrupt(questions, expectedAnswers) {
-    if (Object.keys(questions).length < expectedAnswers) {
-        console.warn('Modpack initialization was interrupted');
-        process.exit(1);
-    }
+function exitOnCancel() {
+    console.warn('Modpack initialization was interrupted');
+    process.exit(1);
 }
 
 /**
@@ -34,7 +36,7 @@ async function getOtherAnswer(value, message, initial) {
     const question = await prompts({
         type: 'text',
         name: 'other',
-        message: message,
+        message: `${capitalize(message)}`,
         initial: initial,
     });
 
@@ -43,6 +45,51 @@ async function getOtherAnswer(value, message, initial) {
     return question.other || config.OTHER_OPTION.value;
 }
 
+function requiredText(name, message, initial) {
+    return {
+        type: 'text',
+        name: name,
+        message: `${capitalize(message)}`,
+        initial: initial,
+        validate: (value) => {
+            return validateNotEmpty(value, name);
+        }
+    }
+}
+
+function optionalText(name, message, initial) {
+    return {
+        type: 'text',
+        name: name,
+        message: `${capitalize(message)}`,
+        initial: initial,
+    }
+}
+
+/*
+defaults.license = a = initial
+config.DEFAULT_MODPACK_LICENSE = b = fallback
+licenselist = c = choices
+*/
+
+function requiredAutocomplete(name, message, initial, choices, defaultValue) {
+    initial = initial || defaultValue || config.OTHER_OPTION.value;
+    if (initial && !choices.includes(initial)) {
+        choices.push({ title: initial });
+    }
+
+    return {
+        type: 'autocomplete',
+        name: name,
+        message: `${capitalize(message)}`,
+        initial: initial,
+        choices: choices,
+        fallback: config.OTHER_OPTION.value,
+        format: async (value) => {
+            return await getOtherAnswer(value, ` └─𜰙 Other ${message}`, initial);
+        }
+    }
+}
 /**
  * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
  */
@@ -56,105 +103,82 @@ export async function promptUserForInfo(defaults = {}) {
     const licenseList = await getLicenseList();
     const minecraftVersions = await getMinecraftVersions();
     const modloaders = await getModloaders();
-    let answers = await prompts([{
-        type: 'text',
-        name: 'name',
-        message: 'Modpack name',
-        initial: defaults.name,
-        validate: (value) => {
-            return validateNotEmpty(value, 'Name');
-        }
-    },
-    {
-        type: 'text',
-        name: 'version',
-        message: 'Modpack version',
-        initial: defaults.version || config.DEFAULT_MODPACK_VERSION,
-        validate: (value) => {
-            return validateNotEmpty(value, 'Version');
-        }
-    },
-    {
-        type: 'text',
-        name: 'id',
-        message: 'Modpack slug/ID',
-        initial: (prev, values) => slugify(defaults.id || values.name, config.SLUGIFY_OPTIONS),
-        validate: (value) => {
-            return validateNotEmpty(value, 'ID');
-        }
-    },
-    {
-        type: 'text',
-        name: 'description',
-        message: 'Modpack description',
-        initial: defaults.description,
-    },
-    {
-        type: 'text',
-        name: 'author',
-        message: 'Modpack author',
-        initial: defaults.author,
-        validate: (value) => {
-            return validateNotEmpty(value, 'Author');
-        }
-    },
-    {
-        type: 'text',
-        name: 'projectUrl',
-        message: 'Modpack URL',
-        initial: (prev, values) => defaults.projectUrl || config.DEFAULT_PROJECT_URL(values.id),
-    },
-    {
-        type: 'text',
-        name: 'sourceUrl',
-        message: 'Modpack source code URL',
-        initial: (prev, values) => defaults.sourceUrl || config.DEFAULT_SOURCE_URL(values.id, values.author),
-    },
-    {
-        type: 'autocomplete',
-        name: 'license',
-        message: 'Modpack license',
-        initial: defaults.license || config.DEFAULT_MODPACK_LICENSE,
-        choices: (defaults.license && licenseList.some(license => license.value === defaults.license)) ? [...licenseList, { title: defaults.license }] : licenseList,
-        fallback: config.OTHER_OPTION.value,
-        format: async (value) => {
-            return await getOtherAnswer(value, 'Other license ID (SPDX ID)', defaults.license || config.OTHER_OPTION.value);
-        },
-    },
-    {
-        type: 'autocomplete',
-        name: 'modloader',
-        message: 'Modpack modloader',
-        initial: defaults.modloader || config.FALLBACK_MODLOADERS[0].value,
-        choices: (defaults.modloader && modloaders.some(loader => loader.value === defaults.modloader)) ? [...modloaders, { title: defaults.modloader }] : modloaders,
-        fallback: config.OTHER_OPTION.value,
-        format: async (value) => {
-            return await getOtherAnswer(value, 'Other modloader', defaults.modloader || config.OTHER_OPTION.value);
-        },
-    },
-    {
-        type: 'text',
-        name: 'targetModloaderVersion',
-        message: 'Target modloader version',
-        initial: defaults.targetModloaderVersion,
-    },
-    {
-        type: 'autocomplete',
-        name: 'targetMinecraftVersion',
-        message: 'Target Minecraft version',
-        initial: defaults.targetMinecraftVersion || minecraftVersions[0].value,
-        choices: (defaults.targetMinecraftVersion && minecraftVersions.some(version => version.value === defaults.targetMinecraftVersion)) ? [...minecraftVersions, { title: defaults.targetMinecraftVersion }] : minecraftVersions,
-        fallback: config.OTHER_OPTION.value,
-        format: async (value) => {
-            return await getOtherAnswer(value, 'Other Minecraft version', defaults.targetMinecraftVersion || config.OTHER_OPTION.value);
-        }
-    }
-    ]);
-
-    // TODO: this might not be right. find a better way to ensure the user did not interrupt the prompts. need to do that for any other prompts we use as well.
-    testInterrupt(answers, 11);
+    let answers = await prompts([
+        requiredText(
+            'name',
+            'Modpack name',
+            defaults.name
+        ),
+        requiredText(
+            'version',
+            'modpack version',
+            defaults.version || config.DEFAULT_MODPACK_VERSION
+        ),
+        requiredText(
+            'id',
+            'modpack slug/ID',
+            (prev, values) => slugify(defaults.id || values.name, config.SLUGIFY_OPTIONS)
+        ),
+        optionalText(
+            'description',
+            'modpack description',
+            defaults.description
+        ),
+        requiredText(
+            'author',
+            'modpack author',
+            defaults.author
+        ),
+        optionalText(
+            'projectUrl',
+            'modpack URL',
+            (prev, values) => defaults.projectUrl || config.DEFAULT_PROJECT_URL(values.id)
+        ),
+        optionalText(
+            'sourceUrl',
+            'modpack source code URL',
+            (prev, values) => defaults.sourceUrl || config.DEFAULT_SOURCE_URL(values.id, values.author)
+        ),
+        requiredAutocomplete(
+            'license',
+            'modpack license',
+            defaults.license,
+            licenseList,
+            config.DEFAULT_MODPACK_LICENSE
+        ),
+        requiredAutocomplete(
+            'modloader',
+            'modpack modloader',
+            defaults.modloader,
+            modloaders,
+            config.FALLBACK_MODLOADERS[0].value
+        ),
+        optionalText(
+            'targetModloaderVersion',
+            'target modloader version',
+            defaults.targetModloaderVersion
+        ),
+        requiredAutocomplete(
+            'targetMinecraftVersion',
+            'target Minecraft version',
+            defaults.targetMinecraftVersion,
+            minecraftVersions,
+            minecraftVersions[0].value
+        )
+    ], {
+        onCancel: exitOnCancel
+    });
 
     return answers;
+}
+
+function optionalGenerationPrompt(name, message, showPrompt) {
+    return {
+        type: showPrompt ? 'confirm' : null,
+        name: name,
+        message: `${capitalize(message)}`,
+        initial: true,
+    }
 }
 
 /**
@@ -166,31 +190,28 @@ export async function promptUserAboutOptionalFiles(modpackInfo, defaults = {}) {
 
     const licenseText = await getLicenseText(modpackInfo.license);
     const answers = await (prompts([
-        {
-            type: (licenseText && defaults.addLicense === undefined) ? 'confirm' : null,
-            name: 'addLicense',
-            message: 'Add the LICENSE file to the modpack?',
-            initial: true,
-        },
-        {
-            type: (defaults.addReadme === undefined) ? 'confirm' : null,
-            name: 'addReadme',
-            message: 'Generate README.md files for each category?',
-            initial: true,
-        },
-        {
-            type: (defaults.addGitignore === undefined) ? 'confirm' : null,
-            name: 'addGitignore',
-            message: 'Print .gitignore rules for files not hosted on Modrinth?',
-            initial: true,
-        }
-    ]));
+        optionalGenerationPrompt(
+            'addLicense',
+            'Add the LICENSE file to the modpack?',
+            licenseText && defaults.addLicense === undefined
+        ),
+        optionalGenerationPrompt(
+            'addReadme',
+            'Generate README.md files for each category?',
+            defaults.addReadme === undefined
+        ),
+        optionalGenerationPrompt(
+            'addGitignore',
+            'Print .gitignore rules for files not hosted on Modrinth?',
+            defaults.addGitignore === undefined
+        ),
+    ], {
+        onCancel: exitOnCancel
+    }));
 
     answers.addLicense = answers.addLicense === undefined ? (licenseText ? defaults.addLicense : false) : answers.addLicense;
     answers.addReadme = answers.addReadme === undefined ? defaults.addReadme : answers.addReadme;
     answers.addGitignore = answers.addGitignore === undefined ? defaults.addGitignore : answers.addGitignore;
-
-    testInterrupt(answers, 3);
 
     return answers;
 }
