@@ -202,7 +202,7 @@ export async function promptUserAboutOptionalFiles(modpackInfo, defaults = {}) {
         ),
         optionalGenerationPrompt(
             'addGitignore',
-            'Print .gitignore rules for files not hosted on Modrinth?',
+            'Update .gitignore file with rules for files not hosted on Modrinth?',
             defaults.addGitignore === undefined
         ),
     ], {
