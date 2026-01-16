@@ -1,3 +1,5 @@
+import pkg from '../../package.json' with { type: 'json' };
+
 /** Lockfile format version -- increment on changes to the format */
 export const LOCKFILE_VERSION = "1.0.1";
 
@@ -80,3 +82,13 @@ export const FALLBACK_TARGET_MINECRAFT_VERSIONS = [
     { title: '1.1.x'},
     { title: '1.0.x'}
 ];
+
+
+
+const gitignoreMarker = (mode) =>  `# ${pkg.name}:${mode}`;
+
+/** Gitignore section start marker */
+export const GITIGNORE_START_MARKER = gitignoreMarker('start');
+
+/** Gitignore section end marker */
+export const GITIGNORE_END_MARKER = gitignoreMarker('end');
