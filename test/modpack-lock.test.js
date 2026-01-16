@@ -9,7 +9,8 @@ import { promisify } from 'node:util';
 import unzipper from 'unzipper';
 
 // Import all exported functions from the package
-import { generateModpackFiles,
+import {
+    generateModpackFiles,
     generateJson,
     generateLockfile,
     generateGitignoreRules,
@@ -304,7 +305,7 @@ describe('Package API', () => {
         it('replaces content between existing markers', async () => {
             const testDir = await createTempDir('modpack-lock-gitignore-');
             const gitignorePath = path.join(testDir, '.gitignore');
-            
+
             // Create initial .gitignore with markers and old content
             const initialContent = `# Custom rule
 # modpack-lock:start
@@ -316,11 +317,11 @@ old content here
             await generateGitignoreRules(lockfile, testDir);
 
             const gitignoreContent = await fs.readFile(gitignorePath, 'utf-8');
-            
+
             // Should preserve content outside markers
             expect(gitignoreContent).toContain('# Custom rule');
             expect(gitignoreContent).toContain('# Another custom rule');
-            
+
             // Should replace content between markers
             expect(gitignoreContent).not.toContain('old content here');
             expect(gitignoreContent).toContain('mods/*.jar');
@@ -329,7 +330,7 @@ old content here
         it('appends markers and rules when no markers exist', async () => {
             const testDir = await createTempDir('modpack-lock-gitignore-');
             const gitignorePath = path.join(testDir, '.gitignore');
-            
+
             // Create initial .gitignore without markers
             const initialContent = '# Custom rule\nnode_modules/';
             await fs.writeFile(gitignorePath, initialContent, 'utf-8');
@@ -337,11 +338,11 @@ old content here
             await generateGitignoreRules(lockfile, testDir);
 
             const gitignoreContent = await fs.readFile(gitignorePath, 'utf-8');
-            
+
             // Should preserve existing content
             expect(gitignoreContent).toContain('# Custom rule');
             expect(gitignoreContent).toContain('node_modules/');
-            
+
             // Should append markers and rules
             expect(gitignoreContent).toContain('# modpack-lock:start');
             expect(gitignoreContent).toContain('# modpack-lock:end');
@@ -351,7 +352,7 @@ old content here
         it('creates .gitignore file when it does not exist', async () => {
             const testDir = await createTempDir('modpack-lock-gitignore-');
             const gitignorePath = path.join(testDir, '.gitignore');
-            
+
             // Verify file doesn't exist
             expect(await fileExists(gitignorePath)).toBe(false);
 
@@ -359,7 +360,7 @@ old content here
 
             // Verify file was created
             expect(await fileExists(gitignorePath)).toBe(true);
-            
+
             const gitignoreContent = await fs.readFile(gitignorePath, 'utf-8');
             expect(gitignoreContent).toContain('# modpack-lock:start');
             expect(gitignoreContent).toContain('# modpack-lock:end');
@@ -368,7 +369,7 @@ old content here
         it('respects dry-run mode', async () => {
             const testDir = await createTempDir('modpack-lock-gitignore-');
             const gitignorePath = path.join(testDir, '.gitignore');
-            
+
             await generateGitignoreRules(lockfile, testDir, { dryRun: true });
 
             // File should not be created in dry-run mode
