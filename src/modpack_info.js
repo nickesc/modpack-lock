@@ -82,9 +82,18 @@ function requiredAutocomplete(name, message, initial, choices, defaultValue) {
         }
     }
 }
+
 /**
  * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
  */
+function fileGenerationConfirm(name, message, showPrompt) {
+    return {
+        type: showPrompt ? 'confirm' : null,
+        name: name,
+        message: `${capitalize(message)}`,
+        initial: true,
+    }
+}
 
 /**
  * Get user input for modpack information
@@ -162,16 +171,6 @@ export async function promptUserForInfo(defaults = {}) {
     return answers;
 }
 
-function optionalGenerationPrompt(name, message, showPrompt) {
-function fileGenerationPrompt(name, message, showPrompt) {
-    return {
-        type: showPrompt ? 'confirm' : null,
-        name: name,
-        message: `${capitalize(message)}`,
-        initial: true,
-    }
-}
-
 /**
  * Prompt the user about adding the license text to the modpack
  * @param {ModpackInfo} modpackInfo - The modpack information
@@ -181,17 +180,17 @@ export async function promptUserAboutOptionalFiles(modpackInfo, defaults = {}) {
 
     const licenseText = await getLicenseText(modpackInfo.license);
     const answers = await (prompts([
-        fileGenerationPrompt(
+        fileGenerationConfirm(
             'addLicense',
             'Add the LICENSE file to the modpack?',
             licenseText && defaults.addLicense === undefined
         ),
-        fileGenerationPrompt(
+        fileGenerationConfirm(
             'addReadme',
             'Generate README.md files for each category?',
             defaults.addReadme === undefined
         ),
-        fileGenerationPrompt(
+        fileGenerationConfirm(
             'addGitignore',
             'Update .gitignore file with rules for files not hosted on Modrinth?',
             defaults.addGitignore === undefined
