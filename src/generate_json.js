@@ -85,7 +85,6 @@ export default async function generateJson(modpackInfo, lockfile, outputDir, opt
                     packDependencies[category].push(projectSlug);
                 }
             }
-            //packDependencies[category].push(...packDependencies[category].map(item => item.path));
         }
     }
 
