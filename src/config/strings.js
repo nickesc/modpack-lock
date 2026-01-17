@@ -55,7 +55,7 @@ export const fileFields = {
     },
     addGitignore: {
         prompt: 'Update the .gitignore file',
-        option: 'Update the .gitignore file, including exceptions for files not hosted on Modrinth'
+        option: 'Update the .gitignore file, including exceptions for non-Modrinth files'
     },
     addReadme: {
         prompt: 'Generate README.md files',
