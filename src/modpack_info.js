@@ -117,61 +117,61 @@ export async function promptUserForInfo(defaults = {}) {
     let answers = await prompts([
         requiredText(
             'name',
-            'Modpack name',
+            config.infoFields.name.prompt,
             defaults.name
         ),
         requiredText(
             'version',
-            'modpack version',
+            config.infoFields.version.prompt,
             defaults.version || config.DEFAULT_MODPACK_VERSION
         ),
         requiredText(
             'id',
-            'modpack slug/ID',
+            config.infoFields.id.prompt,
             (prev, values) => slugify(defaults.id || values.name, config.SLUGIFY_OPTIONS)
         ),
         optionalText(
             'description',
-            'modpack description',
+            config.infoFields.description.prompt,
             defaults.description
         ),
         requiredText(
             'author',
-            'modpack author',
+            config.infoFields.author.prompt,
             defaults.author
         ),
         optionalText(
             'projectUrl',
-            'modpack URL',
+            config.infoFields.projectUrl.prompt,
             (prev, values) => defaults.projectUrl || config.DEFAULT_PROJECT_URL(values.id)
         ),
         optionalText(
             'sourceUrl',
-            'modpack source code URL',
+            config.infoFields.sourceUrl.prompt,
             (prev, values) => defaults.sourceUrl || config.DEFAULT_SOURCE_URL(values.id, values.author)
         ),
         requiredAutocomplete(
             'license',
-            'modpack license',
+            config.infoFields.license.prompt,
             defaults.license,
             licenseList,
             config.DEFAULT_MODPACK_LICENSE
         ),
         requiredAutocomplete(
             'modloader',
-            'modpack modloader',
+            config.infoFields.modloader.prompt,
             defaults.modloader,
             modloaders,
             config.FALLBACK_MODLOADERS[0].value
         ),
         optionalText(
             'targetModloaderVersion',
-            'target modloader version',
+            config.infoFields.targetModloaderVersion.prompt,
             defaults.targetModloaderVersion
         ),
         requiredAutocomplete(
             'targetMinecraftVersion',
-            'target Minecraft version',
+            config.infoFields.targetMinecraftVersion.prompt,
             defaults.targetMinecraftVersion,
             minecraftVersions,
             minecraftVersions[0].value
@@ -192,17 +192,17 @@ export async function promptUserAboutOptionalFiles(modpackInfo, defaults = {}) {
     const answers = await (prompts([
         fileGenerationConfirm(
             'addLicense',
-            'Add the LICENSE file to the modpack?',
+            `${config.fileFields.addLicense.prompt}?`,
             licenseText && defaults.addLicense === undefined
         ),
         fileGenerationConfirm(
             'addReadme',
-            'Generate README.md files for each category?',
+            `${config.fileFields.addReadme.prompt}?`,
             defaults.addReadme === undefined
         ),
         fileGenerationConfirm(
             'addGitignore',
-            'Update .gitignore file with rules for files not hosted on Modrinth?',
+            `${config.fileFields.addGitignore.prompt}?`,
             defaults.addGitignore === undefined
         ),
     ], config.PROMPTS_OPTIONS));
