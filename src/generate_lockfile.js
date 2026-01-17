@@ -246,7 +246,7 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
 
     // Write the updated content
     if (options.dryRun) {
-        console.log(`[DRY RUN] Would write .gitignore to: ${gitignorePath}`);
+        console.log(config.dryRunText(config.GITIGNORE_NAME, gitignorePath));
         console.log();
     } else {
         try {
@@ -312,7 +312,7 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
             const readmePath = path.join(categoryDir.path, config.README_NAME);
 
             if (options.dryRun) {
-                console.log(`[DRY RUN] Would write README to: ${readmePath}`);
+                console.log(config.dryRunText(config.README_NAME, readmePath));
             } else {
                 try {
                     await fs.writeFile(readmePath, readmeContent, 'utf-8');
@@ -334,10 +334,6 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
  * @returns {Lockfile} The lockfile object
  */
 export async function generateLockfile(workingDir, options = {}) {
-    if (options.dryRun) {
-        console.log('[DRY RUN] Preview mode - no files will be written');
-    }
-
     console.log('Scanning directories for modpack files...');
 
     // Scan all directories
@@ -361,7 +357,7 @@ export async function generateLockfile(workingDir, options = {}) {
         console.log('No files found. Creating empty lockfile.');
         const outputPath = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
         if (options.dryRun) {
-            console.log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
+            console.log(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
         } else {
             await writeLockfile(createEmptyLockfile(), outputPath);
         }
@@ -385,7 +381,7 @@ export async function generateLockfile(workingDir, options = {}) {
     // Write lockfile
     const outputPath = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
     if (options.dryRun) {
-        console.log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
+        console.log(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
     } else {
         await writeLockfile(lockfile, outputPath);
     }

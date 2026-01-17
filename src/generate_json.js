@@ -93,7 +93,7 @@ export default async function generateJson(modpackInfo, lockfile, outputDir, opt
 
     // Write modpack JSON object to disk
     if (options.dryRun) {
-        console.log(`[DRY RUN] Would write ${config.MODPACK_JSON_NAME} to: ${path.join(outputDir, config.MODPACK_JSON_NAME)}`);
+        console.log(config.dryRunText(config.MODPACK_JSON_NAME, path.join(outputDir, config.MODPACK_JSON_NAME)));
     } else {
         await writeJson(jsonObject, outputDir);
     }
