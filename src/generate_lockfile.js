@@ -170,7 +170,7 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
     }
 
     const rulesContent = rules.join('\n');
-    const gitignorePath = path.join(workingDir, '.gitignore');
+    const gitignorePath = path.join(workingDir, config.GITIGNORE_NAME);
 
     // Read existing .gitignore file if it exists
     let existingContent = '';
@@ -309,7 +309,7 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
         const categoryDir = getScanDirectories(workingDir).find(d => d.name === category);
 
         if (categoryDir) {
-            const readmePath = path.join(categoryDir.path, 'README.md');
+            const readmePath = path.join(categoryDir.path, config.README_NAME);
 
             if (options.dryRun) {
                 console.log(`[DRY RUN] Would write README to: ${readmePath}`);
