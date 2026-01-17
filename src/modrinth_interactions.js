@@ -38,7 +38,7 @@ export async function getVersionsFromHashes(hashes) {
 
         return await response.json();
     } catch (error) {
-        console.error(`Error querying Modrinth API: ${error.message}`);
+        console.error(`Error fetching version information from hashes: ${error.message}`);
         throw error;
     }
 }
@@ -132,7 +132,7 @@ export async function getMinecraftVersions() {
         }
         return null;
     } catch (error) {
-        console.warn(`Warning: unable to fetch Minecraft versions. Using fallbacks.`, error);
+        console.warn(`Warning: could not fetch Minecraft versions. Using fallbacks.`, error);
         return config.FALLBACK_TARGET_MINECRAFT_VERSIONS;
     }
 }
@@ -158,7 +158,7 @@ export async function getModloaders() {
         }
         return null;
     } catch (error) {
-        console.warn(`Warning: unable to fetch Modloaders. Using fallbacks.`, error);
+        console.warn(`Warning: could not fetch Modloaders. Using fallbacks.`, error);
         return config.FALLBACK_MODLOADERS;
     }
 }
