@@ -22,7 +22,12 @@ export const DEPENDENCY_CATEGORIES = [
 ];
 
 /** Minecraft version types */
-export const MINECRAFT_VERSION_TYPES = ["release", "alpha", "beta", "snapshot"];
+export const MINECRAFT_VERSION_TYPES = [
+    "release",
+    "alpha",
+    "beta",
+    "snapshot"
+];
 
 const gitignoreMarker = (mode) =>  `# ${pkg.name}:${mode}`;
 
