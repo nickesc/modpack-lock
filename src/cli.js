@@ -218,7 +218,7 @@ modpackLock.command('init')
     });
 
 modpackLock.command('run')
-    .description(`Run a script (shell command) defined in ${config.MODPACK_JSON_NAME}\'s \'scripts\' object`)
+    .description(`Run a script defined in ${config.MODPACK_JSON_NAME}\'s \'scripts\' field`)
     .argument('<script>', 'The name of the script to run')
     .optionsGroup(config.headings.options)
     .option('-f, --folder <path>', 'Path to the modpack directory')
