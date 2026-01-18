@@ -151,6 +151,7 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
     for (const category of config.DEPENDENCY_CATEGORIES) {
         rules.push(`${category}/*.${category === "mods" ? "jar" : "zip"}`);
     }
+    rules.push(`*/**/*.disabled`);
 
     // Find files not hosted on Modrinth
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
