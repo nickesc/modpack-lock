@@ -9,12 +9,6 @@ export const DEFAULT_SOURCE_URL = (id, author) => {
     return `https://github.com/${author}/${id}`;
 };
 
-/** All-Rights-Reserved license text */
-export const ARR_LICENSE_TEXT =
-    "Copyright (c) [year] [fullname]\n" +
-    "\n" +
-    "All rights reserved.\n";
-
 /** All-Rights-Reserved license option */
 export const ALL_RIGHTS_RESERVED_LICENSE = { title: 'All-Rights-Reserved', value: 'all-rights-reserved' };
 
