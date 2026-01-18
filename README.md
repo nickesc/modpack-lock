@@ -72,7 +72,7 @@ INFORMATION
 
 Commands:
   init [options]          This utility will walk you through creating a modpack.json file. It only covers the most common items, and tries to guess sensible defaults.
-  run [options] <script>  Run a script defined in modpack.json's 'scripts' field
+  run [options] <script>  Run a script defined in the modpack.json file's 'scripts' field
 ```
 
 > [!TIP]
@@ -151,7 +151,7 @@ The `scripts` field in `modpack.json` is a key-value pair of script names and th
 ```text
 Usage: modpack-lock run [options] <script>
 
-Run a script defined in modpack.json's 'scripts' field
+Run a script defined in the modpack.json file's 'scripts' field
 
 Arguments:
   script               The name of the script to run
