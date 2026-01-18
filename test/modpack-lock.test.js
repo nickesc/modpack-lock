@@ -288,7 +288,7 @@ describe('Package API', () => {
 
             const gitignorePath = path.join(testDir, '.gitignore');
             const gitignoreContent = await fs.readFile(gitignorePath, 'utf-8');
-            expect(gitignoreContent).toContain('# No exceptions needed');
+            expect(gitignoreContent).not.toContain('## Exceptions');
         });
 
         it('wraps rules with start and end markers', async () => {
