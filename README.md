@@ -77,7 +77,7 @@ Commands:
 
 > [!TIP]
 >
-> ### Did you know?
+> #### Did you know?
 >
 > You can generate summary files for each category by running `modpack-lock -r`. This will generate a `README.md` file in each of the content folders, detailing the scanned files and important attribution information for them.
 
@@ -242,7 +242,7 @@ The JSON file contains your modpack metadata and a dependency list:
 
 > [!IMPORTANT]
 >
-> ### Don't commit binaries
+> #### Don't commit binaries
 >
 > Use `modpack-lock -g` to automatically update your `.gitignore` file with rules to ignore modpack contents, with exceptions for any files that are not hosted by Modrinth:
 >
