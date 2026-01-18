@@ -47,7 +47,7 @@ The script will:
 - Query the Modrinth API for matching versions
 - Generate a `modpack.lock` file (and update `modpack.json` dependencies if present)
 
-Use flags to generate `README.md` files for each category or update the `.gitignore` file with rules for files that are not hosted on Modrinth.
+Use flags to generate `README.md` files for each category or update the `.gitignore` to ignore content hosted on Modrinth.
 
 ```text
 Usage: modpack-lock [options] [command]
@@ -59,7 +59,7 @@ Options:
   -d, --dry-run           Dry-run mode - no files will be written
 
 GENERATION
-  -g, --gitignore         Update .gitignore file with rules for files not hosted on Modrinth
+  -g, --gitignore         Update the .gitignore file to ignore content hosted on Modrinth
   -r, --readme            Generate README.md files for each category
 
 LOGGING
@@ -72,11 +72,10 @@ INFORMATION
 
 Commands:
   init [options]          This utility will walk you through creating a modpack.json file. It only covers the most common items, and tries to guess sensible defaults.
-  run [options] <script>  Run a script (shell command) defined in modpack.json's 'scripts' object
+  run [options] <script>  Run a script defined in modpack.json's 'scripts' field
 ```
 
-> ### [!TIP] Did you know?
->
+> [!TIP] Did you know?
 >
 > You can generate summary files for each category by running `modpack-lock -r`. This will generate a `README.md` file in each of the content folders, detailing the scanned files and important attribution information for them.
 
@@ -104,8 +103,8 @@ This utility will walk you through creating a modpack.json file. It only covers 
 Options:
   -f, --folder <path>                                Path to the modpack directory
   -n, --noninteractive                               Non-interactive mode - must provide options for required fields
-  --add-license                                      Add the license file to the modpack
-  --add-gitignore                                    Update .gitignore file with rules for files not hosted on Modrinth
+  --add-license                                      Add the LICENSE file to the modpack
+  --add-gitignore                                    Update the .gitignore file to ignore content hosted on Modrinth
   --add-readme                                       Generate README.md files for each category
 
 MODPACK INFORMATION
@@ -114,12 +113,12 @@ MODPACK INFORMATION
   --id <id>                                          Modpack slug/ID; defaults to the directory name slugified
   --description <description>                        Modpack description
   --author <author>                                  Modpack author; required
-  --projectUrl <projectUrl>                          Modpack URL
-  --sourceUrl <sourceUrl>                            Modpack source code URL
-  --license <license>                                Modpack license
-  --modloader <modloader>                            Modpack modloader; required
+  --projectUrl <projectUrl>                          Modpack URL; defaults to a guessed Modrinth project URL
+  --sourceUrl <sourceUrl>                            Modpack source code URL; defaults to a guessed GitHub repository URL
+  --license <license>                                Modpack license, popular licenses fetched from GitHub; defaults to MIT in interactive mode
+  --modloader <modloader>                            Modpack modloader, list of loaders fetched from Modrinth; required
   --targetModloaderVersion <targetModloaderVersion>  Target modloader version
-  --targetMinecraftVersion <targetMinecraftVersion>  Target Minecraft version; required
+  --targetMinecraftVersion <targetMinecraftVersion>  Target Minecraft version, list of versions fetched from Modrinth; required
 
 INFORMATION
   -h, --help                                         display help for modpack-lock init
@@ -150,7 +149,7 @@ The `scripts` field in `modpack.json` is a key-value pair of script names and th
 ```text
 Usage: modpack-lock run [options] <script>
 
-Run a script (shell command) defined in modpack.json's 'scripts' object
+Run a script defined in modpack.json's 'scripts' field
 
 Arguments:
   script               The name of the script to run
@@ -158,6 +157,8 @@ Arguments:
 Options:
   -f, --folder <path>  Path to the modpack directory
   -D, --debug          Debug mode -- show more information about how the command is being parsed
+
+INFORMATION
   -h, --help           display help for modpack-lock run
 ```
 
@@ -237,9 +238,9 @@ The JSON file contains your modpack metadata and a dependency list:
 }
 ```
 
-> ### [!IMPORTANT] Don't commit binaries
+> [!IMPORTANT] Don't commit binaries
 >
-> Use `modpack-lock -g` to automatically update your `.gitignore` file with rules to ignore modpack contents, with exceptions for any files that are not Modrinth-hosted:
+> Use `modpack-lock -g` to automatically update your `.gitignore` file with rules to ignore modpack contents, with exceptions for any files that are not hosted by Modrinth:
 >
 > ```txt
 > # .gitignore
@@ -249,13 +250,14 @@ The JSON file contains your modpack metadata and a dependency list:
 > resourcepacks/*.zip
 > datapacks/*.zip
 > shaderpacks/*.zip
+> */**/*.disabled
 > 
 > ## Exceptions
 > !mods/example.jar
 > # modpack-lock:end
 > ```
 >
-> This section is managed by modpack-lock and will be updated automatically when you run `modpack-lock -g`. Changes made inside this section will be overwritten, but any changes you make to the `.gitignore` file outside of this section will be preserved.
+> This section is managed by modpack-lock and will be updated automatically when you run `modpack-lock -g`. Changes made inside this section will be overwritten, but any changes you make outside of this section will be preserved.
 
 ## License
 
