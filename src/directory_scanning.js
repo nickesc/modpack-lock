@@ -1,8 +1,7 @@
 import fs from 'fs/promises';
 import crypto from 'crypto';
 import path from 'path';
-import * as files from './config/files.js';
-import * as constants from './config/constants.js';
+import * as config from './config/index.js';
 
 /**
  * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
@@ -16,7 +15,7 @@ import * as constants from './config/constants.js';
  */
 export function getScanDirectories(directoryPath) {
     const scanDirectories = [];
-    for (const category of constants.DEPENDENCY_CATEGORIES) {
+    for (const category of config.DEPENDENCY_CATEGORIES) {
         scanDirectories.push({ name: category, path: path.join(directoryPath, category) });
     }
     return scanDirectories;
@@ -105,7 +104,7 @@ async function getJsonFile(directoryPath, filename) {
  * @returns {Promise<ModpackInfo|null>} The modpack info JSON object if the file exists, otherwise null
  */
 export async function getModpackInfo(directoryPath) {
-    return getJsonFile(directoryPath, files.MODPACK_JSON_NAME);
+    return getJsonFile(directoryPath, config.MODPACK_JSON_NAME);
 }
 
 /**
@@ -114,5 +113,5 @@ export async function getModpackInfo(directoryPath) {
  * @returns {Lockfile|null} The JSON object if the file exists, otherwise null
  */
 export async function getLockfile(directoryPath) {
-    return getJsonFile(directoryPath, files.MODPACK_LOCKFILE_NAME);
+    return getJsonFile(directoryPath, config.MODPACK_LOCKFILE_NAME);
 }

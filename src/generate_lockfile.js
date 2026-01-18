@@ -138,11 +138,12 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
 }
 
 /**
- * Generate .gitignore rules for files not hosted on Modrinth
+ * Generate .gitignore rules for files not hosted on Modrinth and write them to .gitignore file
  * @param {Lockfile} lockfile - The lockfile object
- * @returns {string} The .gitignore rules
+ * @param {string} workingDir - The working directory
+ * @param {Options | InitOptions} options - The options object
  */
-export function generateGitignoreRules(lockfile) {
+export async function generateGitignoreRules(lockfile, workingDir, options = {}) {
     const rules = [];
     const exceptions = [];
 
@@ -150,7 +151,7 @@ export function generateGitignoreRules(lockfile) {
     for (const category of config.DEPENDENCY_CATEGORIES) {
         rules.push(`${category}/*.${category === "mods" ? "jar" : "zip"}`);
     }
-    rules.push('\n## Exceptions');
+    rules.push(`*/**/*.disabled`);
 
     // Find files not hosted on Modrinth
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
@@ -163,12 +164,97 @@ export function generateGitignoreRules(lockfile) {
 
     // Add exceptions if any
     if (exceptions.length > 0) {
+        rules.push('\n## Exceptions');
         rules.push(...exceptions);
-    } else {
-        rules.push('# No exceptions needed - all files are hosted on Modrinth');
     }
 
-    return rules.join('\n');
+    const rulesContent = rules.join('\n');
+    const gitignorePath = path.join(workingDir, config.GITIGNORE_NAME);
+
+    // Read existing .gitignore file if it exists
+    let existingContent = '';
+    try {
+        existingContent = await fs.readFile(gitignorePath, 'utf-8');
+    } catch (error) {
+        // File doesn't exist, that's okay - we'll create it
+        if (error.code !== 'ENOENT') {
+            console.warn(`Warning: Could not read .gitignore file: ${error.message}`);
+            return;
+        }
+    }
+
+    // Find markers in existing content
+    const startMarkerIndex = existingContent.indexOf(config.GITIGNORE_START_MARKER);
+    const endMarkerIndex = existingContent.indexOf(config.GITIGNORE_END_MARKER);
+
+    let newContent = '';
+
+    if (startMarkerIndex !== -1 && endMarkerIndex !== -1 && endMarkerIndex > startMarkerIndex) {
+        // Both markers exist, replace content between them
+        const beforeSection = existingContent.substring(0, startMarkerIndex);
+        const afterSection = existingContent.substring(endMarkerIndex + config.GITIGNORE_END_MARKER.length);
+
+        // Remove trailing newlines from before section and leading newlines from after section
+        const beforeTrimmed = beforeSection.replace(/\n+$/, '');
+        const afterTrimmed = afterSection.replace(/^\n+/, '');
+
+        const parts = [beforeTrimmed];
+        if (beforeTrimmed) parts.push(''); // Add separator if there's content before
+        parts.push(
+            config.GITIGNORE_START_MARKER,
+            rulesContent,
+            config.GITIGNORE_END_MARKER
+        );
+        if (afterTrimmed) {
+            parts.push(''); // Add separator if there's content after
+            parts.push(afterTrimmed);
+        }
+
+        newContent = parts.join('\n');
+    } else if (startMarkerIndex !== -1 || endMarkerIndex !== -1) {
+        // Only one marker exists, append to end
+        const trimmed = existingContent.replace(/\n+$/, '');
+        newContent = [
+            trimmed,
+            '',
+            config.GITIGNORE_START_MARKER,
+            rulesContent,
+            config.GITIGNORE_END_MARKER
+        ].join('\n');
+    } else {
+        // No markers exist, append to end
+        if (existingContent.trim() === '') {
+            // File is empty or only whitespace
+            newContent = [
+                config.GITIGNORE_START_MARKER,
+                rulesContent,
+                config.GITIGNORE_END_MARKER
+            ].join('\n');
+        } else {
+            // File has content, append with newline
+            const trimmed = existingContent.replace(/\n+$/, '');
+            newContent = [
+                trimmed,
+                '',
+                config.GITIGNORE_START_MARKER,
+                rulesContent,
+                config.GITIGNORE_END_MARKER
+            ].join('\n');
+        }
+    }
+
+    // Write the updated content
+    if (options.dryRun) {
+        console.log(config.dryRunText(config.GITIGNORE_NAME, gitignorePath));
+        console.log();
+    } else {
+        try {
+            await fs.writeFile(gitignorePath, newContent, 'utf-8');
+            console.log(`Updated .gitignore: ${gitignorePath}`);
+        } catch (error) {
+            console.warn(`Warning: Could not write .gitignore file: ${error.message}`);
+        }
+    }
 }
 
 /**
@@ -222,10 +308,10 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
         const categoryDir = getScanDirectories(workingDir).find(d => d.name === category);
 
         if (categoryDir) {
-            const readmePath = path.join(categoryDir.path, 'README.md');
+            const readmePath = path.join(categoryDir.path, config.README_NAME);
 
             if (options.dryRun) {
-                console.log(`[DRY RUN] Would write README to: ${readmePath}`);
+                console.log(config.dryRunText(config.README_NAME, readmePath));
             } else {
                 try {
                     await fs.writeFile(readmePath, readmeContent, 'utf-8');
@@ -247,10 +333,6 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
  * @returns {Lockfile} The lockfile object
  */
 export async function generateLockfile(workingDir, options = {}) {
-    if (options.dryRun) {
-        console.log('[DRY RUN] Preview mode - no files will be written');
-    }
-
     console.log('Scanning directories for modpack files...');
 
     // Scan all directories
@@ -274,7 +356,7 @@ export async function generateLockfile(workingDir, options = {}) {
         console.log('No files found. Creating empty lockfile.');
         const outputPath = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
         if (options.dryRun) {
-            console.log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
+            console.log(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
         } else {
             await writeLockfile(createEmptyLockfile(), outputPath);
         }
@@ -298,7 +380,7 @@ export async function generateLockfile(workingDir, options = {}) {
     // Write lockfile
     const outputPath = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
     if (options.dryRun) {
-        console.log(`[DRY RUN] Would write lockfile to: ${outputPath}`);
+        console.log(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
     } else {
         await writeLockfile(lockfile, outputPath);
     }
@@ -313,15 +395,13 @@ export async function generateLockfile(workingDir, options = {}) {
 
     // Generate .gitignore rules
     if (options.gitignore) {
-        console.log('\n=== .gitignore Rules ===\n');
-        console.log(generateGitignoreRules(lockfile));
-        console.log();
+        await generateGitignoreRules(lockfile, workingDir, options);
     }
 
     // Generate README files
     if (options.readme) {
         console.log('\nGenerating README files...');
-        await generateReadmeFiles(lockfile, workingDir, options = {});
+        await generateReadmeFiles(lockfile, workingDir, options);
     }
 
     return lockfile;

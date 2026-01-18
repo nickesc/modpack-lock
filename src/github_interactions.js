@@ -32,7 +32,7 @@ export async function getLicenseList(featured = false) {
 
         return licenseSpdxIds;
     } catch (error) {
-        console.warn(`Warning: failed to fetch license list. Using fallbacks.`);
+        console.warn(`Warning: could not fetch license list. Using fallbacks.`);
         const licenses = config.FALLBACK_LICENSES.push(config.ALL_RIGHTS_RESERVED_LICENSE)
         licenses.push(config.OTHER_OPTION);
         return licenses;
@@ -64,7 +64,7 @@ export async function getLicenseText(spdxId) {
         }
         return null;
     } catch (error) {
-        console.warn(`Warning: unable to find license text for: ${spdxId}`);
+        console.warn(`Warning: could not find license text for: ${spdxId}`);
         return null;
     }
 }

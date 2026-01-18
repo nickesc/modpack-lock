@@ -38,13 +38,13 @@ export default async function generateLicense(modpackInfo, outputPath, options =
         licenseText = licenseText.replace('{{project}}', modpackInfo.name);
 
         if (options.dryRun) {
-            console.log(`[DRY RUN] Would write ${config.MODPACK_LICENSE_NAME} to: ${path.join(outputPath, config.MODPACK_LICENSE_NAME)}`);
+            console.log(config.dryRunText(config.MODPACK_LICENSE_NAME, path.join(outputPath, config.MODPACK_LICENSE_NAME)));
         } else {
             await writeLicense(licenseText, outputPath);
         }
         return licenseText;
     } catch (error) {
-        console.warn(`Warning: unable to generate license for: ${modpackInfo.license}`, error);
+        console.warn(`Warning: unable to generate license for: ${modpackInfo.license}`);
         return null;
     }
 }
