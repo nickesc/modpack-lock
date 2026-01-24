@@ -19,6 +19,8 @@ import {
     getModpackInfo,
     getLockfile,
 } from '../src/modpack-lock.js';
+import * as config from '../src/config/index.js';
+import pkg from '../package.json' with { type: 'json' };
 
 const execFileAsync = promisify(execFile);
 
@@ -195,6 +197,43 @@ describe('Package API', () => {
 
         it('makes API calls to Modrinth', async () => {
             expect(fetchSpy).toHaveBeenCalled();
+        });
+
+        it('sends correct User-Agent header in Modrinth API requests', async () => {
+            vi.clearAllMocks();
+
+            const expectedUserAgent = config.PACKAGE_USER_AGENT;
+            expect(expectedUserAgent).toMatch(`${config.AUTHOR_USERNAME}/${pkg.name}/${pkg.version}`);
+
+            // Mock fetch
+            const mockFetch = vi.spyOn(global, 'fetch').mockImplementation((url, options) => {
+                // Verify User-Agent header is present for all requests
+                expect(options?.headers).toBeDefined();
+                expect(options?.headers['User-Agent']).toBe(expectedUserAgent);
+
+                // Return empty responses
+                return Promise.resolve({
+                    ok: true,
+                    json: async () => (url.includes('/projects') ? [] : {})
+                });
+            });
+
+            // Test user agent in real functions
+            await generateLockfile(workspaceDir);
+
+            const modpackInfo = {
+                name: 'Test Modpack',
+                version: '1.0.0',
+                id: 'test-modpack',
+                author: 'Test Author',
+                modloader: 'fabric',
+                targetMinecraftVersion: '1.21.1',
+            };
+            await generateJson(modpackInfo, lockfile, workspaceDir);
+
+            await generateLicense(modpackInfo, workspaceDir);
+
+            vi.restoreAllMocks();
         });
 
         it('returns valid version objects for files found on Modrinth', async () => {
