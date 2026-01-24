@@ -24,7 +24,7 @@ export async function getVersionsFromHashes(hashes) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'User-Agent': config.MODRINTH_USER_AGENT,
+                'User-Agent': config.PACKAGE_USER_AGENT,
             },
             body: JSON.stringify({
                 hashes: hashes,
@@ -60,7 +60,7 @@ export async function getProjects(projectIds) {
             const url = `${config.MODRINTH_PROJECTS_ENDPOINT}?ids=${encodeURIComponent(JSON.stringify(chunk))}`;
             const response = await fetch(url, {
                 headers: {
-                    'User-Agent': config.MODRINTH_USER_AGENT,
+                    'User-Agent': config.PACKAGE_USER_AGENT,
                 },
             });
 
@@ -96,7 +96,7 @@ export async function getUsers(userIds) {
             const url = `${config.MODRINTH_USERS_ENDPOINT}?ids=${encodeURIComponent(JSON.stringify(chunk))}`;
             const response = await fetch(url, {
                 headers: {
-                    'User-Agent': config.MODRINTH_USER_AGENT,
+                    'User-Agent': config.PACKAGE_USER_AGENT,
                 },
             });
 
@@ -125,7 +125,7 @@ export async function getMinecraftVersions() {
         const url = config.MODRINTH_MINECRAFT_VERSIONS_ENDPOINT;
         const response = await fetch(url, {
             headers: {
-                'User-Agent': config.MODRINTH_USER_AGENT,
+                'User-Agent': config.PACKAGE_USER_AGENT,
             },
         });
         if (!response.ok) {
@@ -159,7 +159,7 @@ export async function getModloaders() {
         const url = config.MODRINTH_MODLOADERS_ENDPOINT;
         const response = await fetch(url, {
             headers: {
-                'User-Agent': config.MODRINTH_USER_AGENT,
+                'User-Agent': config.PACKAGE_USER_AGENT,
             },
         });
         if (!response.ok) {

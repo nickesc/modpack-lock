@@ -9,7 +9,14 @@ import * as config from './config/index.js';
 export async function getLicenseList(featured = false) {
     try {
         const url = featured ? config.GITHUB_FEATURED_LICENSES_ENDPOINT : config.GITHUB_LICENSES_ENDPOINT;
-        const response = await fetch(url);
+        const response = await fetch(url,
+            {
+                headers: {
+                    'Accept': config.GITHUB_ACCEPT_HEADER,
+                    'User-Agent': config.PACKAGE_USER_AGENT
+                }
+            }
+        );
         if (!response.ok) {
             const errorText = await response.text();
             throw new Error(`GitHub API error (${response.status}): ${errorText}`);
@@ -50,7 +57,12 @@ export async function getLicenseText(spdxId) {
     }
     try {
         const url = config.GITHUB_LICENSE_ENDPOINT(spdxId.toLowerCase());
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            headers: {
+                'Accept': config.GITHUB_ACCEPT_HEADER,
+                'User-Agent': config.PACKAGE_USER_AGENT
+            },
+        });
         if (!response.ok) {
             const errorText = await response.text();
             throw new Error(`GitHub API error (${response.status}): ${errorText}`);

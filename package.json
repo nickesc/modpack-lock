@@ -11,7 +11,7 @@
   },
   "homepage": "https://nickesc.github.io/modpack-lock",
   "license": "MIT",
-  "author": "N. Escobar <nick@nescobar.media> (https://nickesc.github.io/)",
+  "author": "N. Escobar <nick@nickesc.io> (https://nickesc.github.io/)",
   "type": "module",
   "main": "src/modpack-lock.js",
   "bin": {
