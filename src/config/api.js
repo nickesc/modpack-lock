@@ -1,3 +1,6 @@
+import pkg from '../../package.json' with { type: 'json' };
+import * as constants from './constants.js';
+
 /** Modrinth API base URL */
 export const MODRINTH_API_BASE = 'https://api.modrinth.com/v2';
 
@@ -15,6 +18,9 @@ export const MODRINTH_MINECRAFT_VERSIONS_ENDPOINT = `${MODRINTH_API_BASE}/tag/ga
 
 /** Modrinth Modloaders endpoint */
 export const MODRINTH_MODLOADERS_ENDPOINT = `${MODRINTH_API_BASE}/tag/loader`;
+
+/** User-Agent header for Modrinth API requests */
+export const MODRINTH_USER_AGENT = `${constants.AUTHOR_USERNAME}/${pkg.name}/${pkg.version}`;
 
 /** Batch size for Modrinth API requests */
 export const BATCH_SIZE = 100;
