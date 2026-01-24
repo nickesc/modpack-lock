@@ -1,5 +1,8 @@
 import pkg from '../../package.json' with { type: 'json' };
 
+/** Author username */
+export const AUTHOR_USERNAME = 'nickesc';
+
 /** Lockfile format version -- increment on changes to the format */
 export const LOCKFILE_VERSION = "1.0.1";
 
