@@ -24,6 +24,7 @@ export async function getVersionsFromHashes(hashes) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'User-Agent': config.MODRINTH_USER_AGENT,
             },
             body: JSON.stringify({
                 hashes: hashes,
@@ -57,7 +58,11 @@ export async function getProjects(projectIds) {
     for (const chunk of chunks) {
         try {
             const url = `${config.MODRINTH_PROJECTS_ENDPOINT}?ids=${encodeURIComponent(JSON.stringify(chunk))}`;
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                headers: {
+                    'User-Agent': config.MODRINTH_USER_AGENT,
+                },
+            });
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -89,7 +94,11 @@ export async function getUsers(userIds) {
     for (const chunk of chunks) {
         try {
             const url = `${config.MODRINTH_USERS_ENDPOINT}?ids=${encodeURIComponent(JSON.stringify(chunk))}`;
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                headers: {
+                    'User-Agent': config.MODRINTH_USER_AGENT,
+                },
+            });
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -114,7 +123,11 @@ export async function getUsers(userIds) {
 export async function getMinecraftVersions() {
     try {
         const url = config.MODRINTH_MINECRAFT_VERSIONS_ENDPOINT;
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': config.MODRINTH_USER_AGENT,
+            },
+        });
         if (!response.ok) {
             const errorText = await response.text();
             throw new Error(`Modrinth API error (${response.status}): ${errorText}`);
@@ -144,7 +157,11 @@ export async function getMinecraftVersions() {
 export async function getModloaders() {
     try {
         const url = config.MODRINTH_MODLOADERS_ENDPOINT;
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': config.MODRINTH_USER_AGENT,
+            },
+        });
         if (!response.ok) {
             const errorText = await response.text();
             throw new Error(`Modrinth API error (${response.status}): ${errorText}`);
