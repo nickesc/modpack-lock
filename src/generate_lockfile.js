@@ -71,7 +71,7 @@ async function writeLockfile(lockfile, outputPath) {
  */
 function generateCategoryReadme(category, entries, projectsMap, usersMap) {
     const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
-    const lines = [`# ${categoryTitle}`, '', '| Name | Author | Version |', '|-|-|-|'];
+    const lines = [`# ${categoryTitle}`, '', '| Name | Author | Version | Dependencies | Dependants |', '|-|-|-|-|-|'];
 
     // Map category to Modrinth URL path segment
     const categoryPathMap = {};
@@ -80,11 +80,21 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
     }
     const categoryPath = categoryPathMap[category] || 'project';
 
+    // Build a set of project_ids present in this category for filtering dependencies
+    const categoryProjectIds = new Set();
+    for (const entry of entries) {
+        if (entry.version && entry.version.project_id) {
+            categoryProjectIds.add(entry.version.project_id);
+        }
+    }
+
     for (const entry of entries) {
         const version = entry.version;
         let nameCell = '';
         let authorCell = '';
         let versionCell = '';
+        let dependenciesCell = '';
+        let dependantsCell = '';
 
         if (version && version.project_id) {
             const project = projectsMap[version.project_id];
@@ -123,15 +133,68 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
 
             // Version column
             versionCell = version.version_number || 'Unknown';
+
+            // Dependencies column - only show dependencies that are present in this category
+            if (version.dependencies && Array.isArray(version.dependencies) && version.dependencies.length > 0) {
+                const dependencyLinks = [];
+                for (const dep of version.dependencies) {
+                    if (dep.project_id && categoryProjectIds.has(dep.project_id)) {
+                        const depProject = projectsMap[dep.project_id];
+                        if (depProject) {
+                            const depProjectName = depProject.title || depProject.slug || 'Unknown';
+                            const depProjectSlug = depProject.slug || depProject.id;
+                            const depUrl = `https://modrinth.com/${categoryPath}/${depProjectSlug}`;
+                            if (depProject.icon_url) {
+                                dependencyLinks.push(`<a href="${depUrl}"><img alt="${depProjectName}" src="${depProject.icon_url}" height="20px"></a>`);
+                            } else {
+                                dependencyLinks.push(`[${depProjectName}](${depUrl})`);
+                            }
+                        }
+                    }
+                }
+                dependenciesCell = dependencyLinks.length > 0 ? dependencyLinks.join(' ') : '-';
+            } else {
+                dependenciesCell = '-';
+            }
+
+            // Dependants column - find all entries in the same category that depend on this project
+            const dependants = [];
+            for (const catEntry of entries) {
+                // Skip if this is the same entry (same project_id)
+                if (catEntry.version && catEntry.version.project_id === version.project_id) {
+                    continue;
+                }
+                if (catEntry.version && catEntry.version.dependencies && Array.isArray(catEntry.version.dependencies)) {
+                    const hasDependency = catEntry.version.dependencies.some(
+                        dep => dep.project_id === version.project_id
+                    );
+                    if (hasDependency) {
+                        const depProject = projectsMap[catEntry.version.project_id];
+                        if (depProject) {
+                            const depProjectName = depProject.title || depProject.slug || 'Unknown';
+                            const depProjectSlug = depProject.slug || depProject.id;
+                            const depUrl = `https://modrinth.com/${categoryPath}/${depProjectSlug}`;
+                            if (depProject.icon_url) {
+                                dependants.push(`<a href="${depUrl}"><img alt="${depProjectName}" src="${depProject.icon_url}" height="20px"></a>`);
+                            } else {
+                                dependants.push(`[${depProjectName}](${depUrl})`);
+                            }
+                        }
+                    }
+                }
+            }
+            dependantsCell = dependants.length > 0 ? dependants.join(' ') : '-';
         } else {
             // File not found on Modrinth
             const fileName = path.basename(entry.path);
             nameCell = fileName;
             authorCell = 'Unknown';
             versionCell = '-';
+            dependenciesCell = '-';
+            dependantsCell = '-';
         }
 
-        lines.push(`| ${nameCell} | ${authorCell} | ${versionCell} |`);
+        lines.push(`| ${nameCell} | ${authorCell} | ${versionCell} | ${dependenciesCell} | ${dependantsCell} |`);
     }
 
     return lines.join('\n') + '\n';
