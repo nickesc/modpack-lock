@@ -1,3 +1,9 @@
+import pkg from '../../package.json' with { type: 'json' };
+import * as constants from './constants.js';
+
+/** User-Agent header for Modrinth API requests */
+export const PACKAGE_USER_AGENT = `${constants.AUTHOR_USERNAME}/${pkg.name}/${pkg.version}`;
+
 /** Modrinth API base URL */
 export const MODRINTH_API_BASE = 'https://api.modrinth.com/v2';
 
@@ -30,3 +36,6 @@ export const GITHUB_FEATURED_LICENSES_ENDPOINT = `${GITHUB_LICENSES_ENDPOINT}?fe
 
 /** GitHub license endpoint */
 export const GITHUB_LICENSE_ENDPOINT = (license) => `${GITHUB_API_BASE}/licenses/${license}`;
+
+/** GitHub Accept request header */
+export const GITHUB_ACCEPT_HEADER = 'application/vnd.github+json';
