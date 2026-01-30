@@ -17,19 +17,7 @@ class Logger {
         labelError: ["bgRed", "bold"],
     };
 
-    /**
-     * Whether to quiet the console output.
-     * @type {boolean}
-     */
-    quiet = false;
-
-    /**
-     * Whether to silence the console output.
-     * @type {boolean}
-     */
-    silent = false;
-
-    #styleArgs(style, args) {
+    styleArgs(style, args) {
         if (!style) {
             return args;
         }
@@ -51,65 +39,64 @@ class Logger {
      * @param {string} text - The text to log.
      */
     header(text) {
-        if (!this.quiet) {
-            console.log(this.label(text));
-        }
+        console.log(this.label(text));
     }
 
     /**
      * Log a message.
-     * @param {...any} args - The arguments to log.
+     * @param {string} message - The message to log.
+     * @param {...any} otherMessages - The other messages to log.
      */
-    log(...args) {
-        if (!this.quiet) {
-            console.log(...this.#styleArgs(this.styles.log, args));
-        }
+    log(message, ...otherMessages) {
+        console.log(...this.styleArgs(this.styles.log, [message, ...otherMessages]));
     }
 
     /**
      * Log an info message.
-     * @param {...any} args - The arguments to log.
+     * @param {string} message - The message to log.
+     * @param {...any} otherMessages - The other messages to log.
      */
-    info(...args) {
-        if (!this.quiet) {
-            console.info(...this.#styleArgs(this.styles.info, args));
-        }
+    info(message, ...otherMessages) {
+        console.info(...this.styleArgs(this.styles.info, [message, ...otherMessages]));
     }
 
     /**
      * Log a debug message.
-     * @param {...any} args - The arguments to log.
+     * @param {string} message - The message to log.
+     * @param {...any} otherMessages - The other messages to log.
      */
-    debug(...args) {
-        if (!this.quiet) {
-            console.debug(this.label("//", this.styles.labelDebug), ...this.#styleArgs(this.styles.debug, args));
-        }
+    debug(message, ...otherMessages) {
+        console.debug(
+            this.label("//", this.styles.labelDebug),
+            ...this.styleArgs(this.styles.debug, [message, ...otherMessages]),
+        );
     }
 
     /**
      * Log a warning message.
-     * @param {...any} args - The arguments to log.
+     * @param {string} message - The message to log.
+     * @param {...any} otherMessages - The other messages to log.
      */
-    warn(...args) {
-        if (!this.silent) {
-            console.warn(this.label("WARNING", this.styles.labelWarn), ...this.#styleArgs(this.styles.warn, args));
-        }
+    warn(message, ...otherMessages) {
+        console.warn(
+            this.label("WARNING", this.styles.labelWarn),
+            ...this.styleArgs(this.styles.warn, [message, ...otherMessages]),
+        );
     }
 
     /**
      * Log an error message.
-     * @param {...any} args - The arguments to log.
+     * @param {string} message - The message to log.
+     * @param {...any} otherMessages - The other messages to log.
      */
-    error(...args) {
-        if (!this.silent) {
-            console.error(this.label("ERROR", this.styles.labelError), ...this.#styleArgs(this.styles.error, args));
-        }
+    error(message, ...otherMessages) {
+        console.error(
+            this.label("ERROR", this.styles.labelError),
+            ...this.styleArgs(this.styles.error, [message, ...otherMessages]),
+        );
     }
 }
 
-/**
- * Logger utility for logging formatted/colorized messages to the console.
- */
 const logm = new Logger();
 
 export {logm, styleText};
