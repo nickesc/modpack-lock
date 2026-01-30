@@ -1,7 +1,7 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { getLicenseText } from './github_interactions.js';
-import * as config from './config/index.js';
+import fs from "fs/promises";
+import path from "path";
+import {getLicenseText} from "./github_interactions.js";
+import * as config from "./config/index.js";
 
 /**
  * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
@@ -10,7 +10,7 @@ import * as config from './config/index.js';
  */
 
 async function writeLicense(licenseText, outputPath) {
-    await fs.writeFile(path.join(outputPath, config.MODPACK_LICENSE_NAME), licenseText, 'utf-8');
+    await fs.writeFile(path.join(outputPath, config.MODPACK_LICENSE_NAME), licenseText, "utf-8");
     console.log(`${config.MODPACK_LICENSE_NAME} written to: ${path.join(outputPath, config.MODPACK_LICENSE_NAME)}`);
 }
 
@@ -27,18 +27,20 @@ export default async function generateLicense(modpackInfo, outputPath, options =
         const spdxId = modpackInfo.license;
         console.log(`Generating license for: ${spdxId}`);
 
-        let licenseText = licenseTextOverride || await getLicenseText(spdxId);
-        licenseText = licenseText.replace('[year]', new Date().getFullYear());
-        licenseText = licenseText.replace('{{year}}', new Date().getFullYear());
-        licenseText = licenseText.replace('[fullname]', modpackInfo.author);
-        licenseText = licenseText.replace('{{fullname}}', modpackInfo.author);
-        licenseText = licenseText.replace('[organization]', modpackInfo.author);
-        licenseText = licenseText.replace('{{organization}}', modpackInfo.author);
-        licenseText = licenseText.replace('[project]', modpackInfo.name);
-        licenseText = licenseText.replace('{{project}}', modpackInfo.name);
+        let licenseText = licenseTextOverride || (await getLicenseText(spdxId));
+        licenseText = licenseText.replace("[year]", new Date().getFullYear());
+        licenseText = licenseText.replace("{{year}}", new Date().getFullYear());
+        licenseText = licenseText.replace("[fullname]", modpackInfo.author);
+        licenseText = licenseText.replace("{{fullname}}", modpackInfo.author);
+        licenseText = licenseText.replace("[organization]", modpackInfo.author);
+        licenseText = licenseText.replace("{{organization}}", modpackInfo.author);
+        licenseText = licenseText.replace("[project]", modpackInfo.name);
+        licenseText = licenseText.replace("{{project}}", modpackInfo.name);
 
         if (options.dryRun) {
-            console.log(config.dryRunText(config.MODPACK_LICENSE_NAME, path.join(outputPath, config.MODPACK_LICENSE_NAME)));
+            console.log(
+                config.dryRunText(config.MODPACK_LICENSE_NAME, path.join(outputPath, config.MODPACK_LICENSE_NAME)),
+            );
         } else {
             await writeLicense(licenseText, outputPath);
         }

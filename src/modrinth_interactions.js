@@ -1,4 +1,4 @@
-import * as config from './config/index.js';
+import * as config from "./config/index.js";
 
 /**
  * Split an array into chunks of specified size
@@ -21,14 +21,14 @@ export async function getVersionsFromHashes(hashes) {
 
     try {
         const response = await fetch(config.MODRINTH_VERSION_FILES_ENDPOINT, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
-                'User-Agent': config.PACKAGE_USER_AGENT,
+                "Content-Type": "application/json",
+                "User-Agent": config.PACKAGE_USER_AGENT,
             },
             body: JSON.stringify({
                 hashes: hashes,
-                algorithm: 'sha1',
+                algorithm: "sha1",
             }),
         });
 
@@ -60,7 +60,7 @@ export async function getProjects(projectIds) {
             const url = `${config.MODRINTH_PROJECTS_ENDPOINT}?ids=${encodeURIComponent(JSON.stringify(chunk))}`;
             const response = await fetch(url, {
                 headers: {
-                    'User-Agent': config.PACKAGE_USER_AGENT,
+                    "User-Agent": config.PACKAGE_USER_AGENT,
                 },
             });
 
@@ -96,7 +96,7 @@ export async function getUsers(userIds) {
             const url = `${config.MODRINTH_USERS_ENDPOINT}?ids=${encodeURIComponent(JSON.stringify(chunk))}`;
             const response = await fetch(url, {
                 headers: {
-                    'User-Agent': config.PACKAGE_USER_AGENT,
+                    "User-Agent": config.PACKAGE_USER_AGENT,
                 },
             });
 
@@ -125,7 +125,7 @@ export async function getMinecraftVersions() {
         const url = config.MODRINTH_MINECRAFT_VERSIONS_ENDPOINT;
         const response = await fetch(url, {
             headers: {
-                'User-Agent': config.PACKAGE_USER_AGENT,
+                "User-Agent": config.PACKAGE_USER_AGENT,
             },
         });
         if (!response.ok) {
@@ -137,9 +137,12 @@ export async function getMinecraftVersions() {
         if (json) {
             //sort by version type (in the order of the MINECRAFT_VERSION_TYPES array)
             json.sort((a, b) => {
-                return config.MINECRAFT_VERSION_TYPES.indexOf(a.version_type) - config.MINECRAFT_VERSION_TYPES.indexOf(b.version_type);
+                return (
+                    config.MINECRAFT_VERSION_TYPES.indexOf(a.version_type) -
+                    config.MINECRAFT_VERSION_TYPES.indexOf(b.version_type)
+                );
             });
-            return json.map(version => ({ title: version.version, value: version.version }));
+            return json.map((version) => ({title: version.version, value: version.version}));
         } else {
             throw new Error();
         }
@@ -159,7 +162,7 @@ export async function getModloaders() {
         const url = config.MODRINTH_MODLOADERS_ENDPOINT;
         const response = await fetch(url, {
             headers: {
-                'User-Agent': config.PACKAGE_USER_AGENT,
+                "User-Agent": config.PACKAGE_USER_AGENT,
             },
         });
         if (!response.ok) {
@@ -169,7 +172,7 @@ export async function getModloaders() {
 
         const json = await response.json();
         if (json) {
-            return json.map(loader => ({ title: loader.name, value: loader.name }));
+            return json.map((loader) => ({title: loader.name, value: loader.name}));
         } else {
             throw new Error();
         }

@@ -1,8 +1,8 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { getVersionsFromHashes, getProjects, getUsers } from './modrinth_interactions.js';
-import { getScanDirectories, scanDirectory } from './directory_scanning.js';
-import * as config from './config/index.js';
+import fs from "fs/promises";
+import path from "path";
+import {getVersionsFromHashes, getProjects, getUsers} from "./modrinth_interactions.js";
+import {getScanDirectories, scanDirectory} from "./directory_scanning.js";
+import * as config from "./config/index.js";
 
 /**
  * @typedef {import('./config/types.js').Options} Options
@@ -62,7 +62,7 @@ function createLockfile(fileEntries, versionData) {
  */
 async function writeLockfile(lockfile, outputPath) {
     const content = JSON.stringify(lockfile, null, 2);
-    await fs.writeFile(outputPath, content, 'utf-8');
+    await fs.writeFile(outputPath, content, "utf-8");
     console.log(`Lockfile written to: ${outputPath}`);
 }
 
@@ -71,14 +71,14 @@ async function writeLockfile(lockfile, outputPath) {
  */
 function generateCategoryReadme(category, entries, projectsMap, usersMap) {
     const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
-    const lines = [`# ${categoryTitle}`, '', '| Name | Author | Version | Dependencies | Dependants |', '|-|-|-|-|-|'];
+    const lines = [`# ${categoryTitle}`, "", "| Name | Author | Version | Dependencies | Dependants |", "|-|-|-|-|-|"];
 
     // Map category to Modrinth URL path segment
     const categoryPathMap = {};
     for (const category of config.DEPENDENCY_CATEGORIES) {
-        categoryPathMap[category] = category === 'shaderpacks' ? 'shader' : category.toLowerCase().slice(0, -1);
+        categoryPathMap[category] = category === "shaderpacks" ? "shader" : category.toLowerCase().slice(0, -1);
     }
-    const categoryPath = categoryPathMap[category] || 'project';
+    const categoryPath = categoryPathMap[category] || "project";
 
     // Build a set of project_ids present in this category for filtering dependencies
     const categoryProjectIds = new Set();
@@ -90,11 +90,11 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
 
     for (const entry of entries) {
         const version = entry.version;
-        let nameCell = '';
-        let authorCell = '';
-        let versionCell = '';
-        let dependenciesCell = '';
-        let dependantsCell = '';
+        let nameCell = "";
+        let authorCell = "";
+        let versionCell = "";
+        let dependenciesCell = "";
+        let dependantsCell = "";
 
         if (version && version.project_id) {
             const project = projectsMap[version.project_id];
@@ -102,7 +102,7 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
 
             // Name column with icon and link
             if (project) {
-                const projectName = project.title || project.slug || 'Unknown';
+                const projectName = project.title || project.slug || "Unknown";
                 const projectSlug = project.slug || project.id;
                 const projectUrl = `https://modrinth.com/${categoryPath}/${projectSlug}`;
 
@@ -119,7 +119,7 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
 
             // Author column with avatar and link
             if (author) {
-                const authorName = author.username || 'Unknown';
+                const authorName = author.username || "Unknown";
                 const authorUrl = `https://modrinth.com/user/${authorName}`;
 
                 if (author.avatar_url) {
@@ -128,11 +128,11 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
                     authorCell = `[${authorName}](${authorUrl})`;
                 }
             } else {
-                authorCell = 'Unknown';
+                authorCell = "Unknown";
             }
 
             // Version column
-            versionCell = version.version_number || 'Unknown';
+            versionCell = version.version_number || "Unknown";
 
             // Dependencies column - only show dependencies that are present in this category
             if (version.dependencies && Array.isArray(version.dependencies) && version.dependencies.length > 0) {
@@ -141,20 +141,22 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
                     if (dep.project_id && categoryProjectIds.has(dep.project_id)) {
                         const depProject = projectsMap[dep.project_id];
                         if (depProject) {
-                            const depProjectName = depProject.title || depProject.slug || 'Unknown';
+                            const depProjectName = depProject.title || depProject.slug || "Unknown";
                             const depProjectSlug = depProject.slug || depProject.id;
                             const depUrl = `https://modrinth.com/${categoryPath}/${depProjectSlug}`;
                             if (depProject.icon_url) {
-                                dependencyLinks.push(`<a href="${depUrl}"><img alt="${depProjectName}" src="${depProject.icon_url}" height="20px"></a>`);
+                                dependencyLinks.push(
+                                    `<a href="${depUrl}"><img alt="${depProjectName}" src="${depProject.icon_url}" height="20px"></a>`,
+                                );
                             } else {
                                 dependencyLinks.push(`[${depProjectName}](${depUrl})`);
                             }
                         }
                     }
                 }
-                dependenciesCell = dependencyLinks.length > 0 ? dependencyLinks.join(' ') : '-';
+                dependenciesCell = dependencyLinks.length > 0 ? dependencyLinks.join(" ") : "-";
             } else {
-                dependenciesCell = '-';
+                dependenciesCell = "-";
             }
 
             // Dependants column - find all entries in the same category that depend on this project
@@ -166,16 +168,18 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
                 }
                 if (catEntry.version && catEntry.version.dependencies && Array.isArray(catEntry.version.dependencies)) {
                     const hasDependency = catEntry.version.dependencies.some(
-                        dep => dep.project_id === version.project_id
+                        (dep) => dep.project_id === version.project_id,
                     );
                     if (hasDependency) {
                         const depProject = projectsMap[catEntry.version.project_id];
                         if (depProject) {
-                            const depProjectName = depProject.title || depProject.slug || 'Unknown';
+                            const depProjectName = depProject.title || depProject.slug || "Unknown";
                             const depProjectSlug = depProject.slug || depProject.id;
                             const depUrl = `https://modrinth.com/${categoryPath}/${depProjectSlug}`;
                             if (depProject.icon_url) {
-                                dependants.push(`<a href="${depUrl}"><img alt="${depProjectName}" src="${depProject.icon_url}" height="20px"></a>`);
+                                dependants.push(
+                                    `<a href="${depUrl}"><img alt="${depProjectName}" src="${depProject.icon_url}" height="20px"></a>`,
+                                );
                             } else {
                                 dependants.push(`[${depProjectName}](${depUrl})`);
                             }
@@ -183,21 +187,21 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
                     }
                 }
             }
-            dependantsCell = dependants.length > 0 ? dependants.join(' ') : '-';
+            dependantsCell = dependants.length > 0 ? dependants.join(" ") : "-";
         } else {
             // File not found on Modrinth
             const fileName = path.basename(entry.path);
             nameCell = fileName;
-            authorCell = 'Unknown';
-            versionCell = '-';
-            dependenciesCell = '-';
-            dependantsCell = '-';
+            authorCell = "Unknown";
+            versionCell = "-";
+            dependenciesCell = "-";
+            dependantsCell = "-";
         }
 
         lines.push(`| ${nameCell} | ${authorCell} | ${versionCell} | ${dependenciesCell} | ${dependantsCell} |`);
     }
 
-    return lines.join('\n') + '\n';
+    return lines.join("\n") + "\n";
 }
 
 /**
@@ -227,20 +231,20 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
 
     // Add exceptions if any
     if (exceptions.length > 0) {
-        rules.push('\n## Exceptions');
+        rules.push("\n## Exceptions");
         rules.push(...exceptions);
     }
 
-    const rulesContent = rules.join('\n');
+    const rulesContent = rules.join("\n");
     const gitignorePath = path.join(workingDir, config.GITIGNORE_NAME);
 
     // Read existing .gitignore file if it exists
-    let existingContent = '';
+    let existingContent = "";
     try {
-        existingContent = await fs.readFile(gitignorePath, 'utf-8');
+        existingContent = await fs.readFile(gitignorePath, "utf-8");
     } catch (error) {
         // File doesn't exist, that's okay - we'll create it
-        if (error.code !== 'ENOENT') {
+        if (error.code !== "ENOENT") {
             console.warn(`Warning: Could not read .gitignore file: ${error.message}`);
             return;
         }
@@ -250,7 +254,7 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
     const startMarkerIndex = existingContent.indexOf(config.GITIGNORE_START_MARKER);
     const endMarkerIndex = existingContent.indexOf(config.GITIGNORE_END_MARKER);
 
-    let newContent = '';
+    let newContent = "";
 
     if (startMarkerIndex !== -1 && endMarkerIndex !== -1 && endMarkerIndex > startMarkerIndex) {
         // Both markers exist, replace content between them
@@ -258,51 +262,33 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
         const afterSection = existingContent.substring(endMarkerIndex + config.GITIGNORE_END_MARKER.length);
 
         // Remove trailing newlines from before section and leading newlines from after section
-        const beforeTrimmed = beforeSection.replace(/\n+$/, '');
-        const afterTrimmed = afterSection.replace(/^\n+/, '');
+        const beforeTrimmed = beforeSection.replace(/\n+$/, "");
+        const afterTrimmed = afterSection.replace(/^\n+/, "");
 
         const parts = [beforeTrimmed];
-        if (beforeTrimmed) parts.push(''); // Add separator if there's content before
-        parts.push(
-            config.GITIGNORE_START_MARKER,
-            rulesContent,
-            config.GITIGNORE_END_MARKER
-        );
+        if (beforeTrimmed) parts.push(""); // Add separator if there's content before
+        parts.push(config.GITIGNORE_START_MARKER, rulesContent, config.GITIGNORE_END_MARKER);
         if (afterTrimmed) {
-            parts.push(''); // Add separator if there's content after
+            parts.push(""); // Add separator if there's content after
             parts.push(afterTrimmed);
         }
 
-        newContent = parts.join('\n');
+        newContent = parts.join("\n");
     } else if (startMarkerIndex !== -1 || endMarkerIndex !== -1) {
         // Only one marker exists, append to end
-        const trimmed = existingContent.replace(/\n+$/, '');
-        newContent = [
-            trimmed,
-            '',
-            config.GITIGNORE_START_MARKER,
-            rulesContent,
-            config.GITIGNORE_END_MARKER
-        ].join('\n');
+        const trimmed = existingContent.replace(/\n+$/, "");
+        newContent = [trimmed, "", config.GITIGNORE_START_MARKER, rulesContent, config.GITIGNORE_END_MARKER].join("\n");
     } else {
         // No markers exist, append to end
-        if (existingContent.trim() === '') {
+        if (existingContent.trim() === "") {
             // File is empty or only whitespace
-            newContent = [
-                config.GITIGNORE_START_MARKER,
-                rulesContent,
-                config.GITIGNORE_END_MARKER
-            ].join('\n');
+            newContent = [config.GITIGNORE_START_MARKER, rulesContent, config.GITIGNORE_END_MARKER].join("\n");
         } else {
             // File has content, append with newline
-            const trimmed = existingContent.replace(/\n+$/, '');
-            newContent = [
-                trimmed,
-                '',
-                config.GITIGNORE_START_MARKER,
-                rulesContent,
-                config.GITIGNORE_END_MARKER
-            ].join('\n');
+            const trimmed = existingContent.replace(/\n+$/, "");
+            newContent = [trimmed, "", config.GITIGNORE_START_MARKER, rulesContent, config.GITIGNORE_END_MARKER].join(
+                "\n",
+            );
         }
     }
 
@@ -312,7 +298,7 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
         console.log();
     } else {
         try {
-            await fs.writeFile(gitignorePath, newContent, 'utf-8');
+            await fs.writeFile(gitignorePath, newContent, "utf-8");
             console.log(`Updated .gitignore: ${gitignorePath}`);
         } catch (error) {
             console.warn(`Warning: Could not write .gitignore file: ${error.message}`);
@@ -345,10 +331,7 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
     // Fetch projects and users in parallel
     console.log(`Fetching data for ${projectIds.size} project(s) and ${authorIds.size} user(s)...`);
 
-    const [projects, users] = await Promise.all([
-        getProjects(Array.from(projectIds)),
-        getUsers(Array.from(authorIds)),
-    ]);
+    const [projects, users] = await Promise.all([getProjects(Array.from(projectIds)), getUsers(Array.from(authorIds))]);
 
     // Map projects and users to their IDs
     const projectsMap = {};
@@ -368,7 +351,7 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
         }
 
         const readmeContent = generateCategoryReadme(category, entries, projectsMap, usersMap);
-        const categoryDir = getScanDirectories(workingDir).find(d => d.name === category);
+        const categoryDir = getScanDirectories(workingDir).find((d) => d.name === category);
 
         if (categoryDir) {
             const readmePath = path.join(categoryDir.path, config.README_NAME);
@@ -377,7 +360,7 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
                 console.log(config.dryRunText(config.README_NAME, readmePath));
             } else {
                 try {
-                    await fs.writeFile(readmePath, readmeContent, 'utf-8');
+                    await fs.writeFile(readmePath, readmeContent, "utf-8");
                     console.log(`Generated README: ${readmePath}`);
                 } catch (error) {
                     console.warn(`Warning: Could not write README to ${readmePath}: ${error.message}`);
@@ -386,7 +369,7 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
         }
     }
 
-    console.log('README generation complete.');
+    console.log("README generation complete.");
 }
 
 /**
@@ -396,7 +379,7 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
  * @returns {Lockfile} The lockfile object
  */
 export async function generateLockfile(workingDir, options = {}) {
-    console.log('Scanning directories for modpack files...');
+    console.log("Scanning directories for modpack files...");
 
     // Scan all directories
     const allFileEntries = [];
@@ -410,13 +393,13 @@ export async function generateLockfile(workingDir, options = {}) {
     // Sort file entries
     allFileEntries.sort((a, b) => {
         if (a.category !== b.category) {
-            return a.category.localeCompare(b.category, 'en', { sensitivity: 'base' });
+            return a.category.localeCompare(b.category, "en", {sensitivity: "base"});
         }
-        return a.path.localeCompare(b.path, 'en', { numeric: true, sensitivity: 'base' });
+        return a.path.localeCompare(b.path, "en", {numeric: true, sensitivity: "base"});
     });
 
     if (allFileEntries.length === 0) {
-        console.log('No files found. Creating empty lockfile.');
+        console.log("No files found. Creating empty lockfile.");
         const outputPath = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
         if (options.dryRun) {
             console.log(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
@@ -427,10 +410,10 @@ export async function generateLockfile(workingDir, options = {}) {
     }
 
     console.log(`\nTotal files found: ${allFileEntries.length}`);
-    console.log('\nQuerying Modrinth API...');
+    console.log("\nQuerying Modrinth API...");
 
     // Extract all hashes
-    const hashes = allFileEntries.map(info => info.hash);
+    const hashes = allFileEntries.map((info) => info.hash);
 
     // Query Modrinth API
     const versionData = await getVersionsFromHashes(hashes);
@@ -449,11 +432,13 @@ export async function generateLockfile(workingDir, options = {}) {
     }
 
     // Summary
-    console.log('\n=== Summary ===');
+    console.log("\n=== Summary ===");
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
-        const withVersion = entries.filter(e => e.version !== null).length;
+        const withVersion = entries.filter((e) => e.version !== null).length;
         const withoutVersion = entries.length - withVersion;
-        console.log(`${category}: ${entries.length} file(s) (${withVersion} found on Modrinth, ${withoutVersion} unknown)`);
+        console.log(
+            `${category}: ${entries.length} file(s) (${withVersion} found on Modrinth, ${withoutVersion} unknown)`,
+        );
     }
 
     // Generate .gitignore rules
@@ -463,7 +448,7 @@ export async function generateLockfile(workingDir, options = {}) {
 
     // Generate README files
     if (options.readme) {
-        console.log('\nGenerating README files...');
+        console.log("\nGenerating README files...");
         await generateReadmeFiles(lockfile, workingDir, options);
     }
 

@@ -1,19 +1,18 @@
 #!/usr/bin/env NODE_OPTIONS=--no-warnings node
 
-import { Command } from 'commander';
-import slugify from 'slugify';
-import path from 'path';
-import { spawn } from 'child_process';
-import {generateLockfile} from './generate_lockfile.js';
-import { generateModpackFiles } from './modpack-lock.js';
-import { promptUserForInfo, promptUserAboutOptionalFiles } from './modpack_info.js';
-import { getModpackInfo } from './directory_scanning.js';
-import generateLicense from './generate_license.js';
-import * as config from './config/index.js';
-import pkg from '../package.json' with { type: 'json' };
+import {Command} from "commander";
+import slugify from "slugify";
+import path from "path";
+import {spawn} from "child_process";
+import {generateLockfile} from "./generate_lockfile.js";
+import {generateModpackFiles} from "./modpack-lock.js";
+import {promptUserForInfo, promptUserAboutOptionalFiles} from "./modpack_info.js";
+import {getModpackInfo} from "./directory_scanning.js";
+import generateLicense from "./generate_license.js";
+import * as config from "./config/index.js";
+import pkg from "../package.json" with {type: "json"};
 
-
-const modpackLock = new Command('modpack-lock');
+const modpackLock = new Command("modpack-lock");
 
 const originalLogs = {
     log: console.log,
@@ -26,11 +25,11 @@ const originalLogs = {
  * Silence all console.log output
  */
 function quietConsole(silent = false) {
-    console.log = () => { };
-    console.info = () => { };
+    console.log = () => {};
+    console.info = () => {};
     if (silent) {
-        console.warn = () => { };
-        console.error = () => { };
+        console.warn = () => {};
+        console.error = () => {};
     }
 }
 
@@ -71,17 +70,17 @@ modpackLock
     .description(pkg.description)
     .summary("Create a modpack lockfile")
     .optionsGroup(config.headings.options)
-    .option('-p, --path <path>', 'Path to the modpack directory')
-    .option('-d, --dry-run', 'Dry-run mode - no files will be written')
+    .option("-p, --path <path>", "Path to the modpack directory")
+    .option("-d, --dry-run", "Dry-run mode - no files will be written")
     .optionsGroup(config.headings.generation)
-    .option('-g, --gitignore', config.fileFields.addGitignore.option)
-    .option('-r, --readme', config.fileFields.addReadme.option)
+    .option("-g, --gitignore", config.fileFields.addGitignore.option)
+    .option("-r, --readme", config.fileFields.addReadme.option)
     .optionsGroup(config.headings.logging)
-    .option('-q, --quiet', 'Quiet mode - only show errors and warnings')
-    .option('-s, --silent', 'Silent mode - no output')
+    .option("-q, --quiet", "Quiet mode - only show errors and warnings")
+    .option("-s, --silent", "Silent mode - no output")
     .optionsGroup(config.headings.information)
     .helpOption("-h, --help", `display help for ${pkg.name}`)
-    .version(pkg.version, '-V')
+    .version(pkg.version, "-V")
     .action(async (options) => {
         try {
             const currDir = options.path || process.cwd();
@@ -99,33 +98,34 @@ modpackLock
                 await generateLockfile(currDir, options);
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error("Error:", error);
             process.exitCode = 1;
         }
     });
 
 const jsonDescription = `This utility will walk you through creating a ${config.MODPACK_JSON_NAME} file. It only covers the most common items, and tries to guess sensible defaults.`;
 
-modpackLock.command('init')
+modpackLock
+    .command("init")
     .description(jsonDescription)
     .optionsGroup(config.headings.options)
-    .option('-f, --folder <path>', 'Path to the modpack directory')
-    .option("-n, --noninteractive", 'Non-interactive mode - must provide options for required fields')
-    .option('--add-license', config.fileFields.addLicense.option)
-    .option('--add-gitignore', config.fileFields.addGitignore.option)
-    .option('--add-readme', config.fileFields.addReadme.option)
+    .option("-f, --folder <path>", "Path to the modpack directory")
+    .option("-n, --noninteractive", "Non-interactive mode - must provide options for required fields")
+    .option("--add-license", config.fileFields.addLicense.option)
+    .option("--add-gitignore", config.fileFields.addGitignore.option)
+    .option("--add-readme", config.fileFields.addReadme.option)
     .optionsGroup(config.headings.packInfo)
-    .option('--name <name>', config.infoFields.name.option)
-    .option('--version <version>', config.infoFields.version.option)
-    .option('--id <id>', config.infoFields.id.option)
-    .option('--description <description>', config.infoFields.description.option)
-    .option('--author <author>', config.infoFields.author.option)
-    .option('--projectUrl <projectUrl>', config.infoFields.projectUrl.option)
-    .option('--sourceUrl <sourceUrl>', config.infoFields.sourceUrl.option)
-    .option('--license <license>', config.infoFields.license.option)
-    .option('--modloader <modloader>', config.infoFields.modloader.option)
-    .option('--targetModloaderVersion <targetModloaderVersion>', config.infoFields.targetModloaderVersion.option)
-    .option('--targetMinecraftVersion <targetMinecraftVersion>', config.infoFields.targetMinecraftVersion.option)
+    .option("--name <name>", config.infoFields.name.option)
+    .option("--version <version>", config.infoFields.version.option)
+    .option("--id <id>", config.infoFields.id.option)
+    .option("--description <description>", config.infoFields.description.option)
+    .option("--author <author>", config.infoFields.author.option)
+    .option("--projectUrl <projectUrl>", config.infoFields.projectUrl.option)
+    .option("--sourceUrl <sourceUrl>", config.infoFields.sourceUrl.option)
+    .option("--license <license>", config.infoFields.license.option)
+    .option("--modloader <modloader>", config.infoFields.modloader.option)
+    .option("--targetModloaderVersion <targetModloaderVersion>", config.infoFields.targetModloaderVersion.option)
+    .option("--targetMinecraftVersion <targetMinecraftVersion>", config.infoFields.targetMinecraftVersion.option)
     .optionsGroup(config.headings.information)
     .helpOption("-h, --help", `display help for ${pkg.name} init`)
     .action(async (options) => {
@@ -136,8 +136,12 @@ modpackLock.command('init')
 
         if (options.noninteractive) {
             quietConsole();
-            if ( (!options.author && !existingInfo?.author) || (!options.modloader && !existingInfo?.modloader) || (!options.targetMinecraftVersion && !existingInfo?.targetMinecraftVersion)) {
-                console.error('Error: Must provide options for required fields');
+            if (
+                (!options.author && !existingInfo?.author) ||
+                (!options.modloader && !existingInfo?.modloader) ||
+                (!options.targetMinecraftVersion && !existingInfo?.targetMinecraftVersion)
+            ) {
+                console.error("Error: Must provide options for required fields");
                 process.exitCode = 1;
                 return;
             } else {
@@ -146,13 +150,13 @@ modpackLock.command('init')
                     name: defaultName,
                     version: config.DEFAULT_MODPACK_VERSION,
                     id: defaultName,
-                    description: '',
+                    description: "",
                     author: options.author, // Required, no default
-                    projectUrl: '',
-                    sourceUrl: '',
-                    license: '',
+                    projectUrl: "",
+                    sourceUrl: "",
+                    license: "",
                     modloader: options.modloader, // Required, no default
-                    targetModloaderVersion: '',
+                    targetModloaderVersion: "",
                     targetMinecraftVersion: options.targetMinecraftVersion, // Required, no default
                 };
 
@@ -170,13 +174,15 @@ modpackLock.command('init')
                 try {
                     await generateModpackFiles(modpackInfo, currDir, options);
                 } catch (error) {
-                    console.error('Error:', error);
+                    console.error("Error:", error);
                     process.exitCode = 1;
                 }
             }
         } else {
             console.log(jsonDescription);
-            console.log("\nSee `modpack-lock init --help` for definitive documentation on these fields and exactly what they do.\n");
+            console.log(
+                "\nSee `modpack-lock init --help` for definitive documentation on these fields and exactly what they do.\n",
+            );
             console.log("Press ^C at any time to quit.\n");
             try {
                 const defaults = {
@@ -194,9 +200,7 @@ modpackLock.command('init')
                 };
 
                 // prompt user for modpack information
-                const modpackInfo = await promptUserForInfo(
-                    mergeModpackInfo(existingInfo, options, defaults)
-                );
+                const modpackInfo = await promptUserForInfo(mergeModpackInfo(existingInfo, options, defaults));
 
                 // prompt user if they want to add the license text
                 const optionalFiles = await promptUserAboutOptionalFiles(modpackInfo, options);
@@ -211,18 +215,19 @@ modpackLock.command('init')
                 options.gitignore = optionalFiles.addGitignore;
                 await generateModpackFiles(modpackInfo, currDir, options);
             } catch (error) {
-                console.error('Error:', error);
+                console.error("Error:", error);
                 process.exitCode = 1;
             }
         }
     });
 
-modpackLock.command('run')
+modpackLock
+    .command("run")
     .description(`Run a script defined in the ${config.MODPACK_JSON_NAME} file's 'scripts' field`)
-    .argument('<script>', 'The name of the script to run')
+    .argument("<script>", "The name of the script to run")
     .optionsGroup(config.headings.options)
-    .option('-f, --folder <path>', 'Path to the modpack directory')
-    .option('-D, --debug', 'Debug mode -- show more information about how the command is being parsed')
+    .option("-f, --folder <path>", "Path to the modpack directory")
+    .option("-D, --debug", "Debug mode -- show more information about how the command is being parsed")
     .optionsGroup(config.headings.information)
     .helpOption("-h, --help", `display help for ${pkg.name} run`)
     .allowExcessArguments(true)
@@ -251,7 +256,7 @@ modpackLock.command('run')
             // build the full command
             const scriptCommand = modpackInfo.scripts[script];
             const args = command.args ? command.args.slice(1) : [];
-            const fullCommand = `${scriptCommand} ${args.join(' ')}`;
+            const fullCommand = `${scriptCommand} ${args.join(" ")}`;
 
             // debug logging
             if (options.debug) {
@@ -266,24 +271,24 @@ modpackLock.command('run')
             // spawn the command
             const child = spawn(fullCommand, [], {
                 shell: true,
-                stdio: 'inherit',
-                cwd: currDir
+                stdio: "inherit",
+                cwd: currDir,
             });
 
             // preserve exit code on completion
             const exitCode = await new Promise((resolve) => {
-                child.on('close', (code) => {
+                child.on("close", (code) => {
                     resolve(code || 0);
                 });
             });
             process.exitCode = exitCode;
         } catch (error) {
-            console.error('Error:', error.message);
+            console.error("Error:", error.message);
             process.exitCode = 1;
         }
     });
 
 modpackLock.parseAsync().catch((error) => {
-    console.error('Error:', error);
+    console.error("Error:", error);
     process.exit(1);
 });
