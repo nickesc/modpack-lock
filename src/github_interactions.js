@@ -1,4 +1,5 @@
 import * as config from "./config/index.js";
+import {logm} from "./logger.js";
 
 /**
  * Fetch a list of the most popular licenses from GitHub
@@ -35,7 +36,7 @@ export async function getLicenseList(featured = false) {
 
         return licenseSpdxIds;
     } catch (error) {
-        console.warn(`Warning: could not fetch license list. Using fallbacks.`);
+        logm.warn(`Could not fetch license list. Using fallbacks.`);
         const licenses = config.FALLBACK_LICENSES.push(config.ALL_RIGHTS_RESERVED_LICENSE);
         licenses.push(config.OTHER_OPTION);
         return licenses;
@@ -72,7 +73,7 @@ export async function getLicenseText(spdxId) {
         }
         return null;
     } catch (error) {
-        console.warn(`Warning: could not find license text for: ${spdxId}`);
+        logm.warn(`Could not find license text for: ${spdxId}`);
         return null;
     }
 }

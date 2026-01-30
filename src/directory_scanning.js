@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import crypto from "crypto";
 import path from "path";
 import * as config from "./config/index.js";
+import {logm} from "./logger.js";
 
 /**
  * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
@@ -46,7 +47,7 @@ async function findFiles(dirPath) {
         }
     } catch (error) {
         if (error.code !== "ENOENT") {
-            console.warn(`Warning: Could not read directory ${dirPath}: ${error.message}`);
+            logm.warn(`Could not read directory ${dirPath}: ${error.message}`);
         }
     }
 
@@ -73,7 +74,7 @@ export async function scanDirectory(dirInfo, workspaceRoot) {
                 category: dirInfo.name,
             });
         } catch (error) {
-            console.warn(`Warning: Could not hash file ${filePath}: ${error.message}`);
+            logm.warn(`Could not hash file ${filePath}: ${error.message}`);
         }
     }
 

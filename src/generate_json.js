@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import {getProjects} from "./modrinth_interactions.js";
 import * as config from "./config/index.js";
+import {logm} from "./logger.js";
 
 /**
  * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
@@ -26,7 +27,7 @@ function createModpackJson(modpackInfo, dependencies) {
 async function writeJson(jsonObject, outputPath) {
     const content = JSON.stringify(jsonObject, null, 2);
     await fs.writeFile(path.join(outputPath, config.MODPACK_JSON_NAME), content, "utf-8");
-    console.log(`${config.MODPACK_JSON_NAME} written to: ${path.join(outputPath, config.MODPACK_JSON_NAME)}`);
+    logm.log(`${config.MODPACK_JSON_NAME} written to: ${path.join(outputPath, config.MODPACK_JSON_NAME)}`);
 }
 
 /**
@@ -94,7 +95,7 @@ export default async function generateJson(modpackInfo, lockfile, outputDir, opt
 
     // Write modpack JSON object to disk
     if (options.dryRun) {
-        console.log(config.dryRunText(config.MODPACK_JSON_NAME, path.join(outputDir, config.MODPACK_JSON_NAME)));
+        logm.log(config.dryRunText(config.MODPACK_JSON_NAME, path.join(outputDir, config.MODPACK_JSON_NAME)));
     } else {
         await writeJson(jsonObject, outputDir);
     }

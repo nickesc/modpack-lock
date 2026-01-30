@@ -3,6 +3,7 @@ import path from "path";
 import {getVersionsFromHashes, getProjects, getUsers} from "./modrinth_interactions.js";
 import {getScanDirectories, scanDirectory} from "./directory_scanning.js";
 import * as config from "./config/index.js";
+import {logm} from "./logger.js";
 
 /**
  * @typedef {import('./config/types.js').Options} Options
@@ -41,7 +42,7 @@ function createLockfile(fileEntries, versionData) {
         };
 
         if (!version) {
-            console.warn(`Warning: File ${fileInfo.path} not found on Modrinth`);
+            logm.warn(`File ${fileInfo.path} not found on Modrinth`);
         }
 
         lockfile.dependencies[fileInfo.category].push(entry);
@@ -63,7 +64,7 @@ function createLockfile(fileEntries, versionData) {
 async function writeLockfile(lockfile, outputPath) {
     const content = JSON.stringify(lockfile, null, 2);
     await fs.writeFile(outputPath, content, "utf-8");
-    console.log(`Lockfile written to: ${outputPath}`);
+    logm.log(`Lockfile written to: ${outputPath}`);
 }
 
 /**
@@ -245,7 +246,7 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
     } catch (error) {
         // File doesn't exist, that's okay - we'll create it
         if (error.code !== "ENOENT") {
-            console.warn(`Warning: Could not read .gitignore file: ${error.message}`);
+            logm.warn(`Could not read .gitignore file: ${error.message}`);
             return;
         }
     }
@@ -294,14 +295,14 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
 
     // Write the updated content
     if (options.dryRun) {
-        console.log(config.dryRunText(config.GITIGNORE_NAME, gitignorePath));
-        console.log();
+        logm.log(config.dryRunText(config.GITIGNORE_NAME, gitignorePath));
+        logm.log();
     } else {
         try {
             await fs.writeFile(gitignorePath, newContent, "utf-8");
-            console.log(`Updated .gitignore: ${gitignorePath}`);
+            logm.log(`Updated .gitignore: ${gitignorePath}`);
         } catch (error) {
-            console.warn(`Warning: Could not write .gitignore file: ${error.message}`);
+            logm.warn(`Could not write .gitignore file: ${error.message}`);
         }
     }
 }
@@ -329,7 +330,7 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
     }
 
     // Fetch projects and users in parallel
-    console.log(`Fetching data for ${projectIds.size} project(s) and ${authorIds.size} user(s)...`);
+    logm.log(`Fetching data for ${projectIds.size} project(s) and ${authorIds.size} user(s)...`);
 
     const [projects, users] = await Promise.all([getProjects(Array.from(projectIds)), getUsers(Array.from(authorIds))]);
 
@@ -357,19 +358,19 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
             const readmePath = path.join(categoryDir.path, config.README_NAME);
 
             if (options.dryRun) {
-                console.log(config.dryRunText(config.README_NAME, readmePath));
+                logm.log(config.dryRunText(config.README_NAME, readmePath));
             } else {
                 try {
                     await fs.writeFile(readmePath, readmeContent, "utf-8");
-                    console.log(`Generated README: ${readmePath}`);
+                    logm.log(`Generated README: ${readmePath}`);
                 } catch (error) {
-                    console.warn(`Warning: Could not write README to ${readmePath}: ${error.message}`);
+                    logm.warn(`Could not write README to ${readmePath}: ${error.message}`);
                 }
             }
         }
     }
 
-    console.log("README generation complete.");
+    logm.log("README generation complete.");
 }
 
 /**
@@ -379,14 +380,14 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
  * @returns {Lockfile} The lockfile object
  */
 export async function generateLockfile(workingDir, options = {}) {
-    console.log("Scanning directories for modpack files...");
+    logm.log("Scanning directories for modpack files...");
 
     // Scan all directories
     const allFileEntries = [];
     for (const dirInfo of getScanDirectories(workingDir)) {
-        console.log(`Scanning ${dirInfo.name}...`);
+        logm.log(`Scanning ${dirInfo.name}...`);
         const fileEntries = await scanDirectory(dirInfo, workingDir);
-        console.log(`  Found ${fileEntries.length} file(s)`);
+        logm.log(`  Found ${fileEntries.length} file(s)`);
         allFileEntries.push(...fileEntries);
     }
 
@@ -399,18 +400,18 @@ export async function generateLockfile(workingDir, options = {}) {
     });
 
     if (allFileEntries.length === 0) {
-        console.log("No files found. Creating empty lockfile.");
+        logm.log("No files found. Creating empty lockfile.");
         const outputPath = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
         if (options.dryRun) {
-            console.log(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
+            logm.log(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
         } else {
             await writeLockfile(createEmptyLockfile(), outputPath);
         }
         return;
     }
 
-    console.log(`\nTotal files found: ${allFileEntries.length}`);
-    console.log("\nQuerying Modrinth API...");
+    logm.log(`\nTotal files found: ${allFileEntries.length}`);
+    logm.log("\nQuerying Modrinth API...");
 
     // Extract all hashes
     const hashes = allFileEntries.map((info) => info.hash);
@@ -418,7 +419,7 @@ export async function generateLockfile(workingDir, options = {}) {
     // Query Modrinth API
     const versionData = await getVersionsFromHashes(hashes);
 
-    console.log(`\nFound version information for ${Object.keys(versionData).length} out of ${hashes.length} files`);
+    logm.log(`\nFound version information for ${Object.keys(versionData).length} out of ${hashes.length} files`);
 
     // Create lockfile
     const lockfile = createLockfile(allFileEntries, versionData);
@@ -426,17 +427,17 @@ export async function generateLockfile(workingDir, options = {}) {
     // Write lockfile
     const outputPath = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
     if (options.dryRun) {
-        console.log(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
+        logm.log(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
     } else {
         await writeLockfile(lockfile, outputPath);
     }
 
     // Summary
-    console.log("\n=== Summary ===");
+    logm.log("\n=== Summary ===");
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
         const withVersion = entries.filter((e) => e.version !== null).length;
         const withoutVersion = entries.length - withVersion;
-        console.log(
+        logm.log(
             `${category}: ${entries.length} file(s) (${withVersion} found on Modrinth, ${withoutVersion} unknown)`,
         );
     }
@@ -448,7 +449,7 @@ export async function generateLockfile(workingDir, options = {}) {
 
     // Generate README files
     if (options.readme) {
-        console.log("\nGenerating README files...");
+        logm.log("\nGenerating README files...");
         await generateReadmeFiles(lockfile, workingDir, options);
     }
 

@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import {getLicenseText} from "./github_interactions.js";
 import * as config from "./config/index.js";
+import {logm} from "./logger.js";
 
 /**
  * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
@@ -11,7 +12,7 @@ import * as config from "./config/index.js";
 
 async function writeLicense(licenseText, outputPath) {
     await fs.writeFile(path.join(outputPath, config.MODPACK_LICENSE_NAME), licenseText, "utf-8");
-    console.log(`${config.MODPACK_LICENSE_NAME} written to: ${path.join(outputPath, config.MODPACK_LICENSE_NAME)}`);
+    logm.log(`${config.MODPACK_LICENSE_NAME} written to: ${path.join(outputPath, config.MODPACK_LICENSE_NAME)}`);
 }
 
 /**
@@ -25,7 +26,7 @@ async function writeLicense(licenseText, outputPath) {
 export default async function generateLicense(modpackInfo, outputPath, options = {}, licenseTextOverride = null) {
     try {
         const spdxId = modpackInfo.license;
-        console.log(`Generating license for: ${spdxId}`);
+        logm.log(`Generating license for: ${spdxId}`);
 
         let licenseText = licenseTextOverride || (await getLicenseText(spdxId));
         licenseText = licenseText.replace("[year]", new Date().getFullYear());
@@ -38,7 +39,7 @@ export default async function generateLicense(modpackInfo, outputPath, options =
         licenseText = licenseText.replace("{{project}}", modpackInfo.name);
 
         if (options.dryRun) {
-            console.log(
+            logm.log(
                 config.dryRunText(config.MODPACK_LICENSE_NAME, path.join(outputPath, config.MODPACK_LICENSE_NAME)),
             );
         } else {
@@ -46,7 +47,7 @@ export default async function generateLicense(modpackInfo, outputPath, options =
         }
         return licenseText;
     } catch (error) {
-        console.warn(`Warning: unable to generate license for: ${modpackInfo.license}`);
+        logm.warn(`Unable to generate license for: ${modpackInfo.license}`);
         return null;
     }
 }

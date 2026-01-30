@@ -11,6 +11,8 @@ import {getModpackInfo} from "./directory_scanning.js";
 import generateLicense from "./generate_license.js";
 import * as config from "./config/index.js";
 import pkg from "../package.json" with {type: "json"};
+import { logm } from "./logger.js";
+
 
 const modpackLock = new Command("modpack-lock");
 
@@ -22,7 +24,7 @@ const originalLogs = {
 };
 
 /**
- * Silence all console.log output
+ * Silence all console output
  */
 function quietConsole(silent = false) {
     console.log = () => {};
@@ -98,7 +100,7 @@ modpackLock
                 await generateLockfile(currDir, options);
             }
         } catch (error) {
-            console.error("Error:", error);
+            logm.error(error);
             process.exitCode = 1;
         }
     });
@@ -141,7 +143,7 @@ modpackLock
                 (!options.modloader && !existingInfo?.modloader) ||
                 (!options.targetMinecraftVersion && !existingInfo?.targetMinecraftVersion)
             ) {
-                console.error("Error: Must provide options for required fields");
+                logm.error("Must provide options for required fields");
                 process.exitCode = 1;
                 return;
             } else {
@@ -174,16 +176,16 @@ modpackLock
                 try {
                     await generateModpackFiles(modpackInfo, currDir, options);
                 } catch (error) {
-                    console.error("Error:", error);
+                    logm.error(error);
                     process.exitCode = 1;
                 }
             }
         } else {
-            console.log(jsonDescription);
-            console.log(
+            logm.log(jsonDescription);
+            logm.log(
                 "\nSee `modpack-lock init --help` for definitive documentation on these fields and exactly what they do.\n",
             );
-            console.log("Press ^C at any time to quit.\n");
+            logm.log("Press ^C at any time to quit.\n");
             try {
                 const defaults = {
                     name: path.basename(currDir),
@@ -204,18 +206,18 @@ modpackLock
 
                 // prompt user if they want to add the license text
                 const optionalFiles = await promptUserAboutOptionalFiles(modpackInfo, options);
-                console.log();
+                logm.log();
                 if (options.addLicense || optionalFiles.addLicense) {
                     await generateLicense(modpackInfo, currDir, options);
                 }
-                console.log();
+                logm.log();
 
                 // generate the modpack files
                 options.readme = optionalFiles.addReadme;
                 options.gitignore = optionalFiles.addGitignore;
                 await generateModpackFiles(modpackInfo, currDir, options);
             } catch (error) {
-                console.error("Error:", error);
+                logm.error(error);
                 process.exitCode = 1;
             }
         }
@@ -236,7 +238,7 @@ modpackLock
         options._run = true;
         try {
             if (options.debug) {
-                console.log("COMMAND:", command);
+                logm.log("COMMAND:", command);
             }
 
             const currDir = options.folder || process.cwd();
@@ -260,12 +262,12 @@ modpackLock
 
             // debug logging
             if (options.debug) {
-                console.log("CURR DIR:", currDir);
-                console.log("OPTIONS:", options);
-                console.log("SCRIPT:", script);
-                console.log("SCRIPT COMMAND:", scriptCommand);
-                console.log("ARGS:", args);
-                console.log("FULL COMMAND:", fullCommand);
+                logm.debug("CURR DIR:", currDir);
+                logm.debug("OPTIONS:", options);
+                logm.debug("SCRIPT:", script);
+                logm.debug("SCRIPT COMMAND:", scriptCommand);
+                logm.debug("ARGS:", args);
+                logm.debug("FULL COMMAND:", fullCommand);
             }
 
             // spawn the command
@@ -283,12 +285,12 @@ modpackLock
             });
             process.exitCode = exitCode;
         } catch (error) {
-            console.error("Error:", error.message);
+            logm.error(error.message);
             process.exitCode = 1;
         }
     });
 
 modpackLock.parseAsync().catch((error) => {
-    console.error("Error:", error);
+    logm.error(error);
     process.exit(1);
 });

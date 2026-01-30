@@ -1,3 +1,5 @@
+import {logm} from "../logger.js";
+
 /** Options for slugify */
 export const SLUGIFY_OPTIONS = {
     lower: true,
@@ -10,7 +12,7 @@ export const SLUGIFY_OPTIONS = {
 /** Options for prompts */
 export const PROMPTS_OPTIONS = {
     onCancel: () => {
-        console.warn("Modpack initialization was interrupted");
+        logm.warn("Modpack initialization was interrupted");
         process.exit(1);
     },
 };

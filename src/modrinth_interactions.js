@@ -1,4 +1,5 @@
 import * as config from "./config/index.js";
+import {logm} from "./logger.js";
 
 /**
  * Split an array into chunks of specified size
@@ -39,7 +40,7 @@ export async function getVersionsFromHashes(hashes) {
 
         return await response.json();
     } catch (error) {
-        console.error(`Error fetching version information from hashes: ${error.message}`);
+        logm.error(`Error fetching version information from hashes: ${error.message}`);
         throw error;
     }
 }
@@ -72,7 +73,7 @@ export async function getProjects(projectIds) {
             const data = await response.json();
             results.push(...data);
         } catch (error) {
-            console.error(`Error fetching projects: ${error.message}`);
+            logm.error(`Error fetching projects: ${error.message}`);
             throw error;
         }
     }
@@ -108,7 +109,7 @@ export async function getUsers(userIds) {
             const data = await response.json();
             results.push(...data);
         } catch (error) {
-            console.error(`Error fetching users: ${error.message}`);
+            logm.error(`Error fetching users: ${error.message}`);
             throw error;
         }
     }
@@ -148,7 +149,7 @@ export async function getMinecraftVersions() {
         }
         return null;
     } catch (error) {
-        console.warn(`Warning: could not fetch Minecraft versions. Using fallbacks.`, error);
+        logm.warn(`Could not fetch Minecraft versions. Using fallbacks.`, error);
         return config.FALLBACK_TARGET_MINECRAFT_VERSIONS;
     }
 }
@@ -178,7 +179,7 @@ export async function getModloaders() {
         }
         return null;
     } catch (error) {
-        console.warn(`Warning: could not fetch Modloaders. Using fallbacks.`, error);
+        logm.warn(`Could not fetch Modloaders. Using fallbacks.`, error);
         return config.FALLBACK_MODLOADERS;
     }
 }
