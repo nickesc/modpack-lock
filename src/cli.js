@@ -154,12 +154,9 @@ modpackLock
                 const modpackInfo = mergeModpackInfo(existingInfo, options, defaults);
                 modpackInfo.id = slugify(modpackInfo.id, config.SLUGIFY_OPTIONS);
 
-                if (options.addLicense) {
-                    await generateLicense(modpackInfo, currDir, options);
-                }
-
                 options.readme = options.addReadme;
                 options.gitignore = options.addGitignore;
+                options.licenseFile = options.addLicense;
 
                 // generate the modpack files
                 try {
@@ -206,15 +203,11 @@ modpackLock
 
                 logm.newline();
 
-                if (options.addLicense || optionalFiles.addLicense) {
-                    await generateLicense(modpackInfo, currDir, options);
-                }
-                //logm.log();
-
                 // generate the modpack files
                 options.readme = optionalFiles.addReadme;
                 options.gitignore = optionalFiles.addGitignore;
-                await generateModpackFiles(modpackInfo, currDir, options);
+                options.licenseFile = optionalFiles.addLicense;
+                const lockfile = await generateModpackFiles(modpackInfo, currDir, options);
             } catch (error) {
                 logm.error(error);
                 process.exitCode = 1;
