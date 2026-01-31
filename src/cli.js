@@ -5,13 +5,15 @@ import slugify from "slugify";
 import path from "path";
 import {spawn} from "child_process";
 import {generateLockfile} from "./generate_lockfile.js";
+import {generateReadmeFiles} from "./generate_readme.js";
+import {generateGitignoreRules} from "./generate_gitignore.js";
 import {generateModpackFiles} from "./modpack-lock.js";
 import {promptUserForInfo, promptUserAboutOptionalFiles} from "./modpack_info.js";
 import {getModpackInfo} from "./directory_scanning.js";
 import generateLicense from "./generate_license.js";
 import * as config from "./config/index.js";
 import pkg from "../package.json" with {type: "json"};
-import { logm, styleText } from "./logger.js";
+import {logm, styleText} from "./logger.js";
 
 const modpackLock = new Command("modpack-lock");
 
@@ -67,7 +69,18 @@ modpackLock
             if (modpackInfo) {
                 await generateModpackFiles(modpackInfo, currDir, options);
             } else {
-                await generateLockfile(currDir, options);
+                // Generate lockfile
+                const lockfile = await generateLockfile(currDir, options);
+
+                // Generate gitignore if requested
+                if (options.gitignore) {
+                    await generateGitignoreRules(lockfile, currDir, options);
+                }
+
+                // Generate README files if requested
+                if (options.readme) {
+                    await generateReadmeFiles(lockfile, currDir, options);
+                }
             }
         } catch (error) {
             logm.error(error);
