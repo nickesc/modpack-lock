@@ -30,6 +30,9 @@ class Logger {
         if (!style) {
             return args;
         }
+        if (args.length === 0) {
+            return "";
+        }
         return args.map((arg) => (typeof arg === "string" ? styleText(style, arg) : arg));
     }
 
@@ -49,6 +52,10 @@ class Logger {
      */
     header(text) {
         console.log(this.label(text));
+    }
+
+    newline() {
+        console.log();
     }
 
     /**
