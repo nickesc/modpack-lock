@@ -11,8 +11,7 @@ import {getModpackInfo} from "./directory_scanning.js";
 import generateLicense from "./generate_license.js";
 import * as config from "./config/index.js";
 import pkg from "../package.json" with {type: "json"};
-import { logm } from "./logger.js";
-
+import { logm, styleText } from "./logger.js";
 
 const modpackLock = new Command("modpack-lock");
 
@@ -80,7 +79,7 @@ const jsonDescription = `This utility will walk you through creating a ${config.
 
 modpackLock
     .command("init")
-    .description(jsonDescription)
+    .description(`Initialize a modpack with a ${config.MODPACK_JSON_NAME} file and a ${config.LOCKFILE_NAME} lockfile.`)
     .optionsGroup(config.headings.options)
     .option("-f, --folder <path>", "Path to the modpack directory")
     .option("-n, --noninteractive", "Non-interactive mode - must provide options for required fields")
@@ -152,11 +151,19 @@ modpackLock
                 }
             }
         } else {
-            logm.log(jsonDescription);
-            logm.log(
-                "\nSee `modpack-lock init --help` for definitive documentation on these fields and exactly what they do.\n",
+            logm.info(logm.label("modpack-lock"), styleText(["bold", "italic", "blueBright"], "init"));
+            logm.newline();
+            logm.info(styleText(["dim"], "This utility will walk you through creating a"),
+                 config.MODPACK_JSON_NAME,
+                styleText(["dim"], "file and a"),
+                config.MODPACK_LOCKFILE_NAME,
+                styleText(["dim"], "lockfile. It only covers the most common items, and tries to guess sensible defaults."),
             );
-            logm.log("Press ^C at any time to quit.\n");
+            logm.newline();
+            logm.info(styleText(["dim"], "See"), styleText(["white", "bgGray", "italic"], "modpack-lock init --help"), styleText(["dim"], "for definitive documentation on these fields and exactly what they do."));
+            logm.newline();
+            logm.info(styleText(["dim"], "Press"), styleText(["yellow"], "^C"), styleText(["dim"], "at any time to quit."));
+            logm.newline();
             try {
                 const defaults = {
                     name: path.basename(currDir),
@@ -175,13 +182,15 @@ modpackLock
                 // prompt user for modpack information
                 const modpackInfo = await promptUserForInfo(mergeModpackInfo(existingInfo, options, defaults));
 
+                logm.newline();
+
                 // prompt user if they want to add the license text
                 const optionalFiles = await promptUserAboutOptionalFiles(modpackInfo, options);
-                logm.log();
+                //logm.log();
                 if (options.addLicense || optionalFiles.addLicense) {
                     await generateLicense(modpackInfo, currDir, options);
                 }
-                logm.log();
+                //logm.log();
 
                 // generate the modpack files
                 options.readme = optionalFiles.addReadme;

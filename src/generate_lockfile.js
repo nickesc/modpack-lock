@@ -410,8 +410,8 @@ export async function generateLockfile(workingDir, options = {}) {
         return;
     }
 
-    logm.log(`\nTotal files found: ${allFileEntries.length}`);
-    logm.log("\nQuerying Modrinth API...");
+    logm.log(`Total files found: ${allFileEntries.length}`);
+    logm.log("Querying Modrinth API...");
 
     // Extract all hashes
     const hashes = allFileEntries.map((info) => info.hash);
@@ -419,7 +419,7 @@ export async function generateLockfile(workingDir, options = {}) {
     // Query Modrinth API
     const versionData = await getVersionsFromHashes(hashes);
 
-    logm.log(`\nFound version information for ${Object.keys(versionData).length} out of ${hashes.length} files`);
+    logm.log(`Found version information for ${Object.keys(versionData).length} out of ${hashes.length} files`);
 
     // Create lockfile
     const lockfile = createLockfile(allFileEntries, versionData);
@@ -433,7 +433,7 @@ export async function generateLockfile(workingDir, options = {}) {
     }
 
     // Summary
-    logm.log("\n=== Summary ===");
+    logm.log("=== Summary ===");
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
         const withVersion = entries.filter((e) => e.version !== null).length;
         const withoutVersion = entries.length - withVersion;
@@ -449,7 +449,7 @@ export async function generateLockfile(workingDir, options = {}) {
 
     // Generate README files
     if (options.readme) {
-        logm.log("\nGenerating README files...");
+        logm.log("Generating README files...");
         await generateReadmeFiles(lockfile, workingDir, options);
     }
 
