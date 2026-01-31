@@ -17,6 +17,15 @@ class Logger {
         labelError: ["bgRed", "bold"],
     };
 
+    quiet(silent = false) {
+        console.log = () => {};
+        console.info = () => {};
+        if (silent) {
+            console.warn = () => {};
+            console.error = () => {};
+        }
+    }
+
     styleArgs(style, args) {
         if (!style) {
             return args;

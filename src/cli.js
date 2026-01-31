@@ -16,35 +16,6 @@ import { logm } from "./logger.js";
 
 const modpackLock = new Command("modpack-lock");
 
-const originalLogs = {
-    log: console.log,
-    info: console.info,
-    warn: console.warn,
-    error: console.error,
-};
-
-/**
- * Silence all console output
- */
-function quietConsole(silent = false) {
-    console.log = () => {};
-    console.info = () => {};
-    if (silent) {
-        console.warn = () => {};
-        console.error = () => {};
-    }
-}
-
-/**
- * Restore the console's original functions
- */
-function restoreConsole() {
-    console.log = originalLogs.log;
-    console.info = originalLogs.info;
-    console.warn = originalLogs.warn;
-    console.error = originalLogs.error;
-}
-
 /**
  * Merge modpack info with priority: options > existingInfo > defaults
  * Preserves all fields from existingInfo
@@ -88,9 +59,9 @@ modpackLock
             const currDir = options.path || process.cwd();
 
             if (options.quiet) {
-                quietConsole();
+                logm.quiet();
             } else if (options.silent) {
-                quietConsole(true);
+                logm.quiet(true);
             }
 
             const modpackInfo = await getModpackInfo(currDir);
@@ -137,7 +108,7 @@ modpackLock
         let existingInfo = await getModpackInfo(currDir);
 
         if (options.noninteractive) {
-            quietConsole();
+            logm.quiet();
             if (
                 (!options.author && !existingInfo?.author) ||
                 (!options.modloader && !existingInfo?.modloader) ||
