@@ -3,7 +3,7 @@ import path from "path";
 import {getVersionsFromHashes} from "./modrinth_interactions.js";
 import {getScanDirectories, scanDirectory} from "./directory_scanning.js";
 import * as config from "./config/index.js";
-import {logm} from "./logger.js";
+import {logm, styleText} from "./logger.js";
 
 /**
  * @typedef {import('./config/types.js').Options} Options
@@ -127,15 +127,31 @@ export async function generateLockfile(workingDir, options = {}) {
         await writeLockfile(lockfile, outputPath);
     }
 
-    // Summary
-    logm.log("=== Summary ===");
+    return lockfile;
+}
+
+/**
+ * Print a summary of the lockfile contents
+ * @param {Lockfile} lockfile - The lockfile object
+ */
+export function printLockfileSummary(lockfile) {
+    logm.newline();
+    logm.info(logm.label("summary"));
+    logm.newline();
+
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
         const withVersion = entries.filter((e) => e.version !== null).length;
         const withoutVersion = entries.length - withVersion;
-        logm.log(
-            `${category}: ${entries.length} file(s) (${withVersion} found on Modrinth, ${withoutVersion} unknown)`,
+        logm.info(
+            styleText(["bold"], category + ":"),
+            entries.length,
+            styleText(["dim"], "file(s)"),
+            styleText(["dim"], "("),
+            styleText(["green"], String(withVersion)),
+            styleText(["dim"], "found,"),
+            styleText(["yellow"], String(withoutVersion)),
+            styleText(["dim"], "unknown)"),
         );
     }
-
-    return lockfile;
+    logm.newline();
 }

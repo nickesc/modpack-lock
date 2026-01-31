@@ -4,7 +4,7 @@ import {Command} from "commander";
 import slugify from "slugify";
 import path from "path";
 import {spawn} from "child_process";
-import {generateLockfile} from "./generate_lockfile.js";
+import {generateLockfile, printLockfileSummary} from "./generate_lockfile.js";
 import {generateReadmeFiles} from "./generate_readme.js";
 import {generateGitignoreRules} from "./generate_gitignore.js";
 import {generateModpackFiles} from "./modpack-lock.js";
@@ -68,7 +68,8 @@ modpackLock
 
             const modpackInfo = await getModpackInfo(currDir);
             if (modpackInfo) {
-                await generateModpackFiles(modpackInfo, currDir, options);
+                const lockfile = await generateModpackFiles(modpackInfo, currDir, options);
+                printLockfileSummary(lockfile);
             } else {
                 // Warn if license option is passed but no modpack.json exists
                 if (options.licenseFile) {
@@ -87,6 +88,8 @@ modpackLock
                 if (options.readme) {
                     await generateReadmeFiles(lockfile, currDir, options);
                 }
+
+                printLockfileSummary(lockfile);
             }
         } catch (error) {
             logm.error(error);
@@ -208,6 +211,8 @@ modpackLock
                 options.gitignore = optionalFiles.addGitignore;
                 options.licenseFile = optionalFiles.addLicense;
                 const lockfile = await generateModpackFiles(modpackInfo, currDir, options);
+
+                printLockfileSummary(lockfile);
             } catch (error) {
                 logm.error(error);
                 process.exitCode = 1;
