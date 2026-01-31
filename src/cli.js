@@ -47,6 +47,7 @@ modpackLock
     .option("-p, --path <path>", "Path to the modpack directory")
     .option("-d, --dry-run", "Dry-run mode - no files will be written")
     .optionsGroup(config.headings.generation)
+    .option("-l, --licenseFile", config.fileFields.addLicense.option)
     .option("-g, --gitignore", config.fileFields.addGitignore.option)
     .option("-r, --readme", config.fileFields.addReadme.option)
     .optionsGroup(config.headings.logging)
@@ -69,6 +70,11 @@ modpackLock
             if (modpackInfo) {
                 await generateModpackFiles(modpackInfo, currDir, options);
             } else {
+                // Warn if license option is passed but no modpack.json exists
+                if (options.licenseFile) {
+                    logm.warn(`License generation requires a ${config.MODPACK_JSON_NAME} file. Skipping license generation.`);
+                }
+
                 // Generate lockfile
                 const lockfile = await generateLockfile(currDir, options);
 
