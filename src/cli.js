@@ -182,11 +182,11 @@ modpackLock
                 // prompt user for modpack information
                 const modpackInfo = await promptUserForInfo(mergeModpackInfo(existingInfo, options, defaults));
 
-                logm.newline();
-
                 // prompt user if they want to add the license text
                 const optionalFiles = await promptUserAboutOptionalFiles(modpackInfo, options);
-                //logm.log();
+
+                logm.newline();
+
                 if (options.addLicense || optionalFiles.addLicense) {
                     await generateLicense(modpackInfo, currDir, options);
                 }
