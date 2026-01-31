@@ -136,22 +136,20 @@ export async function generateLockfile(workingDir, options = {}) {
  */
 export function printLockfileSummary(lockfile) {
     logm.newline();
-    logm.info(logm.label("summary"));
+    logm.header("Lockfile Summary");
     logm.newline();
 
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
         const withVersion = entries.filter((e) => e.version !== null).length;
         const withoutVersion = entries.length - withVersion;
+        const plural = entries.length > 1 ? "s" : "";
+        logm.info(styleText(["bold"], category + ":"), entries.length, styleText(["dim"], `file${plural}`));
         logm.info(
-            styleText(["bold"], category + ":"),
-            entries.length,
-            styleText(["dim"], "file(s)"),
-            styleText(["dim"], "("),
+            styleText(["dim"], " └─"),
             styleText(["green"], String(withVersion)),
             styleText(["dim"], "found,"),
             styleText(["yellow"], String(withoutVersion)),
-            styleText(["dim"], "unknown)"),
+            styleText(["dim"], "unknown"),
         );
     }
-    logm.newline();
 }
