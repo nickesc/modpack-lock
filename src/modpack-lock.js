@@ -29,6 +29,8 @@ import {getModpackInfo, getLockfile} from "./directory_scanning.js";
 async function generateModpackFiles(modpackInfo, directory, options = {}) {
     const lockfile = await generateLockfile(directory, options);
 
+    await generateJson(modpackInfo, lockfile, directory, options);
+
     // Generate license if requested
     if (options.licenseFile) {
         await generateLicense(modpackInfo, directory, options);
@@ -44,7 +46,6 @@ async function generateModpackFiles(modpackInfo, directory, options = {}) {
         await generateReadmeFiles(lockfile, directory, options);
     }
 
-    await generateJson(modpackInfo, lockfile, directory, options);
     return lockfile;
 }
 
