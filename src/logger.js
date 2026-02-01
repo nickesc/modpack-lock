@@ -12,9 +12,9 @@ class Logger {
         warn: ["yellow"],
         error: ["red"],
         label: ["inverse", "bold"],
-        labelDebug: ["bgMagenta", "bold"],
-        labelWarn: ["bgYellow", "bold"],
-        labelError: ["bgRed", "bold"],
+        labelDebug: ["bgMagenta", "black", "bold"],
+        labelWarn: ["bgYellow", "black", "bold"],
+        labelError: ["bgRed", "black", "bold"],
     };
 
     quiet(silent = false) {
