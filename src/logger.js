@@ -11,10 +11,12 @@ class Logger {
         debug: ["magenta"],
         warn: ["yellow"],
         error: ["red"],
+        generated: ["green"],
         label: ["inverse", "bold"],
         labelDebug: ["magenta", "inverse", "bold"],
         labelWarn: ["yellow", "inverse", "bold"],
         labelError: ["red", "inverse", "bold"],
+        labelGenerated: ["green", "inverse", "bold"],
     };
 
     quiet(silent = false) {
@@ -52,6 +54,16 @@ class Logger {
      */
     header(text) {
         console.log(this.label(text));
+    }
+
+    generated(desc, outputPath) {
+        console.log(
+            this.label("Generated", this.styles.labelGenerated),
+            styleText(this.styles.generated, "Wrote"),
+            styleText(this.styles.generated, desc),
+            styleText(this.styles.generated, "to:"),
+            styleText(["dim"], `${outputPath}`),
+        );
     }
 
     newline() {
