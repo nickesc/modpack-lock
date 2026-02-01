@@ -81,7 +81,11 @@ export async function generateLockfile(workingDir, options = {}) {
     for (const dirInfo of getScanDirectories(workingDir)) {
         logm.info(styleText(["cyan"], `${dirInfo.name}/`));
         const fileEntries = await scanDirectory(dirInfo, workingDir);
-        logm.info(styleText(["dim"], ` └─ Found ${fileEntries.length} file${fileEntries.length !== 1 ? "s" : ""}`));
+        logm.info(
+            styleText(["dim"], ` └─ Found`),
+            styleText(["yellow"], `${fileEntries.length}`),
+            styleText(["dim"], `file${fileEntries.length !== 1 ? "s" : ""}`),
+        );
         allFileEntries.push(...fileEntries);
     }
 
