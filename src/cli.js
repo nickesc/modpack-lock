@@ -97,8 +97,6 @@ modpackLock
         }
     });
 
-const jsonDescription = `This utility will walk you through creating a ${config.MODPACK_JSON_NAME} file. It only covers the most common items, and tries to guess sensible defaults.`;
-
 modpackLock
     .command("init")
     .description(`Initialize a modpack with a ${config.MODPACK_JSON_NAME} file and a ${config.MODPACK_LOCKFILE_NAME} lockfile.`)
