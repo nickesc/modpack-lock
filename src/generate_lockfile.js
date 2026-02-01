@@ -142,8 +142,11 @@ export function printLockfileSummary(lockfile) {
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
         const withVersion = entries.filter((e) => e.version !== null).length;
         const withoutVersion = entries.length - withVersion;
-        const plural = entries.length > 1 ? "s" : "";
-        logm.info(styleText(["bold"], category + ":"), entries.length, styleText(["dim"], `file${plural}`));
+        logm.info(
+            styleText(["bold"], `${category}:`),
+            entries.length,
+            styleText(["dim"], `file${entries.length !== 1 ? "s" : ""}`),
+        );
         logm.info(
             styleText(["dim"], " └─"),
             styleText(["green"], String(withVersion)),
