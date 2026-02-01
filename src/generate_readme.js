@@ -3,7 +3,7 @@ import path from "path";
 import {getProjects, getUsers} from "./modrinth_interactions.js";
 import {getScanDirectories} from "./directory_scanning.js";
 import * as config from "./config/index.js";
-import {logm} from "./logger.js";
+import {logm, styleText} from "./logger.js";
 
 /**
  * @typedef {import('./config/types.js').Options} Options
