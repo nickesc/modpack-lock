@@ -53,7 +53,9 @@ class Logger {
      * @param {string} text - The text to log.
      */
     header(text) {
-        console.log(this.label(text));
+        console.info();
+        console.info(this.label(text));
+        console.info();
     }
 
     generated(desc, outputPath) {
@@ -67,7 +69,7 @@ class Logger {
     }
 
     newline() {
-        console.log();
+        console.info();
     }
 
     /**
