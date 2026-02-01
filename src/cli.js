@@ -101,7 +101,7 @@ const jsonDescription = `This utility will walk you through creating a ${config.
 
 modpackLock
     .command("init")
-    .description(`Initialize a modpack with a ${config.MODPACK_JSON_NAME} file and a ${config.LOCKFILE_NAME} lockfile.`)
+    .description(`Initialize a modpack with a ${config.MODPACK_JSON_NAME} file and a ${config.MODPACK_LOCKFILE_NAME} lockfile.`)
     .optionsGroup(config.headings.options)
     .option("-f, --folder <path>", "Path to the modpack directory")
     .option("-n, --noninteractive", "Non-interactive mode - must provide options for required fields")

@@ -103,9 +103,9 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
     } else {
         try {
             await fs.writeFile(gitignorePath, newContent, "utf-8");
-            logm.log(`Updated .gitignore: ${gitignorePath}`);
+            logm.log(`Updated ${config.GITIGNORE_NAME}: ${gitignorePath}`);
         } catch (error) {
-            logm.warn(`Could not write .gitignore file: ${error.message}`);
+            logm.warn(`Could not write ${config.GITIGNORE_NAME} file: ${error.message}`);
         }
     }
 }

@@ -64,7 +64,7 @@ function createLockfile(fileEntries, versionData) {
 async function writeLockfile(lockfile, outputPath) {
     const content = JSON.stringify(lockfile, null, 2);
     await fs.writeFile(outputPath, content, "utf-8");
-    logm.log(`Lockfile written to: ${outputPath}`);
+    logm.log(`${config.MODPACK_LOCKFILE_NAME} written to: ${outputPath}`);
 }
 
 /**
