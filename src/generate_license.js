@@ -26,7 +26,6 @@ async function writeLicense(licenseText, outputPath) {
 export default async function generateLicense(modpackInfo, outputPath, options = {}, licenseTextOverride = null) {
     try {
         const spdxId = modpackInfo.license;
-        logm.info(`Generating license for: ${spdxId}`);
 
         let licenseText = licenseTextOverride || (await getLicenseText(spdxId));
         licenseText = licenseText.replace("[year]", new Date().getFullYear());

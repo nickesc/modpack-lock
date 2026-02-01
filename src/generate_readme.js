@@ -172,7 +172,13 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
     }
 
     // Fetch projects and users in parallel
-    logm.log(`Fetching data for ${projectIds.size} project(s) and ${authorIds.size} user(s)...`);
+    logm.info(styleText(["dim"], "Fetching metadata for:"));
+    logm.info(
+        styleText(["dim"], " └─"),
+        styleText(["yellow"], `${projectIds.size} project(s)`),
+        styleText(["dim"], "and"),
+        styleText(["yellow"], `${authorIds.size} user(s)`),
+    );
 
     const [projects, users] = await Promise.all([getProjects(Array.from(projectIds)), getUsers(Array.from(authorIds))]);
 

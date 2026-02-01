@@ -102,7 +102,7 @@ export async function generateLockfile(workingDir, options = {}) {
         const emptyLockfile = createEmptyLockfile();
         const outputPath = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
         if (options.dryRun) {
-            logm.info(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
+            logm.debug(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
         } else {
             await writeLockfile(emptyLockfile, outputPath);
         }
