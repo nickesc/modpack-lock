@@ -50,7 +50,7 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
     } catch (error) {
         // File doesn't exist, that's okay - we'll create it
         if (error.code !== "ENOENT") {
-            logm.warn(`Could not read .gitignore file: ${error.message}`);
+            logm.warn(`Could not read ${config.GITIGNORE_NAME} file: ${error.message}`);
             return;
         }
     }
