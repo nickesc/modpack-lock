@@ -118,7 +118,14 @@ export async function generateLockfile(workingDir, options = {}) {
     // Query Modrinth API
     const versionData = await getVersionsFromHashes(hashes);
 
-    logm.log(`Found version information for ${Object.keys(versionData).length} out of ${hashes.length} files`);
+    logm.info(styleText(["dim"], "Found version information for:"));
+    logm.info(
+        styleText(["dim"], " └─"),
+        styleText(["green"], `${Object.keys(versionData).length}`),
+        styleText(["dim"], "out of"),
+        styleText(["yellow"], `${hashes.length}`),
+        styleText(["dim"], "files"),
+    );
 
     // Create lockfile
     const lockfile = createLockfile(allFileEntries, versionData);
