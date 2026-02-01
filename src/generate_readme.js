@@ -211,6 +211,4 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
             }
         }
     }
-
-    logm.log("README generation complete.");
 }

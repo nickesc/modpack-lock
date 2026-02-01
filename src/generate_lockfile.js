@@ -75,7 +75,6 @@ async function writeLockfile(lockfile, outputPath) {
  */
 export async function generateLockfile(workingDir, options = {}) {
     logm.header("Scanning Directories");
-    logm.newline();
 
     // Scan all directories
     const allFileEntries = [];
@@ -107,9 +106,7 @@ export async function generateLockfile(workingDir, options = {}) {
     }
 
     logm.info(styleText(["dim"], "Total:"), allFileEntries.length);
-    logm.newline();
     logm.header("Querying Modrinth API");
-    logm.newline();
 
     // Extract all hashes
     const hashes = allFileEntries.map((info) => info.hash);
@@ -138,9 +135,7 @@ export async function generateLockfile(workingDir, options = {}) {
  * @param {Lockfile} lockfile - The lockfile object
  */
 export function printLockfileSummary(lockfile) {
-    logm.newline();
     logm.header("Lockfile Summary");
-    logm.newline();
 
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
         const withVersion = entries.filter((e) => e.version !== null).length;
