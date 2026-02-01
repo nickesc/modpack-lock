@@ -74,14 +74,15 @@ async function writeLockfile(lockfile, outputPath) {
  * @returns {Lockfile} The lockfile object
  */
 export async function generateLockfile(workingDir, options = {}) {
-    logm.log("Scanning directories for modpack files...");
+    logm.header("Scanning Directories");
+    logm.newline();
 
     // Scan all directories
     const allFileEntries = [];
     for (const dirInfo of getScanDirectories(workingDir)) {
-        logm.log(`Scanning ${dirInfo.name}...`);
+        logm.info(styleText(["cyan"], `${dirInfo.name}/`));
         const fileEntries = await scanDirectory(dirInfo, workingDir);
-        logm.log(`  Found ${fileEntries.length} file(s)`);
+        logm.info(styleText(["dim"], ` └─ Found ${fileEntries.length} file${fileEntries.length !== 1 ? "s" : ""}`));
         allFileEntries.push(...fileEntries);
     }
 
@@ -94,19 +95,21 @@ export async function generateLockfile(workingDir, options = {}) {
     });
 
     if (allFileEntries.length === 0) {
-        logm.log("No files found. Creating empty lockfile.");
+        logm.warn("No files found. Creating empty lockfile.");
         const emptyLockfile = createEmptyLockfile();
         const outputPath = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
         if (options.dryRun) {
-            logm.log(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
+            logm.info(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
         } else {
             await writeLockfile(emptyLockfile, outputPath);
         }
         return emptyLockfile;
     }
 
-    logm.log(`Total files found: ${allFileEntries.length}`);
-    logm.log("Querying Modrinth API...");
+    logm.info(styleText(["dim"], "Total:"), allFileEntries.length);
+    logm.newline();
+    logm.header("Querying Modrinth API");
+    logm.newline();
 
     // Extract all hashes
     const hashes = allFileEntries.map((info) => info.hash);
