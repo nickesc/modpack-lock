@@ -204,9 +204,9 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
             } else {
                 try {
                     await fs.writeFile(readmePath, readmeContent, "utf-8");
-                    logm.log(`Generated README: ${readmePath}`);
+                    logm.generated(config.README_NAME, readmePath);
                 } catch (error) {
-                    logm.warn(`Could not write README to ${readmePath}: ${error.message}`);
+                    logm.warn(`Could not write ${config.README_NAME} file to ${readmePath}: ${error.message}`);
                 }
             }
         }

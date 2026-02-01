@@ -27,7 +27,7 @@ function createModpackJson(modpackInfo, dependencies) {
 async function writeJson(jsonObject, outputPath) {
     const content = JSON.stringify(jsonObject, null, 2);
     await fs.writeFile(path.join(outputPath, config.MODPACK_JSON_NAME), content, "utf-8");
-    logm.log(`${config.MODPACK_JSON_NAME} written to: ${path.join(outputPath, config.MODPACK_JSON_NAME)}`);
+    logm.generated(config.MODPACK_JSON_NAME, path.join(outputPath, config.MODPACK_JSON_NAME));
 }
 
 /**

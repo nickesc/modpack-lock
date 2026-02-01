@@ -12,7 +12,7 @@ import {logm} from "./logger.js";
 
 async function writeLicense(licenseText, outputPath) {
     await fs.writeFile(path.join(outputPath, config.MODPACK_LICENSE_NAME), licenseText, "utf-8");
-    logm.log(`${config.MODPACK_LICENSE_NAME} written to: ${path.join(outputPath, config.MODPACK_LICENSE_NAME)}`);
+    logm.generated(config.MODPACK_LICENSE_NAME, path.join(outputPath, config.MODPACK_LICENSE_NAME));
 }
 
 /**
