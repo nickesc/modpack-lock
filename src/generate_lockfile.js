@@ -148,6 +148,11 @@ export async function generateLockfile(workingDir, options = {}) {
 export function printLockfileSummary(lockfile) {
     logm.header("Lockfile Summary");
 
+    if (lockfile.total === 0) {
+        logm.info(styleText(["dim"], "No files found. Empty lockfile created."));
+        return;
+    }
+
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
         const withVersion = entries.filter((e) => e.version !== null).length;
         const withoutVersion = entries.length - withVersion;
