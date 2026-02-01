@@ -95,7 +95,7 @@ export default async function generateJson(modpackInfo, lockfile, outputDir, opt
 
     // Write modpack JSON object to disk
     if (options.dryRun) {
-        logm.log(config.dryRunText(config.MODPACK_JSON_NAME, path.join(outputDir, config.MODPACK_JSON_NAME)));
+        logm.debug(config.dryRunText(config.MODPACK_JSON_NAME, path.join(outputDir, config.MODPACK_JSON_NAME)));
     } else {
         await writeJson(jsonObject, outputDir);
     }

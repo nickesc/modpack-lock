@@ -39,7 +39,7 @@ export default async function generateLicense(modpackInfo, outputPath, options =
         licenseText = licenseText.replace("{{project}}", modpackInfo.name);
 
         if (options.dryRun) {
-            logm.log(
+            logm.debug(
                 config.dryRunText(config.MODPACK_LICENSE_NAME, path.join(outputPath, config.MODPACK_LICENSE_NAME)),
             );
         } else {

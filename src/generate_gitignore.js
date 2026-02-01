@@ -99,8 +99,7 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
 
     // Write the updated content
     if (options.dryRun) {
-        logm.log(config.dryRunText(config.GITIGNORE_NAME, gitignorePath));
-        logm.log();
+        logm.debug(config.dryRunText(config.GITIGNORE_NAME, gitignorePath));
     } else {
         try {
             await fs.writeFile(gitignorePath, newContent, "utf-8");

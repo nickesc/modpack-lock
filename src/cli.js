@@ -235,7 +235,7 @@ modpackLock
         options._run = true;
         try {
             if (options.debug) {
-                logm.log("COMMAND:", command);
+                logm.debug("COMMAND:", command);
             }
 
             const currDir = options.folder || process.cwd();

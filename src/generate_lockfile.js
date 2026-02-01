@@ -125,7 +125,7 @@ export async function generateLockfile(workingDir, options = {}) {
     // Write lockfile
     const outputPath = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
     if (options.dryRun) {
-        logm.log(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
+        logm.debug(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
     } else {
         await writeLockfile(lockfile, outputPath);
     }

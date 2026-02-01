@@ -200,7 +200,7 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
             const readmePath = path.join(categoryDir.path, config.README_NAME);
 
             if (options.dryRun) {
-                logm.log(config.dryRunText(config.README_NAME, readmePath));
+                logm.debug(config.dryRunText(config.README_NAME, readmePath));
             } else {
                 try {
                     await fs.writeFile(readmePath, readmeContent, "utf-8");
