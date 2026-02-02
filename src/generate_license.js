@@ -12,7 +12,7 @@ import {logm} from "./logger.js";
 
 async function writeLicense(licenseText, outputPath) {
     await fs.writeFile(path.join(outputPath, config.MODPACK_LICENSE_NAME), licenseText, "utf-8");
-    logm.log(`${config.MODPACK_LICENSE_NAME} written to: ${path.join(outputPath, config.MODPACK_LICENSE_NAME)}`);
+    logm.generated(config.MODPACK_LICENSE_NAME, path.join(outputPath, config.MODPACK_LICENSE_NAME));
 }
 
 /**
@@ -24,9 +24,10 @@ async function writeLicense(licenseText, outputPath) {
  * @returns {Promise<string> | null} The license text or null if the license text could not be generated
  */
 export default async function generateLicense(modpackInfo, outputPath, options = {}, licenseTextOverride = null) {
+    logm.quietFromOptions(options);
+
     try {
         const spdxId = modpackInfo.license;
-        logm.log(`Generating license for: ${spdxId}`);
 
         let licenseText = licenseTextOverride || (await getLicenseText(spdxId));
         licenseText = licenseText.replace("[year]", new Date().getFullYear());
@@ -39,7 +40,7 @@ export default async function generateLicense(modpackInfo, outputPath, options =
         licenseText = licenseText.replace("{{project}}", modpackInfo.name);
 
         if (options.dryRun) {
-            logm.log(
+            logm.debug(
                 config.dryRunText(config.MODPACK_LICENSE_NAME, path.join(outputPath, config.MODPACK_LICENSE_NAME)),
             );
         } else {

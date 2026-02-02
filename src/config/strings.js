@@ -1,4 +1,5 @@
 import * as defaults from "./defaults.js";
+import * as files from "./files.js";
 import pkg from "../../package.json" with {type: "json"};
 
 export const infoFields = {
@@ -50,16 +51,16 @@ export const infoFields = {
 
 export const fileFields = {
     addLicense: {
-        prompt: "Add the LICENSE file",
-        option: "Add the LICENSE file to the modpack",
+        prompt: `Add the ${files.MODPACK_LICENSE_NAME} file`,
+        option: `Add the ${files.MODPACK_LICENSE_NAME} file to the modpack`,
     },
     addGitignore: {
-        prompt: "Update the .gitignore file",
-        option: "Update the .gitignore file to ignore content hosted on Modrinth",
+        prompt: `Update the ${files.GITIGNORE_NAME} file`,
+        option: `Update the ${files.GITIGNORE_NAME} file to ignore content hosted on Modrinth`,
     },
     addReadme: {
-        prompt: "Generate README.md files",
-        option: "Generate README.md files for each category",
+        prompt: `Generate ${files.README_NAME} files`,
+        option: `Generate ${files.README_NAME} files for each category`,
     },
 };
 

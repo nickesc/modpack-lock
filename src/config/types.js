@@ -40,6 +40,7 @@
  * @property {boolean} silent - Whether to silent the console output
  * @property {boolean} gitignore - Whether to generate a .gitignore file
  * @property {boolean} readme - Whether to generate README.md files
+ * @property {boolean} licenseFile - Whether to generate a license file
  */
 
 /**
@@ -48,8 +49,8 @@
  * @property {string} folder - The folder to generate the modpack files in
  * @property {boolean} noninteractive - Whether to run the interactive mode
  * @property {boolean} addLicense - Whether to add the license file to the modpack
- * @property {boolean} gitignore - Whether to generate .gitignore rules
- * @property {boolean} readme - Whether to generate README.md files
+ * @property {boolean} addGitignore - Whether to generate .gitignore rules
+ * @property {boolean} addReadme - Whether to generate README.md files
  * @property {string} name - The name of the modpack
  * @property {string} version - The version of the modpack
  * @property {string} id - The slug/ID of the modpack

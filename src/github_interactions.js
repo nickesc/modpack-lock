@@ -29,7 +29,7 @@ export async function getLicenseList(featured = false) {
             licenseSpdxIds.push(config.OTHER_OPTION);
             const featuredLicenseList = await getLicenseList(true);
             for (const license of featuredLicenseList) {
-                licenseSpdxIds = licenseSpdxIds.filter((id) => id !== license);
+                licenseSpdxIds = licenseSpdxIds.filter((id) => id.value !== license.value);
                 licenseSpdxIds.unshift(license);
             }
         }

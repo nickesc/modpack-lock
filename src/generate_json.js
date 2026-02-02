@@ -27,7 +27,7 @@ function createModpackJson(modpackInfo, dependencies) {
 async function writeJson(jsonObject, outputPath) {
     const content = JSON.stringify(jsonObject, null, 2);
     await fs.writeFile(path.join(outputPath, config.MODPACK_JSON_NAME), content, "utf-8");
-    logm.log(`${config.MODPACK_JSON_NAME} written to: ${path.join(outputPath, config.MODPACK_JSON_NAME)}`);
+    logm.generated(config.MODPACK_JSON_NAME, path.join(outputPath, config.MODPACK_JSON_NAME));
 }
 
 /**
@@ -39,6 +39,8 @@ async function writeJson(jsonObject, outputPath) {
  * @returns {Promise<Lockfile>} The JSON file's object
  */
 export default async function generateJson(modpackInfo, lockfile, outputDir, options = {}) {
+    logm.quietFromOptions(options);
+
     // Validate modpack info
     for (const field of config.MODPACK_INFO_REQUIRED_FIELDS) {
         if (!modpackInfo[field]) {
@@ -95,7 +97,7 @@ export default async function generateJson(modpackInfo, lockfile, outputDir, opt
 
     // Write modpack JSON object to disk
     if (options.dryRun) {
-        logm.log(config.dryRunText(config.MODPACK_JSON_NAME, path.join(outputDir, config.MODPACK_JSON_NAME)));
+        logm.debug(config.dryRunText(config.MODPACK_JSON_NAME, path.join(outputDir, config.MODPACK_JSON_NAME)));
     } else {
         await writeJson(jsonObject, outputDir);
     }

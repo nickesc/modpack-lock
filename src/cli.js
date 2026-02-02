@@ -4,14 +4,15 @@ import {Command} from "commander";
 import slugify from "slugify";
 import path from "path";
 import {spawn} from "child_process";
-import {generateLockfile} from "./generate_lockfile.js";
+import {generateLockfile, printLockfileSummary} from "./generate_lockfile.js";
+import {generateReadmeFiles} from "./generate_readme.js";
+import {generateGitignoreRules} from "./generate_gitignore.js";
 import {generateModpackFiles} from "./modpack-lock.js";
 import {promptUserForInfo, promptUserAboutOptionalFiles} from "./modpack_info.js";
 import {getModpackInfo} from "./directory_scanning.js";
-import generateLicense from "./generate_license.js";
 import * as config from "./config/index.js";
 import pkg from "../package.json" with {type: "json"};
-import { logm, styleText } from "./logger.js";
+import {logm, styleText} from "./logger.js";
 
 const modpackLock = new Command("modpack-lock");
 
@@ -45,6 +46,7 @@ modpackLock
     .option("-p, --path <path>", "Path to the modpack directory")
     .option("-d, --dry-run", "Dry-run mode - no files will be written")
     .optionsGroup(config.headings.generation)
+    .option("-l, --licenseFile", config.fileFields.addLicense.option)
     .option("-g, --gitignore", config.fileFields.addGitignore.option)
     .option("-r, --readme", config.fileFields.addReadme.option)
     .optionsGroup(config.headings.logging)
@@ -57,17 +59,36 @@ modpackLock
         try {
             const currDir = options.path || process.cwd();
 
-            if (options.quiet) {
-                logm.quiet();
-            } else if (options.silent) {
-                logm.quiet(true);
-            }
+            logm.quietFromOptions(options);
 
             const modpackInfo = await getModpackInfo(currDir);
             if (modpackInfo) {
-                await generateModpackFiles(modpackInfo, currDir, options);
+                const lockfile = await generateModpackFiles(modpackInfo, currDir, options);
+                printLockfileSummary(lockfile);
             } else {
-                await generateLockfile(currDir, options);
+                // Warn if license option is passed but no modpack.json exists
+                if (options.licenseFile) {
+                    logm.warn(`License generation requires a ${config.MODPACK_JSON_NAME} file. Skipping license generation.`);
+                }
+
+                // Generate lockfile
+                const lockfile = await generateLockfile(currDir, options);
+
+                if (options.gitignore || options.readme) {
+                    logm.header("Generating Optional Files");
+                }
+
+                // Generate gitignore if requested
+                if (options.gitignore) {
+                    await generateGitignoreRules(lockfile, currDir, options);
+                }
+
+                // Generate README files if requested
+                if (options.readme) {
+                    await generateReadmeFiles(lockfile, currDir, options);
+                }
+
+                printLockfileSummary(lockfile);
             }
         } catch (error) {
             logm.error(error);
@@ -75,11 +96,9 @@ modpackLock
         }
     });
 
-const jsonDescription = `This utility will walk you through creating a ${config.MODPACK_JSON_NAME} file. It only covers the most common items, and tries to guess sensible defaults.`;
-
 modpackLock
     .command("init")
-    .description(`Initialize a modpack with a ${config.MODPACK_JSON_NAME} file and a ${config.LOCKFILE_NAME} lockfile.`)
+    .description(`Initialize a modpack with a ${config.MODPACK_JSON_NAME} file and a ${config.MODPACK_LOCKFILE_NAME} lockfile.`)
     .optionsGroup(config.headings.options)
     .option("-f, --folder <path>", "Path to the modpack directory")
     .option("-n, --noninteractive", "Non-interactive mode - must provide options for required fields")
@@ -135,12 +154,9 @@ modpackLock
                 const modpackInfo = mergeModpackInfo(existingInfo, options, defaults);
                 modpackInfo.id = slugify(modpackInfo.id, config.SLUGIFY_OPTIONS);
 
-                if (options.addLicense) {
-                    await generateLicense(modpackInfo, currDir, options);
-                }
-
                 options.readme = options.addReadme;
                 options.gitignore = options.addGitignore;
+                options.licenseFile = options.addLicense;
 
                 // generate the modpack files
                 try {
@@ -182,20 +198,18 @@ modpackLock
                 // prompt user for modpack information
                 const modpackInfo = await promptUserForInfo(mergeModpackInfo(existingInfo, options, defaults));
 
-                logm.newline();
-
                 // prompt user if they want to add the license text
                 const optionalFiles = await promptUserAboutOptionalFiles(modpackInfo, options);
-                //logm.log();
-                if (options.addLicense || optionalFiles.addLicense) {
-                    await generateLicense(modpackInfo, currDir, options);
-                }
-                //logm.log();
+
+                logm.newline();
 
                 // generate the modpack files
                 options.readme = optionalFiles.addReadme;
                 options.gitignore = optionalFiles.addGitignore;
-                await generateModpackFiles(modpackInfo, currDir, options);
+                options.licenseFile = optionalFiles.addLicense;
+                const lockfile = await generateModpackFiles(modpackInfo, currDir, options);
+
+                printLockfileSummary(lockfile);
             } catch (error) {
                 logm.error(error);
                 process.exitCode = 1;
@@ -218,7 +232,7 @@ modpackLock
         options._run = true;
         try {
             if (options.debug) {
-                logm.log("COMMAND:", command);
+                logm.debug("COMMAND:", command);
             }
 
             const currDir = options.folder || process.cwd();
