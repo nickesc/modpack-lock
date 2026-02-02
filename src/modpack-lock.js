@@ -28,6 +28,8 @@ import {getModpackInfo, getLockfile} from "./directory_scanning.js";
  * @returns {Promise<Lockfile>} The lockfile object
  */
 async function generateModpackFiles(modpackInfo, directory, options = {}) {
+    logm.quietFromOptions(options);
+
     const lockfile = await generateLockfile(directory, options);
 
     await generateJson(modpackInfo, lockfile, directory, options);

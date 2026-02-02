@@ -16,6 +16,8 @@ import {logm, styleText} from "./logger.js";
  * @param {Options | InitOptions} options - The options object
  */
 export async function generateGitignoreRules(lockfile, workingDir, options = {}) {
+    logm.quietFromOptions(options);
+
     const rules = [];
     const exceptions = [];
 

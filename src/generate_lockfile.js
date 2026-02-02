@@ -76,6 +76,8 @@ async function writeLockfile(lockfile, outputPath) {
  * @returns {Lockfile} The lockfile object
  */
 export async function generateLockfile(workingDir, options = {}) {
+    logm.quietFromOptions(options);
+
     logm.header("Scanning Directories");
 
     // Scan all directories

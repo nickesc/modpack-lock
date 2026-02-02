@@ -24,6 +24,8 @@ async function writeLicense(licenseText, outputPath) {
  * @returns {Promise<string> | null} The license text or null if the license text could not be generated
  */
 export default async function generateLicense(modpackInfo, outputPath, options = {}, licenseTextOverride = null) {
+    logm.quietFromOptions(options);
+
     try {
         const spdxId = modpackInfo.license;
 

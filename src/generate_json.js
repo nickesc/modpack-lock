@@ -39,6 +39,8 @@ async function writeJson(jsonObject, outputPath) {
  * @returns {Promise<Lockfile>} The JSON file's object
  */
 export default async function generateJson(modpackInfo, lockfile, outputDir, options = {}) {
+    logm.quietFromOptions(options);
+
     // Validate modpack info
     for (const field of config.MODPACK_INFO_REQUIRED_FIELDS) {
         if (!modpackInfo[field]) {

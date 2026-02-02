@@ -10,7 +10,6 @@ import {generateGitignoreRules} from "./generate_gitignore.js";
 import {generateModpackFiles} from "./modpack-lock.js";
 import {promptUserForInfo, promptUserAboutOptionalFiles} from "./modpack_info.js";
 import {getModpackInfo} from "./directory_scanning.js";
-import generateLicense from "./generate_license.js";
 import * as config from "./config/index.js";
 import pkg from "../package.json" with {type: "json"};
 import {logm, styleText} from "./logger.js";
@@ -60,11 +59,7 @@ modpackLock
         try {
             const currDir = options.path || process.cwd();
 
-            if (options.quiet) {
-                logm.quiet();
-            } else if (options.silent) {
-                logm.quiet(true);
-            }
+            logm.quietFromOptions(options);
 
             const modpackInfo = await getModpackInfo(currDir);
             if (modpackInfo) {

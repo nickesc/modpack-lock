@@ -156,6 +156,8 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
  * @param {Options | InitOptions} options - The options object
  */
 export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
+    logm.quietFromOptions(options);
+
     // Collect unique project IDs and author IDs from version data
     const projectIds = new Set();
     const authorIds = new Set();
