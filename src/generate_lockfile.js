@@ -30,6 +30,7 @@ function createEmptyLockfile() {
 function createLockfile(fileEntries, versionData) {
     const lockfile = createEmptyLockfile();
 
+    logm.newline();
     // Organize by category
     for (const fileInfo of fileEntries) {
         const version = versionData[fileInfo.hash];
@@ -102,6 +103,7 @@ export async function generateLockfile(workingDir, options = {}) {
     });
 
     if (allFileEntries.length === 0) {
+        logm.header("GENERATING LOCKFILE");
         logm.warn("No files found. Creating empty lockfile.");
         const emptyLockfile = createEmptyLockfile();
         const outputPath = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);

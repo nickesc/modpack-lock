@@ -174,6 +174,7 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
     }
 
     // Fetch projects and users in parallel
+    logm.newline();
     logm.info(styleText(["dim"], "Fetching metadata for:"));
     logm.info(
         styleText(["dim"], " └─"),
@@ -181,6 +182,7 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
         styleText(["dim"], "and"),
         styleText(["yellow"], `${authorIds.size} user(s)`),
     );
+    logm.newline();
 
     const [projects, users] = await Promise.all([getProjects(Array.from(projectIds)), getUsers(Array.from(authorIds))]);
 
