@@ -79,6 +79,10 @@ modpackLock
                 // Generate lockfile
                 const lockfile = await generateLockfile(currDir, options);
 
+                if (options.gitignore || options.readme) {
+                    logm.header("Generating Optional Files");
+                }
+
                 // Generate gitignore if requested
                 if (options.gitignore) {
                     await generateGitignoreRules(lockfile, currDir, options);

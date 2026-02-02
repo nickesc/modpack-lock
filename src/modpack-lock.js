@@ -3,6 +3,7 @@ import {generateReadmeFiles} from "./generate_readme.js";
 import {generateGitignoreRules} from "./generate_gitignore.js";
 import generateJson from "./generate_json.js";
 import generateLicense from "./generate_license.js";
+import {logm} from "./logger.js";
 import {promptUserForInfo} from "./modpack_info.js";
 import {getModpackInfo, getLockfile} from "./directory_scanning.js";
 
@@ -30,6 +31,10 @@ async function generateModpackFiles(modpackInfo, directory, options = {}) {
     const lockfile = await generateLockfile(directory, options);
 
     await generateJson(modpackInfo, lockfile, directory, options);
+
+    if (options.licenseFile || options.gitignore || options.readme) {
+        logm.header("Generating Optional Files");
+    }
 
     // Generate license if requested
     if (options.licenseFile) {

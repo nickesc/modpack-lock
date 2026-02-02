@@ -48,6 +48,8 @@ function createLockfile(fileEntries, versionData) {
         lockfile.dependencies[fileInfo.category].push(entry);
     }
 
+    logm.header("Generating Lockfile");
+
     // Calculate counts for each category
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
         lockfile.counts[category] = entries.length;

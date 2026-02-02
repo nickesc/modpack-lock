@@ -19,10 +19,13 @@ class Logger {
         labelGenerated: ["green", "inverse", "bold"],
     };
 
+    quietConsole = false;
+    silentConsole = false;
+
     quiet(silent = false) {
-        console.log = () => {};
-        console.info = () => {};
-        if (silent) {
+        this.quietConsole = true;
+        this.silentConsole = silent;
+    }
             console.warn = () => {};
             console.error = () => {};
         }
@@ -53,12 +56,18 @@ class Logger {
      * @param {string} text - The text to log.
      */
     header(text) {
+        if (this.quietConsole) {
+            return;
+        }
         console.info();
         console.info(this.label(text));
         console.info();
     }
 
     generated(desc, outputPath) {
+        if (this.quietConsole) {
+            return;
+        }
         console.log(
             this.label("Generated", this.styles.labelGenerated),
             styleText(this.styles.generated, "Wrote"),
@@ -69,6 +78,9 @@ class Logger {
     }
 
     newline() {
+        if (this.quietConsole) {
+            return;
+        }
         console.info();
     }
 
@@ -78,6 +90,9 @@ class Logger {
      * @param {...any} otherMessages - The other messages to log.
      */
     log(message, ...otherMessages) {
+        if (this.quietConsole) {
+            return;
+        }
         console.log(...this.styleArgs(this.styles.log, [message, ...otherMessages]));
     }
 
@@ -87,6 +102,9 @@ class Logger {
      * @param {...any} otherMessages - The other messages to log.
      */
     info(message, ...otherMessages) {
+        if (this.quietConsole) {
+            return;
+        }
         console.info(...this.styleArgs(this.styles.info, [message, ...otherMessages]));
     }
 
@@ -96,6 +114,9 @@ class Logger {
      * @param {...any} otherMessages - The other messages to log.
      */
     debug(message, ...otherMessages) {
+        if (this.silentConsole) {
+            return;
+        }
         console.debug(
             this.label("//", this.styles.labelDebug),
             ...this.styleArgs(this.styles.debug, [message, ...otherMessages]),
@@ -108,6 +129,9 @@ class Logger {
      * @param {...any} otherMessages - The other messages to log.
      */
     warn(message, ...otherMessages) {
+        if (this.silentConsole) {
+            return;
+        }
         console.warn(
             this.label("WARNING", this.styles.labelWarn),
             ...this.styleArgs(this.styles.warn, [message, ...otherMessages]),
@@ -120,6 +144,9 @@ class Logger {
      * @param {...any} otherMessages - The other messages to log.
      */
     error(message, ...otherMessages) {
+        if (this.silentConsole) {
+            return;
+        }
         console.error(
             this.label("ERROR", this.styles.labelError),
             ...this.styleArgs(this.styles.error, [message, ...otherMessages]),
