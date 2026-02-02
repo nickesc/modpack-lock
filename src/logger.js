@@ -21,6 +21,7 @@ class Logger {
 
     quietConsole = false;
     silentConsole = false;
+    lastLogWasNewline = false;
 
     quiet(silent = false) {
         this.quietConsole = true;
@@ -64,9 +65,12 @@ class Logger {
         if (this.quietConsole) {
             return;
         }
-        console.info();
+        if (!this.lastLogWasNewline) {
+            console.info();
+        }
         console.info(this.label(text));
         console.info();
+        this.lastLogWasNewline = true;
     }
 
     generated(desc, outputPath) {
@@ -80,13 +84,18 @@ class Logger {
             styleText(this.styles.generated, "to:"),
             styleText(["dim"], `${outputPath}`),
         );
+        this.lastLogWasNewline = false;
     }
 
     newline() {
         if (this.quietConsole) {
             return;
         }
+        if (this.lastLogWasNewline) {
+            return;
+        }
         console.info();
+        this.lastLogWasNewline = true;
     }
 
     /**
@@ -99,6 +108,7 @@ class Logger {
             return;
         }
         console.log(...this.styleArgs(this.styles.log, [message, ...otherMessages]));
+        this.lastLogWasNewline = false;
     }
 
     /**
@@ -111,6 +121,7 @@ class Logger {
             return;
         }
         console.info(...this.styleArgs(this.styles.info, [message, ...otherMessages]));
+        this.lastLogWasNewline = false;
     }
 
     /**
@@ -126,6 +137,7 @@ class Logger {
             this.label("//", this.styles.labelDebug),
             ...this.styleArgs(this.styles.debug, [message, ...otherMessages]),
         );
+        this.lastLogWasNewline = false;
     }
 
     /**
@@ -141,6 +153,7 @@ class Logger {
             this.label("WARNING", this.styles.labelWarn),
             ...this.styleArgs(this.styles.warn, [message, ...otherMessages]),
         );
+        this.lastLogWasNewline = false;
     }
 
     /**
@@ -156,6 +169,7 @@ class Logger {
             this.label("ERROR", this.styles.labelError),
             ...this.styleArgs(this.styles.error, [message, ...otherMessages]),
         );
+        this.lastLogWasNewline = false;
     }
 }
 
