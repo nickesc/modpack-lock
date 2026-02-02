@@ -560,7 +560,7 @@ old content here
                 license: "MIT",
             };
 
-            const result = await generateLicense(modpackInfo, licenseWorkspace, null, {dryRun: true});
+            const result = await generateLicense(modpackInfo, licenseWorkspace, {dryRun: true});
 
             expect(result).not.toBeNull();
 
@@ -585,7 +585,7 @@ old content here
                 license: "MIT",
             };
 
-            const result = await generateLicense(modpackInfo, licenseWorkspace, overrideText);
+            const result = await generateLicense(modpackInfo, licenseWorkspace, {}, overrideText);
 
             expect(result).toContain("Custom License Text");
             // licenseTextOverride doesn't use GitHub API
