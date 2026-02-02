@@ -26,8 +26,13 @@ class Logger {
         this.quietConsole = true;
         this.silentConsole = silent;
     }
-            console.warn = () => {};
-            console.error = () => {};
+
+    quietFromOptions(options) {
+        if (options.silent) {
+            this.quietConsole = true;
+            this.silentConsole = true;
+        } else if (options.quiet) {
+            this.quietConsole = true;
         }
     }
 
