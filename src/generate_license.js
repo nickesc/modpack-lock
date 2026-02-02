@@ -18,12 +18,12 @@ async function writeLicense(licenseText, outputPath) {
 /**
  * Write a license to a file
  * @param {ModpackInfo} modpackInfo - The modpack information
- * @param {string} outputPath - The path to write the license to
+ * @param {string} workingDir - The path to write the license to
  * @param {InitOptions} options - The initialization options object
  * @param {string} licenseTextOverride - The license text to override the default license text with
  * @returns {Promise<string> | null} The license text or null if the license text could not be generated
  */
-export default async function generateLicense(modpackInfo, outputPath, options = {}, licenseTextOverride = null) {
+export default async function generateLicense(modpackInfo, workingDir, options = {}, licenseTextOverride = null) {
     logm.quietFromOptions(options);
 
     try {
@@ -41,10 +41,10 @@ export default async function generateLicense(modpackInfo, outputPath, options =
 
         if (options.dryRun) {
             logm.debug(
-                config.dryRunText(config.MODPACK_LICENSE_NAME, path.join(outputPath, config.MODPACK_LICENSE_NAME)),
+                config.dryRunText(config.MODPACK_LICENSE_NAME, path.join(workingDir, config.MODPACK_LICENSE_NAME)),
             );
         } else {
-            await writeLicense(licenseText, outputPath);
+            await writeLicense(licenseText, workingDir);
         }
         return licenseText;
     } catch (error) {

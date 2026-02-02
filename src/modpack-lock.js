@@ -23,16 +23,16 @@ import {getModpackInfo, getLockfile} from "./directory_scanning.js";
 /**
  * Generate the modpack files (lockfile, JSON, and optionally license, gitignore, and readme)
  * @param {ModpackInfo} modpackInfo - The modpack information
- * @param {string} directory - The directory to generate the files in
+ * @param {string} workingDir - The directory to generate the files in
  * @param {Options | InitOptions } options - The options object
  * @returns {Promise<Lockfile>} The lockfile object
  */
-async function generateModpackFiles(modpackInfo, directory, options = {}) {
+async function generateModpackFiles(modpackInfo, workingDir, options = {}) {
     logm.quietFromOptions(options);
 
-    const lockfile = await generateLockfile(directory, options);
+    const lockfile = await generateLockfile(workingDir, options);
 
-    await generateJson(modpackInfo, lockfile, directory, options);
+    await generateJson(modpackInfo, lockfile, workingDir, options);
 
     if (options.licenseFile || options.gitignore || options.readme) {
         logm.header("Generating Optional Files");
@@ -40,17 +40,17 @@ async function generateModpackFiles(modpackInfo, directory, options = {}) {
 
     // Generate license if requested
     if (options.licenseFile) {
-        await generateLicense(modpackInfo, directory, options);
+        await generateLicense(modpackInfo, workingDir, options);
     }
 
     // Generate gitignore if requested
     if (options.gitignore) {
-        await generateGitignoreRules(lockfile, directory, options);
+        await generateGitignoreRules(lockfile, workingDir, options);
     }
 
     // Generate README files if requested
     if (options.readme) {
-        await generateReadmeFiles(lockfile, directory, options);
+        await generateReadmeFiles(lockfile, workingDir, options);
     }
 
     return lockfile;

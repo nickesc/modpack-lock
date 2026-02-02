@@ -34,11 +34,11 @@ async function writeJson(jsonObject, outputPath) {
  * Generate a modpack.json file
  * @param {ModpackInfo} modpackInfo - The modpack information
  * @param {Lockfile} lockfile - The lockfile
- * @param {string} outputDir - The path to write the JSON object to
+ * @param {string} workingDir - The path to write the JSON object to
  * @param {Options | InitOptions} options - The options object
  * @returns {Promise<Lockfile>} The JSON file's object
  */
-export default async function generateJson(modpackInfo, lockfile, outputDir, options = {}) {
+export default async function generateJson(modpackInfo, lockfile, workingDir, options = {}) {
     logm.quietFromOptions(options);
 
     // Validate modpack info
@@ -97,9 +97,9 @@ export default async function generateJson(modpackInfo, lockfile, outputDir, opt
 
     // Write modpack JSON object to disk
     if (options.dryRun) {
-        logm.debug(config.dryRunText(config.MODPACK_JSON_NAME, path.join(outputDir, config.MODPACK_JSON_NAME)));
+        logm.debug(config.dryRunText(config.MODPACK_JSON_NAME, path.join(workingDir, config.MODPACK_JSON_NAME)));
     } else {
-        await writeJson(jsonObject, outputDir);
+        await writeJson(jsonObject, workingDir);
     }
 
     return jsonObject;
