@@ -1,41 +1,41 @@
-import pkg from '../../package.json' with { type: 'json' };
+import pkg from "../../package.json" with {type: "json"};
 
 /** Author username */
-export const AUTHOR_USERNAME = 'nickesc';
+export const AUTHOR_USERNAME = "nickesc";
 
 /** Lockfile format version -- increment on changes to the format */
 export const LOCKFILE_VERSION = "1.0.1";
 
 /** Required fields for the modpack information */
 export const MODPACK_INFO_REQUIRED_FIELDS = [
-    "name",
+    "name", //
     "version",
     "id",
     "author",
     "modloader",
-    "targetMinecraftVersion"
+    "targetMinecraftVersion",
 ];
 
 /** Dependency categories, corresponds to folders in Minecraft profile */
 export const DEPENDENCY_CATEGORIES = [
-    "mods",
+    "mods", //
     "resourcepacks",
     "shaderpacks",
-    "datapacks"
+    "datapacks",
 ];
 
 /** Minecraft version types */
 export const MINECRAFT_VERSION_TYPES = [
-    "release",
+    "release", //
     "alpha",
     "beta",
-    "snapshot"
+    "snapshot",
 ];
 
-const gitignoreMarker = (mode) =>  `# ${pkg.name}:${mode}`;
+const gitignoreMarker = (mode) => `# ${pkg.name}:${mode}`;
 
 /** Gitignore section start marker */
-export const GITIGNORE_START_MARKER = gitignoreMarker('start');
+export const GITIGNORE_START_MARKER = gitignoreMarker("start");
 
 /** Gitignore section end marker */
-export const GITIGNORE_END_MARKER = gitignoreMarker('end');
+export const GITIGNORE_END_MARKER = gitignoreMarker("end");

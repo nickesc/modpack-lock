@@ -2,66 +2,66 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 	<url>
 		<loc>https://nickesc.github.io/modpack-lock/index.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
 	</url>
 	<url>
 		<loc>https://nickesc.github.io/modpack-lock/modules.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
 	</url>
 	<url>
 		<loc>https://nickesc.github.io/modpack-lock/hierarchy.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
 	</url>
 	<url>
 		<loc>https://nickesc.github.io/modpack-lock/interfaces/ModpackInfo.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
 	</url>
 	<url>
 		<loc>https://nickesc.github.io/modpack-lock/interfaces/Lockfile.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
 	</url>
 	<url>
 		<loc>https://nickesc.github.io/modpack-lock/interfaces/Options.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
 	</url>
 	<url>
 		<loc>https://nickesc.github.io/modpack-lock/interfaces/InitOptions.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
 	</url>
 	<url>
 		<loc>https://nickesc.github.io/modpack-lock/functions/getModpackInfo.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
 	</url>
 	<url>
 		<loc>https://nickesc.github.io/modpack-lock/functions/getLockfile.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
-	</url>
-	<url>
-		<loc>https://nickesc.github.io/modpack-lock/functions/generateJson.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
-	</url>
-	<url>
-		<loc>https://nickesc.github.io/modpack-lock/functions/generateLicense.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
 	</url>
 	<url>
 		<loc>https://nickesc.github.io/modpack-lock/functions/generateGitignoreRules.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
 	</url>
 	<url>
-		<loc>https://nickesc.github.io/modpack-lock/functions/generateReadmeFiles.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
+		<loc>https://nickesc.github.io/modpack-lock/functions/generateJson.html</loc>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
+	</url>
+	<url>
+		<loc>https://nickesc.github.io/modpack-lock/functions/generateLicense.html</loc>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
 	</url>
 	<url>
 		<loc>https://nickesc.github.io/modpack-lock/functions/generateLockfile.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
+	</url>
+	<url>
+		<loc>https://nickesc.github.io/modpack-lock/functions/generateReadmeFiles.html</loc>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
 	</url>
 	<url>
 		<loc>https://nickesc.github.io/modpack-lock/functions/generateModpackFiles.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
 	</url>
 	<url>
 		<loc>https://nickesc.github.io/modpack-lock/functions/promptUserForInfo.html</loc>
-		<lastmod>2026-01-25T05:04:46.752Z</lastmod>
+		<lastmod>2026-02-02T03:38:53.882Z</lastmod>
 	</url>
 </urlset>

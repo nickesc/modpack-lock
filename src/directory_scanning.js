@@ -1,7 +1,8 @@
-import fs from 'fs/promises';
-import crypto from 'crypto';
-import path from 'path';
-import * as config from './config/index.js';
+import fs from "fs/promises";
+import crypto from "crypto";
+import path from "path";
+import * as config from "./config/index.js";
+import {logm} from "./logger.js";
 
 /**
  * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
@@ -16,7 +17,7 @@ import * as config from './config/index.js';
 export function getScanDirectories(directoryPath) {
     const scanDirectories = [];
     for (const category of config.DEPENDENCY_CATEGORIES) {
-        scanDirectories.push({ name: category, path: path.join(directoryPath, category) });
+        scanDirectories.push({name: category, path: path.join(directoryPath, category)});
     }
     return scanDirectories;
 }
@@ -26,7 +27,7 @@ export function getScanDirectories(directoryPath) {
  */
 async function calculateSHA1(filePath) {
     const fileBuffer = await fs.readFile(filePath);
-    return crypto.createHash('sha1').update(fileBuffer).digest('hex');
+    return crypto.createHash("sha1").update(fileBuffer).digest("hex");
 }
 
 /**
@@ -36,21 +37,21 @@ async function findFiles(dirPath) {
     const files = [];
 
     try {
-        const entries = await fs.readdir(dirPath, { withFileTypes: true });
+        const entries = await fs.readdir(dirPath, {withFileTypes: true});
 
         for (const entry of entries) {
-            if (entry.isFile() && (entry.name.endsWith('.jar') || entry.name.endsWith('.zip'))) {
+            if (entry.isFile() && (entry.name.endsWith(".jar") || entry.name.endsWith(".zip"))) {
                 const fullPath = path.join(dirPath, entry.name);
                 files.push(fullPath);
             }
         }
     } catch (error) {
-        if (error.code !== 'ENOENT') {
-            console.warn(`Warning: Could not read directory ${dirPath}: ${error.message}`);
+        if (error.code !== "ENOENT") {
+            logm.warn(`Could not read directory ${dirPath}: ${error.message}`);
         }
     }
 
-    files.sort((a, b) => a.localeCompare(b, 'en', { numeric: true, sensitivity: 'base' }));
+    files.sort((a, b) => a.localeCompare(b, "en", {numeric: true, sensitivity: "base"}));
     return files;
 }
 
@@ -73,7 +74,7 @@ export async function scanDirectory(dirInfo, workspaceRoot) {
                 category: dirInfo.name,
             });
         } catch (error) {
-            console.warn(`Warning: Could not hash file ${filePath}: ${error.message}`);
+            logm.warn(`Could not hash file ${filePath}: ${error.message}`);
         }
     }
 
@@ -87,10 +88,10 @@ async function getJsonFile(directoryPath, filename) {
     const jsonPath = path.join(directoryPath, filename);
     // try to read the file
     try {
-        const fileContent = await fs.readFile(jsonPath, 'utf-8');
+        const fileContent = await fs.readFile(jsonPath, "utf-8");
         return JSON.parse(fileContent);
     } catch (error) {
-        if (error.code !== 'ENOENT') {
+        if (error.code !== "ENOENT") {
             throw new Error(`Error: Could not read file ${jsonPath}: ${error.message}`);
         } else {
             return null;

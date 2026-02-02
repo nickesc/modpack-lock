@@ -1,11 +1,11 @@
-import pkg from '../../package.json' with { type: 'json' };
-import * as constants from './constants.js';
+import pkg from "../../package.json" with {type: "json"};
+import * as constants from "./constants.js";
 
 /** User-Agent header for Modrinth API requests */
 export const PACKAGE_USER_AGENT = `${constants.AUTHOR_USERNAME}/${pkg.name}/${pkg.version}`;
 
 /** Modrinth API base URL */
-export const MODRINTH_API_BASE = 'https://api.modrinth.com/v2';
+export const MODRINTH_API_BASE = "https://api.modrinth.com/v2";
 
 /** Modrinth version files endpoint */
 export const MODRINTH_VERSION_FILES_ENDPOINT = `${MODRINTH_API_BASE}/version_files`;
@@ -26,7 +26,7 @@ export const MODRINTH_MODLOADERS_ENDPOINT = `${MODRINTH_API_BASE}/tag/loader`;
 export const BATCH_SIZE = 100;
 
 /** GitHub API base URL */
-export const GITHUB_API_BASE = 'https://api.github.com';
+export const GITHUB_API_BASE = "https://api.github.com";
 
 /** GitHub licenses endpoint */
 export const GITHUB_LICENSES_ENDPOINT = `${GITHUB_API_BASE}/licenses`;
@@ -38,4 +38,4 @@ export const GITHUB_FEATURED_LICENSES_ENDPOINT = `${GITHUB_LICENSES_ENDPOINT}?fe
 export const GITHUB_LICENSE_ENDPOINT = (license) => `${GITHUB_API_BASE}/licenses/${license}`;
 
 /** GitHub Accept request header */
-export const GITHUB_ACCEPT_HEADER = 'application/vnd.github+json';
+export const GITHUB_ACCEPT_HEADER = "application/vnd.github+json";

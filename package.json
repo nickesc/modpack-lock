@@ -1,6 +1,6 @@
 {
   "name": "modpack-lock",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Creates a modpack lockfile for files hosted on Modrinth (mods, resource packs, shaders and datapacks)",
   "bugs": {
     "url": "https://github.com/nickesc/modpack-lock/issues"
