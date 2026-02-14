@@ -35,7 +35,7 @@ export async function getLicenseList(featured = false) {
         }
 
         return licenseSpdxIds;
-    } catch (error) {
+    } catch {
         logm.warn(`Could not fetch license list. Using fallbacks.`);
         const licenses = config.FALLBACK_LICENSES.push(config.ALL_RIGHTS_RESERVED_LICENSE);
         licenses.push(config.OTHER_OPTION);
@@ -72,7 +72,7 @@ export async function getLicenseText(spdxId) {
             throw new Error();
         }
         return null;
-    } catch (error) {
+    } catch {
         logm.warn(`Could not find license text for: ${spdxId}`);
         return null;
     }

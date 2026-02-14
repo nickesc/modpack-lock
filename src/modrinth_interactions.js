@@ -148,8 +148,8 @@ export async function getMinecraftVersions() {
             throw new Error();
         }
         return null;
-    } catch (error) {
-        logm.warn(`Could not fetch Minecraft versions. Using fallbacks.`, error);
+    } catch {
+        logm.warn(`Could not fetch Minecraft versions. Using fallbacks.`);
         return config.FALLBACK_TARGET_MINECRAFT_VERSIONS;
     }
 }
@@ -178,8 +178,8 @@ export async function getModloaders() {
             throw new Error();
         }
         return null;
-    } catch (error) {
-        logm.warn(`Could not fetch Modloaders. Using fallbacks.`, error);
+    } catch {
+        logm.warn(`Could not fetch Modloaders. Using fallbacks.`);
         return config.FALLBACK_MODLOADERS;
     }
 }
