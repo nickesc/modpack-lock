@@ -61,7 +61,7 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
     const startMarkerIndex = existingContent.indexOf(config.GITIGNORE_START_MARKER);
     const endMarkerIndex = existingContent.indexOf(config.GITIGNORE_END_MARKER);
 
-    let newContent = "";
+    let newContent;
 
     if (startMarkerIndex !== -1 && endMarkerIndex !== -1 && endMarkerIndex > startMarkerIndex) {
         // Both markers exist, replace content between them

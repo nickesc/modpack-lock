@@ -35,11 +35,11 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
 
     for (const entry of entries) {
         const version = entry.version;
-        let nameCell = "";
-        let authorCell = "";
-        let versionCell = "";
-        let dependenciesCell = "";
-        let dependantsCell = "";
+        let nameCell;
+        let authorCell;
+        let versionCell;
+        let dependenciesCell;
+        let dependantsCell;
 
         if (version && version.project_id) {
             const project = projectsMap[version.project_id];
