@@ -210,9 +210,13 @@ modpackLock
                     targetModloaderVersion: undefined,
                     targetMinecraftVersion: undefined,
                 };
+                const mergedDefaults = mergeModpackInfo(existingInfo, options, defaults);
 
                 // prompt user for modpack information
-                const modpackInfo = await promptUserForInfo(mergeModpackInfo(existingInfo, options, defaults));
+                const userAnswers = await promptUserForInfo(mergedDefaults);
+
+                // Preserve extra fields (e.g. scripts) from existing modpack.json
+                const modpackInfo = {...mergedDefaults, ...userAnswers};
 
                 // prompt user if they want to add the license text
                 const optionalFiles = await promptUserAboutOptionalFiles(modpackInfo, options);
