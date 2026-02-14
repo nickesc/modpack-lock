@@ -68,7 +68,9 @@ modpackLock
             } else {
                 // Warn if license option is passed but no modpack.json exists
                 if (options.licenseFile) {
-                    logm.warn(`License generation requires a ${config.MODPACK_JSON_NAME} file. Skipping license generation.`);
+                    logm.warn(
+                        `License generation requires a ${config.MODPACK_JSON_NAME} file. Skipping license generation.`,
+                    );
                 }
 
                 // Generate lockfile
@@ -98,7 +100,9 @@ modpackLock
 
 modpackLock
     .command("init")
-    .description(`Initialize a modpack with a ${config.MODPACK_JSON_NAME} file and a ${config.MODPACK_LOCKFILE_NAME} lockfile.`)
+    .description(
+        `Initialize a modpack with a ${config.MODPACK_JSON_NAME} file and a ${config.MODPACK_LOCKFILE_NAME} lockfile.`,
+    )
     .optionsGroup(config.headings.options)
     .option("-f, --folder <path>", "Path to the modpack directory")
     .option("-n, --noninteractive", "Non-interactive mode - must provide options for required fields")
@@ -169,16 +173,28 @@ modpackLock
         } else {
             logm.info(logm.label("modpack-lock"), styleText(["bold", "italic", "blueBright"], "init"));
             logm.newline();
-            logm.info(styleText(["dim"], "This utility will walk you through creating a"),
-                 config.MODPACK_JSON_NAME,
+            logm.info(
+                styleText(["dim"], "This utility will walk you through creating a"),
+                config.MODPACK_JSON_NAME,
                 styleText(["dim"], "file and a"),
                 config.MODPACK_LOCKFILE_NAME,
-                styleText(["dim"], "lockfile. It only covers the most common items, and tries to guess sensible defaults."),
+                styleText(
+                    ["dim"],
+                    "lockfile. It only covers the most common items, and tries to guess sensible defaults.",
+                ),
             );
             logm.newline();
-            logm.info(styleText(["dim"], "See"), styleText(["white", "bgGray", "italic"], "modpack-lock init --help"), styleText(["dim"], "for definitive documentation on these fields and exactly what they do."));
+            logm.info(
+                styleText(["dim"], "See"),
+                styleText(["white", "bgGray", "italic"], "modpack-lock init --help"),
+                styleText(["dim"], "for definitive documentation on these fields and exactly what they do."),
+            );
             logm.newline();
-            logm.info(styleText(["dim"], "Press"), styleText(["yellow"], "^C"), styleText(["dim"], "at any time to quit."));
+            logm.info(
+                styleText(["dim"], "Press"),
+                styleText(["yellow"], "^C"),
+                styleText(["dim"], "at any time to quit."),
+            );
             logm.newline();
             try {
                 const defaults = {
@@ -194,9 +210,13 @@ modpackLock
                     targetModloaderVersion: undefined,
                     targetMinecraftVersion: undefined,
                 };
+                const mergedDefaults = mergeModpackInfo(existingInfo, options, defaults);
 
                 // prompt user for modpack information
-                const modpackInfo = await promptUserForInfo(mergeModpackInfo(existingInfo, options, defaults));
+                const userAnswers = await promptUserForInfo(mergedDefaults);
+
+                // Preserve extra fields (e.g. scripts) from existing modpack.json
+                const modpackInfo = {...mergedDefaults, ...userAnswers};
 
                 // prompt user if they want to add the license text
                 const optionalFiles = await promptUserAboutOptionalFiles(modpackInfo, options);
