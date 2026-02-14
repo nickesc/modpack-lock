@@ -92,7 +92,7 @@ async function getJsonFile(directoryPath, filename) {
         return JSON.parse(fileContent);
     } catch (error) {
         if (error.code !== "ENOENT") {
-            throw new Error(`Error: Could not read file ${jsonPath}: ${error.message}`);
+            throw new Error(`Error: Could not read file ${jsonPath}: ${error.message}`, {cause: error});
         } else {
             return null;
         }
