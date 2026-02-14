@@ -71,7 +71,6 @@ export async function getLicenseText(spdxId) {
         } else {
             throw new Error();
         }
-        return null;
     } catch {
         logm.warn(`Could not find license text for: ${spdxId}`);
         return null;
