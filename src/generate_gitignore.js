@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import * as config from "./config/index.js";
-import {logm, styleText} from "./logger.js";
+import {logm} from "./logger.js";
 
 /**
  * @typedef {import('./config/types.js').Options} Options
