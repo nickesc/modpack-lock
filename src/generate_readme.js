@@ -162,7 +162,7 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
     const projectIds = new Set();
     const authorIds = new Set();
 
-    for (const [category, entries] of Object.entries(lockfile.dependencies)) {
+    for (const [, entries] of Object.entries(lockfile.dependencies)) {
         for (const entry of entries) {
             if (entry.version && entry.version.project_id) {
                 projectIds.add(entry.version.project_id);

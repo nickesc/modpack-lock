@@ -28,7 +28,7 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
     rules.push(`*/**/*.disabled`);
 
     // Find files not hosted on Modrinth
-    for (const [category, entries] of Object.entries(lockfile.dependencies)) {
+    for (const [, entries] of Object.entries(lockfile.dependencies)) {
         for (const entry of entries) {
             if (entry.version === null) {
                 exceptions.push(`!${entry.path}`);
