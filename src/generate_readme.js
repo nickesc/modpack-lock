@@ -35,11 +35,11 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
 
     for (const entry of entries) {
         const version = entry.version;
-        let nameCell = "";
-        let authorCell = "";
-        let versionCell = "";
-        let dependenciesCell = "";
-        let dependantsCell = "";
+        let nameCell;
+        let authorCell;
+        let versionCell;
+        let dependenciesCell;
+        let dependantsCell;
 
         if (version && version.project_id) {
             const project = projectsMap[version.project_id];
@@ -162,7 +162,7 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
     const projectIds = new Set();
     const authorIds = new Set();
 
-    for (const [category, entries] of Object.entries(lockfile.dependencies)) {
+    for (const [, entries] of Object.entries(lockfile.dependencies)) {
         for (const entry of entries) {
             if (entry.version && entry.version.project_id) {
                 projectIds.add(entry.version.project_id);

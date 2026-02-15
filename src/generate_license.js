@@ -47,7 +47,7 @@ export default async function generateLicense(modpackInfo, workingDir, options =
             await writeLicense(licenseText, workingDir);
         }
         return licenseText;
-    } catch (error) {
+    } catch {
         logm.warn(`Unable to generate license for: ${modpackInfo.license}`);
         return null;
     }
