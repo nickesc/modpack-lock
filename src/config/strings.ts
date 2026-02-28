@@ -7,7 +7,19 @@ interface InfoField {
     option: string;
 }
 
-export const infoFields: Record<string, InfoField> = {
+export const infoFields: {
+    name: InfoField;
+    version: InfoField;
+    id: InfoField;
+    description: InfoField;
+    author: InfoField;
+    projectUrl: InfoField;
+    sourceUrl: InfoField;
+    license: InfoField;
+    modloader: InfoField;
+    targetModloaderVersion: InfoField;
+    targetMinecraftVersion: InfoField;
+} = {
     name: {
         prompt: "modpack name",
         option: "Modpack name; defaults to the directory name",
@@ -54,7 +66,11 @@ export const infoFields: Record<string, InfoField> = {
     },
 };
 
-export const fileFields: Record<string, InfoField> = {
+export const fileFields: {
+    addLicense: InfoField;
+    addGitignore: InfoField;
+    addReadme: InfoField;
+} = {
     addLicense: {
         prompt: `Add the ${files.MODPACK_LICENSE_NAME} file`,
         option: `Add the ${files.MODPACK_LICENSE_NAME} file to the modpack`,
@@ -69,7 +85,13 @@ export const fileFields: Record<string, InfoField> = {
     },
 };
 
-export const headings: Record<string, string> = {
+export const headings: {
+    options: string;
+    generation: string;
+    logging: string;
+    packInfo: string;
+    information: string;
+} = {
     options: "Options:",
     generation: "GENERATION",
     logging: "LOGGING",
