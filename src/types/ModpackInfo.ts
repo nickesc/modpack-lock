@@ -23,4 +23,6 @@ export type ModpackInfo = {
     sourceUrl: string;
     license: string;
     modloader: string;
+    targetModloaderVersion: string;
+    targetMinecraftVersion: string;
 };
