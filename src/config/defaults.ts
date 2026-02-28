@@ -1,22 +1,24 @@
-export const DEFAULT_MODPACK_VERSION = "1.0.0";
+import type { Choice } from "prompts"
 
-export const DEFAULT_MODPACK_LICENSE = "mit";
+export const DEFAULT_MODPACK_VERSION: string = "1.0.0";
 
-export const DEFAULT_PROJECT_URL = (id) => {
+export const DEFAULT_MODPACK_LICENSE: string = "mit";
+
+export const DEFAULT_PROJECT_URL: (id: string) => string = (id) => {
     return `https://modrinth.com/modpack/${id}`;
 };
-export const DEFAULT_SOURCE_URL = (id, author) => {
+export const DEFAULT_SOURCE_URL: (id: string, author: string) => string = (id, author) => {
     return `https://github.com/${author}/${id}`;
 };
 
 /** All-Rights-Reserved license option */
-export const ALL_RIGHTS_RESERVED_LICENSE = {title: "All-Rights-Reserved", value: "all-rights-reserved"};
+export const ALL_RIGHTS_RESERVED_LICENSE: Choice = {title: "All-Rights-Reserved", value: "all-rights-reserved"};
 
 /** Other option */
-export const OTHER_OPTION = {title: "Other", value: "other"};
+export const OTHER_OPTION: Choice = {title: "Other", value: "other"};
 
 /** Fallback licenses */
-export const FALLBACK_LICENSES = [
+export const FALLBACK_LICENSES: Choice[] = [
     {title: "MIT", value: "mit"},
     {title: "Apache-2.0", value: "apache-2.0"},
     {title: "GPL-3.0", value: "gpl-3.0"},
@@ -24,7 +26,7 @@ export const FALLBACK_LICENSES = [
 ];
 
 /** Fallback modloaders */
-export const FALLBACK_MODLOADERS = [
+export const FALLBACK_MODLOADERS: Choice[] = [
     {title: "fabric", value: "fabric"},
     {title: "forge", value: "forge"},
     {title: "neoforge", value: "neoforge"},
@@ -37,7 +39,7 @@ export const FALLBACK_MODLOADERS = [
 ];
 
 /** Fallback target Minecraft versions */
-export const FALLBACK_TARGET_MINECRAFT_VERSIONS = [
+export const FALLBACK_TARGET_MINECRAFT_VERSIONS: Choice[] = [
     {title: "1.21.x", value: "1.21.x"},
     {title: "1.20.x", value: "1.20.x"},
     {title: "1.19.x", value: "1.19.x"},

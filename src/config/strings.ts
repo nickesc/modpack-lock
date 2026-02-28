@@ -2,7 +2,12 @@ import * as defaults from "./defaults.js";
 import * as files from "./files.js";
 import pkg from "../../package.json" with {type: "json"};
 
-export const infoFields = {
+interface InfoField {
+    prompt: string;
+    option: string;
+}
+
+export const infoFields: Record<string, InfoField> = {
     name: {
         prompt: "modpack name",
         option: "Modpack name; defaults to the directory name",
@@ -49,7 +54,7 @@ export const infoFields = {
     },
 };
 
-export const fileFields = {
+export const fileFields: Record<string, InfoField> = {
     addLicense: {
         prompt: `Add the ${files.MODPACK_LICENSE_NAME} file`,
         option: `Add the ${files.MODPACK_LICENSE_NAME} file to the modpack`,
@@ -64,7 +69,7 @@ export const fileFields = {
     },
 };
 
-export const headings = {
+export const headings: Record<string, string> = {
     options: "Options:",
     generation: "GENERATION",
     logging: "LOGGING",
@@ -72,11 +77,11 @@ export const headings = {
     information: "INFORMATION",
 };
 
-export const dryRunText = (filename, location) => {
+export const dryRunText: (filename: string, location: string) => string = (filename, location) => {
     return `[DRY RUN] Would write ${filename} to: ${location}`;
 };
 
 /** All-Rights-Reserved license text */
-export const ARR_LICENSE_TEXT = "Copyright (c) [year] [fullname]\n" + "\n" + "All rights reserved.\n";
+export const ARR_LICENSE_TEXT: string = "Copyright (c) [year] [fullname]\n" + "\n" + "All rights reserved.\n";
 
 export {pkg};
