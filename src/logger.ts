@@ -1,13 +1,25 @@
-import {styleText} from "node:util";
+import { styleText } from "node:util";
+import type { InspectColor } from "node:util";
 
 class Logger {
     /**
      * The styles to apply to the console output.
-     * @type {Object}
      */
-    styles = {
-        log: null,
-        info: null,
+    styles: {
+        log: InspectColor[];
+        info: InspectColor[];
+        debug: InspectColor[];
+        warn: InspectColor[];
+        error: InspectColor[];
+        generated: InspectColor[];
+        label: InspectColor[];
+        labelDebug: InspectColor[];
+        labelWarn: InspectColor[];
+        labelError: InspectColor[];
+        labelGenerated: InspectColor[];
+    } = {
+        log: [],
+        info: [],
         debug: ["magenta"],
         warn: ["yellow"],
         error: ["red"],
@@ -23,12 +35,12 @@ class Logger {
     silentConsole = false;
     lastLogWasNewline = false;
 
-    quiet(silent = false) {
+    quiet(silent: boolean = false) {
         this.quietConsole = true;
         this.silentConsole = silent;
     }
 
-    quietFromOptions(options) {
+    quietFromOptions(options: { silent: boolean, quiet: boolean }) {
         if (options.silent) {
             this.quietConsole = true;
             this.silentConsole = true;
@@ -37,31 +49,31 @@ class Logger {
         }
     }
 
-    styleArgs(style, args) {
+    styleArgs(style: InspectColor[] | null, args: any[]) {
         if (!style) {
             return args;
         }
         if (args.length === 0) {
             return "";
         }
-        return args.map((arg) => (typeof arg === "string" ? styleText(style, arg) : arg));
+        return args.map((arg: any) => (typeof arg === "string" ? styleText(style, arg) : arg));
     }
 
     /**
      * Style the text as a label.
-     * @param {string} text - The text to style.
-     * @param {string[]} style - The style to apply to the text.
-     * @returns {string} The styled text.
+     * @param text - The text to style.
+     * @param style - The style to apply to the text.
+     * @returns The styled text.
      */
-    label(text, style = this.styles.label) {
+    label(text: string, style: InspectColor[] = this.styles.label) {
         return styleText(style, String(text).toUpperCase());
     }
 
     /**
      * Log a header.
-     * @param {string} text - The text to log.
+     * @param text - The text to log.
      */
-    header(text) {
+    header(text: string) {
         if (this.quietConsole) {
             return;
         }
@@ -73,7 +85,7 @@ class Logger {
         this.lastLogWasNewline = true;
     }
 
-    generated(desc, outputPath) {
+    generated(desc: string, outputPath: string) {
         if (this.quietConsole) {
             return;
         }
@@ -100,10 +112,10 @@ class Logger {
 
     /**
      * Log a message.
-     * @param {string} message - The message to log.
-     * @param {...any} otherMessages - The other messages to log.
+     * @param message - The message to log.
+     * @param otherMessages - The other messages to log.
      */
-    log(message, ...otherMessages) {
+    log(message: any, ...otherMessages: any[]) {
         if (this.quietConsole) {
             return;
         }
@@ -113,10 +125,10 @@ class Logger {
 
     /**
      * Log an info message.
-     * @param {string} message - The message to log.
-     * @param {...any} otherMessages - The other messages to log.
+     * @param message - The message to log.
+     * @param otherMessages - The other messages to log.
      */
-    info(message, ...otherMessages) {
+    info(message: any, ...otherMessages: any[]) {
         if (this.quietConsole) {
             return;
         }
@@ -126,10 +138,10 @@ class Logger {
 
     /**
      * Log a debug message.
-     * @param {string} message - The message to log.
-     * @param {...any} otherMessages - The other messages to log.
+     * @param message - The message to log.
+     * @param otherMessages - The other messages to log.
      */
-    debug(message, ...otherMessages) {
+    debug(message: any, ...otherMessages: any[]) {
         if (this.silentConsole) {
             return;
         }
@@ -142,10 +154,10 @@ class Logger {
 
     /**
      * Log a warning message.
-     * @param {string} message - The message to log.
-     * @param {...any} otherMessages - The other messages to log.
+     * @param message - The message to log.
+     * @param otherMessages - The other messages to log.
      */
-    warn(message, ...otherMessages) {
+    warn(message: any, ...otherMessages: any[]) {
         if (this.silentConsole) {
             return;
         }
@@ -158,10 +170,10 @@ class Logger {
 
     /**
      * Log an error message.
-     * @param {string} message - The message to log.
-     * @param {...any} otherMessages - The other messages to log.
+     * @param message - The message to log.
+     * @param otherMessages - The other messages to log.
      */
-    error(message, ...otherMessages) {
+    error(message: any, ...otherMessages: any[]) {
         if (this.silentConsole) {
             return;
         }
