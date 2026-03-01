@@ -1,14 +1,20 @@
 import * as config from "./config/index.js";
 import {logm} from "./logger.js";
+import type { Choice } from "prompts";
+
+type LicenseResponse = {
+    spdx_id: string;
+    key: string;
+};
 
 /**
  * Fetch a list of the most popular licenses from GitHub
- * @param {boolean} featured - If the fetch should be limited to featured licenses
- * @returns {Promise<Array<Object>>} The list of licenses for use in a prompt
+ * @param featured - If the fetch should be limited to featured licenses
+ * @returns The list of licenses for use in a prompt
  */
-export async function getLicenseList(featured = false) {
+export async function getLicenseList(featured: boolean = false) {
     try {
-        const url = featured ? config.GITHUB_FEATURED_LICENSES_ENDPOINT : config.GITHUB_LICENSES_ENDPOINT;
+        const url: string = featured ? config.GITHUB_FEATURED_LICENSES_ENDPOINT : config.GITHUB_LICENSES_ENDPOINT;
         const response = await fetch(url, {
             headers: {
                 Accept: config.GITHUB_ACCEPT_HEADER,
@@ -19,9 +25,9 @@ export async function getLicenseList(featured = false) {
             const errorText = await response.text();
             throw new Error(`GitHub API error (${response.status}): ${errorText}`);
         }
-        let licenseList = await response.json();
+        const licenseList: LicenseResponse[] = (await response.json()) as LicenseResponse[];
 
-        let licenseSpdxIds = licenseList.map((license) => ({title: license.spdx_id, value: license.key}));
+        let licenseSpdxIds: Choice[] = licenseList.map((license: LicenseResponse): Choice => ({title: license.spdx_id, value: license.key}));
 
         if (!featured) {
             // get featured licenses and place them at the beginning of the list, removing them from the original list
@@ -37,8 +43,7 @@ export async function getLicenseList(featured = false) {
         return licenseSpdxIds;
     } catch {
         logm.warn(`Could not fetch license list. Using fallbacks.`);
-        const licenses = config.FALLBACK_LICENSES.push(config.ALL_RIGHTS_RESERVED_LICENSE);
-        licenses.push(config.OTHER_OPTION);
+        const licenses = [...config.FALLBACK_LICENSES, config.ALL_RIGHTS_RESERVED_LICENSE, config.OTHER_OPTION];
         return licenses;
     }
 }
