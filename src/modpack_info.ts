@@ -1,8 +1,9 @@
-import prompts from "prompts";
+import prompts, { type Choice, type InitialReturnValue, type PromptObject } from "prompts";
 import slugify from "slugify";
 import * as config from "./config/index.js";
 import {getLicenseList, getLicenseText} from "./github_interactions.js";
 import {getMinecraftVersions, getModloaders} from "./modrinth_interactions.js";
+import type { InitOptions, ModpackInfo } from "./types/index.js";
 
 /**
  * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
@@ -11,14 +12,14 @@ import {getMinecraftVersions, getModloaders} from "./modrinth_interactions.js";
 /**
  * Capitalizes a string
  */
-function capitalize(string) {
+function capitalize(string: string) {
     return `${string.charAt(0).toUpperCase()}${string.slice(1)}`;
 }
 
 /**
  * Validate that a value is not empty
  */
-function validateNotEmpty(value, field) {
+function validateNotEmpty(value: string, field: string) {
     if (value === undefined || value?.trim().length === 0) {
         return `${field} cannot be empty`;
     }
@@ -28,13 +29,13 @@ function validateNotEmpty(value, field) {
 /**
  * Returns a required text prompt
  */
-function requiredText(name, message, initial) {
+function requiredText(name: string, message: string, initial: PromptObject["initial"]): PromptObject {
     return {
         type: "text",
         name: name,
         message: `${capitalize(message)}`,
         initial: initial,
-        validate: (value) => {
+        validate: (value: string) => {
             return validateNotEmpty(value, name);
         },
     };
@@ -43,7 +44,7 @@ function requiredText(name, message, initial) {
 /**
  * Returns an optional text prompt
  */
-function optionalText(name, message, initial) {
+function optionalText(name: string, message: string, initial: PromptObject["initial"]): PromptObject {
     return {
         type: "text",
         name: name,
@@ -55,7 +56,7 @@ function optionalText(name, message, initial) {
 /**
  * Get an other answer from the user
  */
-async function getOtherAnswer(value, message, initial) {
+async function getOtherAnswer(value: string, message: string, initial: PromptObject["initial"]) {
     if (value && value !== config.OTHER_OPTION.value) {
         return value;
     }
@@ -67,10 +68,10 @@ async function getOtherAnswer(value, message, initial) {
 /**
  * Returns a required autocomplete prompt with a fallback to the other option
  */
-function requiredAutocomplete(name, message, initial, choices, defaultValue) {
+function requiredAutocomplete(name: string, message: string, initial: PromptObject["initial"], choices: Choice[], defaultValue: string): PromptObject {
     initial = initial || defaultValue || config.OTHER_OPTION.value;
     if (initial && !choices.some((choice) => choice.value === initial)) {
-        choices.push({title: initial, value: initial});
+        choices.push({title: initial as string, value: initial as string});
     }
 
     return {
@@ -79,9 +80,9 @@ function requiredAutocomplete(name, message, initial, choices, defaultValue) {
         message: `${capitalize(message)}`,
         initial: initial,
         choices: choices,
-        fallback: config.OTHER_OPTION.value,
-        format: async (value) => {
-            return await getOtherAnswer(value, ` └─𜰙 Other ${message}`, initial);
+        //fallback: config.OTHER_OPTION.value,
+        format: async (value: string) => {
+            return await getOtherAnswer(value, ` └─𜰙 Other ${message}`, initial as string);
         },
     };
 }
@@ -89,7 +90,7 @@ function requiredAutocomplete(name, message, initial, choices, defaultValue) {
 /**
  * Returns an confirmation prompt to generate an optional file
  */
-function fileGenerationConfirm(name, message, showPrompt) {
+function fileGenerationConfirm(name: string, message: string, showPrompt: boolean): PromptObject {
     return {
         type: showPrompt ? "confirm" : null,
         name: name,
@@ -103,7 +104,7 @@ function fileGenerationConfirm(name, message, showPrompt) {
  * @param {ModpackInfo} defaults - The initial/default modpack information
  * @returns {Promise<ModpackInfo>} The modpack information from the user
  */
-export async function promptUserForInfo(defaults = {}) {
+export async function promptUserForInfo(defaults: ModpackInfo) {
     const licenseList = await getLicenseList();
     const minecraftVersions = await getMinecraftVersions();
     const modloaders = await getModloaders();
@@ -115,8 +116,12 @@ export async function promptUserForInfo(defaults = {}) {
                 config.infoFields.version.prompt,
                 defaults.version || config.DEFAULT_MODPACK_VERSION,
             ),
-            requiredText("id", config.infoFields.id.prompt, (prev, values) =>
-                slugify(defaults.id || values.name, config.SLUGIFY_OPTIONS),
+            requiredText(
+                "id",
+                config.infoFields.id.prompt,
+                (prev: string, values: any) => {
+                    return slugify(defaults.id || values.name, config.SLUGIFY_OPTIONS)
+                },
             ),
             optionalText("description", config.infoFields.description.prompt, defaults.description),
             requiredText("author", config.infoFields.author.prompt, defaults.author),
@@ -142,7 +147,7 @@ export async function promptUserForInfo(defaults = {}) {
                 config.infoFields.modloader.prompt,
                 defaults.modloader,
                 modloaders,
-                config.FALLBACK_MODLOADERS[0].value,
+                config.FALLBACK_MODLOADERS[0] ? config.FALLBACK_MODLOADERS[0].value : "",
             ),
             optionalText(
                 "targetModloaderVersion",
@@ -166,9 +171,10 @@ export async function promptUserForInfo(defaults = {}) {
 /**
  * Prompt the user about adding the license text to the modpack
  * @param {ModpackInfo} modpackInfo - The modpack information
+ * @param {InitOptions} defaults - The default options
  * @returns {Promise<Object>} The answers from the user
  */
-export async function promptUserAboutOptionalFiles(modpackInfo, defaults = {}) {
+export async function promptUserAboutOptionalFiles(modpackInfo: ModpackInfo, defaults: InitOptions) {
     const licenseText = await getLicenseText(modpackInfo.license);
     const answers = await prompts(
         [
