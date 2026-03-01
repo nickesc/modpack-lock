@@ -1,9 +1,9 @@
-import prompts, { type Choice, type InitialReturnValue, type PromptObject } from "prompts";
+import prompts, {type Choice, type InitialReturnValue, type PromptObject} from "prompts";
 import slugify from "slugify";
 import * as config from "./config/index.js";
 import {getLicenseList, getLicenseText} from "./github_interactions.js";
 import {getMinecraftVersions, getModloaders} from "./modrinth_interactions.js";
-import type { InitOptions, ModpackInfo } from "./types/index.js";
+import type {InitOptions, ModpackInfo} from "./types/index.js";
 
 /**
  * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
@@ -68,7 +68,13 @@ async function getOtherAnswer(value: string, message: string, initial: PromptObj
 /**
  * Returns a required autocomplete prompt with a fallback to the other option
  */
-function requiredAutocomplete(name: string, message: string, initial: PromptObject["initial"], choices: Choice[], defaultValue: string): PromptObject {
+function requiredAutocomplete(
+    name: string,
+    message: string,
+    initial: PromptObject["initial"],
+    choices: Choice[],
+    defaultValue: string,
+): PromptObject {
     initial = initial || defaultValue || config.OTHER_OPTION.value;
     if (initial && !choices.some((choice) => choice.value === initial)) {
         choices.push({title: initial as string, value: initial as string});
@@ -116,13 +122,9 @@ export async function promptUserForInfo(defaults: ModpackInfo) {
                 config.infoFields.version.prompt,
                 defaults.version || config.DEFAULT_MODPACK_VERSION,
             ),
-            requiredText(
-                "id",
-                config.infoFields.id.prompt,
-                (prev: string, values: any) => {
-                    return slugify(defaults.id || values.name, config.SLUGIFY_OPTIONS)
-                },
-            ),
+            requiredText("id", config.infoFields.id.prompt, (prev: string, values: any) => {
+                return slugify(defaults.id || values.name, config.SLUGIFY_OPTIONS);
+            }),
             optionalText("description", config.infoFields.description.prompt, defaults.description),
             requiredText("author", config.infoFields.author.prompt, defaults.author),
             optionalText(
@@ -181,7 +183,7 @@ export async function promptUserAboutOptionalFiles(modpackInfo: ModpackInfo, def
             fileGenerationConfirm(
                 "addLicense",
                 `${config.fileFields.addLicense.prompt}?`,
-                licenseText && defaults.addLicense === undefined,
+                licenseText && defaults.addLicense === undefined ? true : false,
             ),
             fileGenerationConfirm(
                 "addReadme",
