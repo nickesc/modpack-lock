@@ -2,9 +2,13 @@ import * as config from "./config/index.js";
 import {logm} from "./logger.js";
 import type { Choice } from "prompts";
 
-type LicenseResponse = {
+type LicenseResponseItem = {
     spdx_id: string;
     key: string;
+};
+
+type LicenseTextResponse = {
+    body: string;
 };
 
 /**
@@ -25,9 +29,9 @@ export async function getLicenseList(featured: boolean = false) {
             const errorText = await response.text();
             throw new Error(`GitHub API error (${response.status}): ${errorText}`);
         }
-        const licenseList: LicenseResponse[] = (await response.json()) as LicenseResponse[];
+        const licenseList: LicenseResponseItem[] = (await response.json()) as LicenseResponseItem[];
 
-        let licenseSpdxIds: Choice[] = licenseList.map((license: LicenseResponse): Choice => ({title: license.spdx_id, value: license.key}));
+        let licenseSpdxIds: Choice[] = licenseList.map((license: LicenseResponseItem): Choice => ({title: license.spdx_id, value: license.key}));
 
         if (!featured) {
             // get featured licenses and place them at the beginning of the list, removing them from the original list
@@ -50,15 +54,15 @@ export async function getLicenseList(featured: boolean = false) {
 
 /**
  * Fetch specific license information from GitHub
- * @param {string} spdxId - The SPDX ID of the license
- * @returns {Promise<string> | null} The license text
+ * @param spdxId - The SPDX ID of the license
+ * @returns The license text
  */
-export async function getLicenseText(spdxId) {
+export async function getLicenseText(spdxId: string): Promise<string | null> {
     if (spdxId === "all-rights-reserved") {
         return config.ARR_LICENSE_TEXT;
     }
     try {
-        const url = config.GITHUB_LICENSE_ENDPOINT(spdxId.toLowerCase());
+        const url: string = config.GITHUB_LICENSE_ENDPOINT(spdxId.toLowerCase());
         const response = await fetch(url, {
             headers: {
                 Accept: config.GITHUB_ACCEPT_HEADER,
@@ -70,7 +74,7 @@ export async function getLicenseText(spdxId) {
             throw new Error(`GitHub API error (${response.status}): ${errorText}`);
         }
 
-        const json = await response.json();
+        const json: LicenseTextResponse = (await response.json()) as LicenseTextResponse;
         if (json.body) {
             return json.body;
         } else {
