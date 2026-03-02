@@ -4,29 +4,43 @@ import {getProjects, getUsers} from "./modrinth_interactions.js";
 import {getScanDirectories} from "./directory_scanning.js";
 import * as config from "./config/index.js";
 import {logm, styleText} from "./logger.js";
-
-/**
- * @typedef {import('./config/types.js').Options} Options
- * @typedef {import('./config/types.js').InitOptions} InitOptions
- * @typedef {import('./config/types.js').Lockfile} Lockfile
- */
+import type {
+    Options,
+    InitOptions,
+    Lockfile,
+    ProjectResponseItem,
+    UserResponseItem,
+    DependencyCategory,
+    ContentDirectory,
+} from "./types/index.js";
 
 /**
  * Generate README.md content for a category
  */
-function generateCategoryReadme(category, entries, projectsMap, usersMap) {
-    const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
-    const lines = [`# ${categoryTitle}`, "", "| Name | Author | Version | Dependencies | Dependants |", "|-|-|-|-|-|"];
+function generateCategoryReadme(
+    category: string,
+    entries: DependencyCategory[],
+    projectsMap: Record<string, ProjectResponseItem>,
+    usersMap: Record<string, UserResponseItem>,
+): string {
+    const categoryTitle: string = category.charAt(0).toUpperCase() + category.slice(1);
+    const lines: string[] = [
+        `# ${categoryTitle}`,
+        "",
+        "| Name | Author | Version | Dependencies | Dependents |",
+        "|-|-|-|-|-|",
+    ];
 
     // Map category to Modrinth URL path segment
-    const categoryPathMap = {};
+    const categoryPathMap: Record<string, string> = {};
     for (const cat of config.DEPENDENCY_CATEGORIES) {
         categoryPathMap[cat] = cat === "shaderpacks" ? "shader" : cat.toLowerCase().slice(0, -1);
     }
-    const categoryPath = categoryPathMap[category] || "project";
+    const categoryPath: string = categoryPathMap[category] || "project";
 
     // Build a set of project_ids present in this category for filtering dependencies
-    const categoryProjectIds = new Set();
+    const categoryProjectIds: Set<string> = new Set();
+
     for (const entry of entries) {
         if (entry.version && entry.version.project_id) {
             categoryProjectIds.add(entry.version.project_id);
@@ -35,11 +49,11 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
 
     for (const entry of entries) {
         const version = entry.version;
-        let nameCell;
-        let authorCell;
-        let versionCell;
-        let dependenciesCell;
-        let dependantsCell;
+        let nameCell: string;
+        let authorCell: string;
+        let versionCell: string;
+        let dependenciesCell: string;
+        let dependentsCell: string;
 
         if (version && version.project_id) {
             const project = projectsMap[version.project_id];
@@ -47,8 +61,8 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
 
             // Name column with icon and link
             if (project) {
-                const projectName = project.title || project.slug || "Unknown";
-                const projectSlug = project.slug || project.id;
+                const projectName: string = project.title || project.slug || "Unknown";
+                const projectSlug: string = project.slug || project.id;
                 const projectUrl = `https://modrinth.com/${categoryPath}/${projectSlug}`;
 
                 if (project.icon_url) {
@@ -58,13 +72,13 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
                 }
             } else {
                 // Project not found, use filename
-                const fileName = path.basename(entry.path);
+                const fileName: string = path.basename(entry.path);
                 nameCell = fileName;
             }
 
             // Author column with avatar and link
             if (author) {
-                const authorName = author.username || "Unknown";
+                const authorName: string = author.username || "Unknown";
                 const authorUrl = `https://modrinth.com/user/${authorName}`;
 
                 if (author.avatar_url) {
@@ -81,13 +95,13 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
 
             // Dependencies column - only show dependencies that are present in this category
             if (version.dependencies && Array.isArray(version.dependencies) && version.dependencies.length > 0) {
-                const dependencyLinks = [];
+                const dependencyLinks: string[] = [];
                 for (const dep of version.dependencies) {
                     if (dep.project_id && categoryProjectIds.has(dep.project_id)) {
                         const depProject = projectsMap[dep.project_id];
                         if (depProject) {
-                            const depProjectName = depProject.title || depProject.slug || "Unknown";
-                            const depProjectSlug = depProject.slug || depProject.id;
+                            const depProjectName: string = depProject.title || depProject.slug || "Unknown";
+                            const depProjectSlug: string = depProject.slug || depProject.id;
                             const depUrl = `https://modrinth.com/${categoryPath}/${depProjectSlug}`;
                             if (depProject.icon_url) {
                                 dependencyLinks.push(
@@ -104,8 +118,8 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
                 dependenciesCell = "-";
             }
 
-            // Dependants column - find all entries in the same category that depend on this project
-            const dependants = [];
+            // Dependents column - find all entries in the same category that depend on this project
+            const dependents: string[] = [];
             for (const catEntry of entries) {
                 // Skip if this is the same entry (same project_id)
                 if (catEntry.version && catEntry.version.project_id === version.project_id) {
@@ -118,32 +132,32 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
                     if (hasDependency) {
                         const depProject = projectsMap[catEntry.version.project_id];
                         if (depProject) {
-                            const depProjectName = depProject.title || depProject.slug || "Unknown";
-                            const depProjectSlug = depProject.slug || depProject.id;
+                            const depProjectName: string = depProject.title || depProject.slug || "Unknown";
+                            const depProjectSlug: string = depProject.slug || depProject.id;
                             const depUrl = `https://modrinth.com/${categoryPath}/${depProjectSlug}`;
                             if (depProject.icon_url) {
-                                dependants.push(
+                                dependents.push(
                                     `<a href="${depUrl}"><img alt="${depProjectName}" src="${depProject.icon_url}" height="20px"></a>`,
                                 );
                             } else {
-                                dependants.push(`[${depProjectName}](${depUrl})`);
+                                dependents.push(`[${depProjectName}](${depUrl})`);
                             }
                         }
                     }
                 }
             }
-            dependantsCell = dependants.length > 0 ? dependants.join(" ") : "-";
+            dependentsCell = dependents.length > 0 ? dependents.join(" ") : "-";
         } else {
             // File not found on Modrinth
-            const fileName = path.basename(entry.path);
+            const fileName: string = path.basename(entry.path);
             nameCell = fileName;
             authorCell = "Unknown";
             versionCell = "-";
             dependenciesCell = "-";
-            dependantsCell = "-";
+            dependentsCell = "-";
         }
 
-        lines.push(`| ${nameCell} | ${authorCell} | ${versionCell} | ${dependenciesCell} | ${dependantsCell} |`);
+        lines.push(`| ${nameCell} | ${authorCell} | ${versionCell} | ${dependenciesCell} | ${dependentsCell} |`);
     }
 
     return lines.join("\n") + "\n";
@@ -155,14 +169,14 @@ function generateCategoryReadme(category, entries, projectsMap, usersMap) {
  * @param {string} workingDir - The working directory
  * @param {Options | InitOptions} options - The options object
  */
-export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
+export async function generateReadmeFiles(lockfile: Lockfile, workingDir: string, options: Options | InitOptions = {}) {
     logm.quietFromOptions(options);
 
     // Collect unique project IDs and author IDs from version data
-    const projectIds = new Set();
-    const authorIds = new Set();
+    const projectIds = new Set<string>();
+    const authorIds = new Set<string>();
 
-    for (const [, entries] of Object.entries(lockfile.dependencies)) {
+    for (const entries of Object.values(lockfile.dependencies)) {
         for (const entry of entries) {
             if (entry.version && entry.version.project_id) {
                 projectIds.add(entry.version.project_id);
@@ -187,12 +201,12 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
     const [projects, users] = await Promise.all([getProjects(Array.from(projectIds)), getUsers(Array.from(authorIds))]);
 
     // Map projects and users to their IDs
-    const projectsMap = {};
+    const projectsMap: Record<string, ProjectResponseItem> = {};
     for (const project of projects) {
         projectsMap[project.id] = project;
     }
 
-    const usersMap = {};
+    const usersMap: Record<string, UserResponseItem> = {};
     for (const user of users) {
         usersMap[user.id] = user;
     }
@@ -203,8 +217,10 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
             continue;
         }
 
-        const readmeContent = generateCategoryReadme(category, entries, projectsMap, usersMap);
-        const categoryDir = getScanDirectories(workingDir).find((d) => d.name === category);
+        const readmeContent: string = generateCategoryReadme(category, entries, projectsMap, usersMap);
+        const categoryDir: ContentDirectory | undefined = getScanDirectories(workingDir).find(
+            (d) => d.name === category,
+        );
 
         if (categoryDir) {
             const readmePath = path.join(categoryDir.path, config.README_NAME);
@@ -215,7 +231,7 @@ export async function generateReadmeFiles(lockfile, workingDir, options = {}) {
                 try {
                     await fs.writeFile(readmePath, readmeContent, "utf-8");
                     logm.generated(config.README_NAME, readmePath);
-                } catch (error) {
+                } catch (error: any) {
                     logm.warn(`Could not write ${config.README_NAME} file to ${readmePath}: ${error.message}`);
                 }
             }
