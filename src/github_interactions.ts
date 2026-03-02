@@ -1,15 +1,7 @@
 import * as config from "./config/index.js";
 import {logm} from "./logger.js";
-import type { Choice } from "prompts";
-
-type LicenseResponseItem = {
-    spdx_id: string;
-    key: string;
-};
-
-type LicenseTextResponse = {
-    body: string;
-};
+import type {Choice} from "prompts";
+import type {LicenseResponseItem, LicenseTextResponse} from "./types/githubResponses.js";
 
 /**
  * Fetch a list of the most popular licenses from GitHub
@@ -31,7 +23,9 @@ export async function getLicenseList(featured: boolean = false) {
         }
         const licenseList: LicenseResponseItem[] = (await response.json()) as LicenseResponseItem[];
 
-        let licenseSpdxIds: Choice[] = licenseList.map((license: LicenseResponseItem): Choice => ({title: license.spdx_id, value: license.key}));
+        let licenseSpdxIds: Choice[] = licenseList.map(
+            (license: LicenseResponseItem): Choice => ({title: license.spdx_id, value: license.key}),
+        );
 
         if (!featured) {
             // get featured licenses and place them at the beginning of the list, removing them from the original list
