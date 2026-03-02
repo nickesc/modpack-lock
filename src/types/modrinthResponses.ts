@@ -1,3 +1,10 @@
+export type DependencyResponseItem = {
+    version_id: string;
+    project_id: string;
+    file_name: string;
+    dependency_type: string;
+};
+
 export type VersionResponseItem = {
     id: string;
     project_id: string;
@@ -15,7 +22,7 @@ export type VersionResponseItem = {
     version_type?: string;
     status?: string;
     requested_status?: string | null;
-    dependencies?: any[];
+    dependencies?: DependencyResponseItem[];
 };
 
 export type ProjectResponseItem = {
