@@ -21,20 +21,22 @@ export type Lockfile = {
     generated: string;
     total: number;
     counts: {
-        mods: number;
-        resourcepacks: number;
-        datapacks: number;
-        shaderpacks: number;
+        mods?: number;
+        resourcepacks?: number;
+        datapacks?: number;
+        shaderpacks?: number;
     };
     dependencies: {
-        mods: DependencyCategory[];
-        resourcepacks: DependencyCategory[];
-        datapacks: DependencyCategory[];
-        shaderpacks: DependencyCategory[];
+        mods?: LockfileDependencyEntry[];
+        resourcepacks?: LockfileDependencyEntry[];
+        datapacks?: LockfileDependencyEntry[];
+        shaderpacks?: LockfileDependencyEntry[];
     };
 };
 
-export type DependencyCategory = {
+export type LockfileDependencyCategory = keyof Lockfile["dependencies"];
+
+export type LockfileDependencyEntry = {
     path: string;
     version: VersionResponseItem | null;
 };
