@@ -217,7 +217,10 @@ export async function generateReadmeFiles(
     }
 
     // Generate README for each category
-    for (const [category, entries] of Object.entries(lockfile.dependencies)) {
+    for (const [category, entries] of Object.entries(lockfile.dependencies) as [
+        DependencyCategory,
+        LockfileDependencyEntry[],
+    ][]) {
         if (entries.length === 0) {
             continue;
         }
