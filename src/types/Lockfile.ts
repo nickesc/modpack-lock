@@ -1,3 +1,5 @@
+import type {VersionResponseItem} from "./index.js";
+
 /**
  * Contains information about the modpack dependencies and their versions.
  * @property version - The version of the modpack
@@ -25,9 +27,14 @@ export type Lockfile = {
         shaderpacks: number;
     };
     dependencies: {
-        mods: string[];
-        resourcepacks: string[];
-        datapacks: string[];
-        shaderpacks: string[];
+        mods: DependencyCategory[];
+        resourcepacks: DependencyCategory[];
+        datapacks: DependencyCategory[];
+        shaderpacks: DependencyCategory[];
     };
+};
+
+export type DependencyCategory = {
+    path: string;
+    version: VersionResponseItem | null;
 };
