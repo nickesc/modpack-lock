@@ -20,7 +20,7 @@ export type Lockfile = {
     version: string;
     generated: string;
     total: number;
-    counts: Partial<Record<LockfileDependencyCategory, number>>;
+    counts: Partial<Record<DependencyCategory, number>>;
     dependencies: {
         mods?: LockfileDependencyEntry[];
         resourcepacks?: LockfileDependencyEntry[];
@@ -29,7 +29,7 @@ export type Lockfile = {
     };
 };
 
-export type LockfileDependencyCategory = keyof Lockfile["dependencies"];
+export type DependencyCategory = keyof Lockfile["dependencies"];
 
 export type LockfileDependencyEntry = {
     path: string;

@@ -3,14 +3,14 @@ import path from "path";
 import {getProjects} from "./modrinth_interactions.js";
 import * as config from "./config/index.js";
 import {logm} from "./logger.js";
-import type {ModpackInfo, Lockfile, Jsonfile, Options, InitOptions, LockfileDependencyCategory} from "./types/index.js";
+import type {ModpackInfo, Lockfile, Jsonfile, Options, InitOptions, DependencyCategory} from "./types/index.js";
 
 /**
  * Create a JSON object from the modpack information and dependencies
  */
 function createModpackJson(
-    modpackInfo: ModpackInfo,
-    dependencies: Record<LockfileDependencyCategory, string[]>,
+    modpackInfo: ModpackInfo, //
+    dependencies: Record<DependencyCategory, string[]>,
 ): Jsonfile {
     return {
         ...modpackInfo,
@@ -51,13 +51,13 @@ export default async function generateJson(
     }
 
     //TODO: consider changing these to partial records and only initializing the categories that are present in the lockfile
-    const projectIds: Record<LockfileDependencyCategory, Set<string>> = {
+    const projectIds: Record<DependencyCategory, Set<string>> = {
         mods: new Set(),
         resourcepacks: new Set(),
         datapacks: new Set(),
         shaderpacks: new Set(),
     };
-    const packDependencies: Record<LockfileDependencyCategory, string[]> = {
+    const packDependencies: Record<DependencyCategory, string[]> = {
         mods: [],
         resourcepacks: [],
         datapacks: [],

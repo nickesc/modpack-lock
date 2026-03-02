@@ -1,5 +1,5 @@
 import pkg from "../../package.json" with {type: "json"};
-import type {LockfileDependencyCategory, ModpackInfo} from "../types/index.js";
+import type {DependencyCategory, ModpackInfo} from "../types/index.js";
 
 /** Author username */
 export const AUTHOR_USERNAME: string = "nickesc";
@@ -18,7 +18,7 @@ export const MODPACK_INFO_REQUIRED_FIELDS: (keyof ModpackInfo)[] = [
 ];
 
 /** Dependency categories, corresponds to folders in Minecraft profile */
-export const DEPENDENCY_CATEGORIES: LockfileDependencyCategory[] = [
+export const DEPENDENCY_CATEGORIES: DependencyCategory[] = [
     "mods", //
     "resourcepacks",
     "shaderpacks",

@@ -1,4 +1,4 @@
-import type {LockfileDependencyCategory} from "./Lockfile.js";
+import type {DependencyCategory} from "./Lockfile.js";
 
 export type Jsonfile = {
     name: string;
@@ -12,7 +12,7 @@ export type Jsonfile = {
     modloader: string;
     targetModloaderVersion: string;
     targetMinecraftVersion: string;
-    dependencies: Record<LockfileDependencyCategory, string[]>;
+    dependencies: Record<DependencyCategory, string[]>;
     scripts?: {
         [key: string]: string;
     };
