@@ -3,19 +3,17 @@ import crypto from "crypto";
 import path from "path";
 import * as config from "./config/index.js";
 import {logm} from "./logger.js";
-
-/**
- * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
- * @typedef {import('./config/types.js').Lockfile} Lockfile
- */
+import type {ModpackInfo, Lockfile} from "./types/index.js";
+import type {ContentDirectory} from "./types/index.js";
+import type {FileEntry} from "./types/index.js";
 
 /**
  * Get the directories to scan for modpack files
  * @param {string} directoryPath - The path to the directory to scan
- * @returns {Array<Object>} The directories to scan
+ * @returns {ContentDirectory[]} The directories to scan
  */
-export function getScanDirectories(directoryPath) {
-    const scanDirectories = [];
+export function getScanDirectories(directoryPath: string): ContentDirectory[] {
+    const scanDirectories: ContentDirectory[] = [];
     for (const category of config.DEPENDENCY_CATEGORIES) {
         scanDirectories.push({name: category, path: path.join(directoryPath, category)});
     }
@@ -25,7 +23,7 @@ export function getScanDirectories(directoryPath) {
 /**
  * Calculate SHA1 hash of a file
  */
-async function calculateSHA1(filePath) {
+async function calculateSHA1(filePath: string): Promise<string> {
     const fileBuffer = await fs.readFile(filePath);
     return crypto.createHash("sha1").update(fileBuffer).digest("hex");
 }
@@ -33,8 +31,8 @@ async function calculateSHA1(filePath) {
 /**
  * Find all files in a directory
  */
-async function findFiles(dirPath) {
-    const files = [];
+async function findFiles(dirPath: string): Promise<string[]> {
+    const files: string[] = [];
 
     try {
         const entries = await fs.readdir(dirPath, {withFileTypes: true});
@@ -45,8 +43,8 @@ async function findFiles(dirPath) {
                 files.push(fullPath);
             }
         }
-    } catch (error) {
-        if (error.code !== "ENOENT") {
+    } catch (error: any) {
+        if (error?.code !== "ENOENT") {
             logm.warn(`Could not read directory ${dirPath}: ${error.message}`);
         }
     }
@@ -58,9 +56,9 @@ async function findFiles(dirPath) {
 /**
  * Scan a directory and return file info with hashes
  */
-export async function scanDirectory(dirInfo, workspaceRoot) {
+export async function scanDirectory(dirInfo: ContentDirectory, workspaceRoot: string): Promise<FileEntry[]> {
     const files = await findFiles(dirInfo.path);
-    const fileEntries = [];
+    const fileEntries: FileEntry[] = [];
 
     for (const filePath of files) {
         try {
@@ -73,8 +71,8 @@ export async function scanDirectory(dirInfo, workspaceRoot) {
                 hash: hash,
                 category: dirInfo.name,
             });
-        } catch (error) {
-            logm.warn(`Could not hash file ${filePath}: ${error.message}`);
+        } catch (error: any) {
+            logm.error(`Could not hash file ${filePath}: ${error.message}`);
         }
     }
 
@@ -84,14 +82,14 @@ export async function scanDirectory(dirInfo, workspaceRoot) {
 /**
  * Scan for existing JSON file and return the JSON object if it exists
  */
-async function getJsonFile(directoryPath, filename) {
+async function getJsonFile(directoryPath: string, filename: string): Promise<any | null> {
     const jsonPath = path.join(directoryPath, filename);
     // try to read the file
     try {
         const fileContent = await fs.readFile(jsonPath, "utf-8");
         return JSON.parse(fileContent);
-    } catch (error) {
-        if (error.code !== "ENOENT") {
+    } catch (error: any) {
+        if (error?.code !== "ENOENT") {
             throw new Error(`Error: Could not read file ${jsonPath}: ${error.message}`, {cause: error});
         } else {
             return null;
@@ -102,17 +100,17 @@ async function getJsonFile(directoryPath, filename) {
 /**
  * Get the modpack info from the JSON file if it exists
  * @param {string} directoryPath - The path to the directory to scan
- * @returns {Promise<ModpackInfo|null>} The modpack info JSON object if the file exists, otherwise null
+ * @returns {Promise<ModpackInfo | null>} The modpack info JSON object if the file exists, otherwise null
  */
-export async function getModpackInfo(directoryPath) {
+export async function getModpackInfo(directoryPath: string): Promise<ModpackInfo | null> {
     return getJsonFile(directoryPath, config.MODPACK_JSON_NAME);
 }
 
 /**
  * Get the lockfile file if it exists
  * @param {string} directoryPath - The path to the directory to scan
- * @returns {Lockfile|null} The JSON object if the file exists, otherwise null
+ * @returns {Promise<Lockfile | null>} The JSON object if the file exists, otherwise null
  */
-export async function getLockfile(directoryPath) {
+export async function getLockfile(directoryPath: string): Promise<Lockfile | null> {
     return getJsonFile(directoryPath, config.MODPACK_LOCKFILE_NAME);
 }
