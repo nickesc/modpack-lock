@@ -5,7 +5,7 @@ import * as config from "./config/index.js";
 import {logm} from "./logger.js";
 import type {ModpackInfo, Lockfile} from "./types/index.js";
 import type {ContentDirectory} from "./types/index.js";
-import type {FileEntry} from "./types/index.js";
+import type {ContentFile} from "./types/index.js";
 
 /**
  * Get the directories to scan for modpack files
@@ -56,9 +56,9 @@ async function findFiles(dirPath: string): Promise<string[]> {
 /**
  * Scan a directory and return file info with hashes
  */
-export async function scanDirectory(dirInfo: ContentDirectory, workspaceRoot: string): Promise<FileEntry[]> {
+export async function scanDirectory(dirInfo: ContentDirectory, workspaceRoot: string): Promise<ContentFile[]> {
     const files = await findFiles(dirInfo.path);
-    const fileEntries: FileEntry[] = [];
+    const fileEntries: ContentFile[] = [];
 
     for (const filePath of files) {
         try {
