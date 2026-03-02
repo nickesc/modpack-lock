@@ -12,13 +12,14 @@ import type {
     UserResponseItem,
     LockfileDependencyEntry,
     ContentDirectory,
+    DependencyCategory,
 } from "./types/index.js";
 
 /**
  * Generate README.md content for a category
  */
 function generateCategoryReadme(
-    category: string,
+    category: DependencyCategory,
     entries: LockfileDependencyEntry[],
     projectsMap: Record<string, ProjectResponseItem>,
     usersMap: Record<string, UserResponseItem>,
