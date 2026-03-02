@@ -1,4 +1,4 @@
-import type { Choice } from "prompts"
+import type {Choice} from "prompts";
 
 export const DEFAULT_MODPACK_VERSION: string = "1.0.0";
 

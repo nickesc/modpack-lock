@@ -13,6 +13,7 @@ import {getModpackInfo} from "./directory_scanning.js";
 import * as config from "./config/index.js";
 import pkg from "../package.json" with {type: "json"};
 import {logm, styleText} from "./logger.js";
+import type {ModpackInfo, Options, InitOptions, Lockfile} from "./types/index.js";
 
 const modpackLock = new Command("modpack-lock");
 
@@ -20,22 +21,17 @@ const modpackLock = new Command("modpack-lock");
  * Merge modpack info with priority: options > existingInfo > defaults
  * Preserves all fields from existingInfo
  */
-function mergeModpackInfo(existingInfo, options, defaults) {
-    const result = {};
-    for (const [key, defaultValue] of Object.entries(defaults)) {
-        result[key] = options[key] || existingInfo?.[key] || defaultValue;
+function mergeModpackInfo(existingInfo: ModpackInfo | null, options: InitOptions, defaults: ModpackInfo): ModpackInfo {
+    const mergedInfo: ModpackInfo = {
+        ...defaults,
+        ...(existingInfo ?? {}),
+    };
+
+    for (const [key, defaultValue] of Object.entries(defaults) as [keyof ModpackInfo, string][]) {
+        mergedInfo[key] = options[key] || existingInfo?.[key] || defaultValue;
     }
 
-    // Then, add any fields from existingInfo that aren't in defaults
-    if (existingInfo) {
-        for (const [key, value] of Object.entries(existingInfo)) {
-            if (!(key in defaults)) {
-                result[key] = value;
-            }
-        }
-    }
-
-    return result;
+    return mergedInfo;
 }
 
 modpackLock
@@ -200,15 +196,15 @@ modpackLock
                 const defaults = {
                     name: path.basename(currDir),
                     version: config.DEFAULT_MODPACK_VERSION,
-                    id: undefined,
-                    description: undefined,
-                    author: undefined,
-                    projectUrl: undefined,
-                    sourceUrl: undefined,
+                    id: "",
+                    description: "",
+                    author: "",
+                    projectUrl: "",
+                    sourceUrl: "",
                     license: config.DEFAULT_MODPACK_LICENSE,
-                    modloader: undefined,
-                    targetModloaderVersion: undefined,
-                    targetMinecraftVersion: undefined,
+                    modloader: "",
+                    targetModloaderVersion: "",
+                    targetMinecraftVersion: "",
                 };
                 const mergedDefaults = mergeModpackInfo(existingInfo, options, defaults);
 
