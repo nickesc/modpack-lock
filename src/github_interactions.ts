@@ -1,7 +1,7 @@
 import * as config from "./config/index.js";
 import {logm} from "./logger.js";
 import type {Choice} from "prompts";
-import type {LicenseResponseItem, LicenseTextResponse} from "./types/githubResponses.js";
+import type {LicenseResponseItem, LicenseTextResponse} from "./types/index.js";
 
 /**
  * Fetch a list of the most popular licenses from GitHub
