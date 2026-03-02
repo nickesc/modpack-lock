@@ -161,7 +161,7 @@ export async function promptUserForInfo(defaults: ModpackInfo) {
                 config.infoFields.targetMinecraftVersion.prompt,
                 defaults.targetMinecraftVersion,
                 minecraftVersions,
-                minecraftVersions[0].value,
+                minecraftVersions[0]?.value || "",
             ),
         ],
         config.PROMPTS_OPTIONS,
