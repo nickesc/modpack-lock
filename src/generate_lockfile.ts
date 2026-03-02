@@ -4,17 +4,12 @@ import {getVersionsFromHashes} from "./modrinth_interactions.js";
 import {getScanDirectories, scanDirectory} from "./directory_scanning.js";
 import * as config from "./config/index.js";
 import {logm, styleText} from "./logger.js";
-
-/**
- * @typedef {import('./config/types.js').Options} Options
- * @typedef {import('./config/types.js').InitOptions} InitOptions
- * @typedef {import('./config/types.js').Lockfile} Lockfile
- */
+import type {ContentFile, Lockfile, Options, InitOptions, VersionResponseItem} from "./types/index.js";
 
 /**
  * Create empty lockfile structure
  */
-function createEmptyLockfile() {
+function createEmptyLockfile(): Lockfile {
     return {
         version: config.LOCKFILE_VERSION,
         generated: new Date().toISOString(),
@@ -73,19 +68,19 @@ async function writeLockfile(lockfile, outputPath) {
 /**
  * Generate the lockfile
  * @param {string} workingDir - The working directory
- * @param {Options} options - The options object
+ * @param {Options | InitOptions} options - The options object
  * @returns {Lockfile} The lockfile object
  */
-export async function generateLockfile(workingDir, options = {}) {
+export async function generateLockfile(workingDir: string, options: Options | InitOptions = {}): Promise<Lockfile> {
     logm.quietFromOptions(options);
 
     logm.header("Scanning Directories");
 
     // Scan all directories
-    const allFileEntries = [];
+    const allFileEntries: ContentFile[] = [];
     for (const dirInfo of getScanDirectories(workingDir)) {
         logm.info(styleText(["cyan"], `${dirInfo.name}/`));
-        const fileEntries = await scanDirectory(dirInfo, workingDir);
+        const fileEntries: ContentFile[] = await scanDirectory(dirInfo, workingDir);
         logm.info(
             styleText(["dim"], ` └─ Found`),
             styleText(["yellow"], `${fileEntries.length}`),
@@ -105,8 +100,8 @@ export async function generateLockfile(workingDir, options = {}) {
     if (allFileEntries.length === 0) {
         logm.header("GENERATING LOCKFILE");
         logm.warn("No files found. Creating empty lockfile.");
-        const emptyLockfile = createEmptyLockfile();
-        const outputPath = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
+        const emptyLockfile: Lockfile = createEmptyLockfile();
+        const outputPath: string = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
         if (options.dryRun) {
             logm.debug(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
         } else {
@@ -119,10 +114,10 @@ export async function generateLockfile(workingDir, options = {}) {
     logm.header("Querying Modrinth API");
 
     // Extract all hashes
-    const hashes = allFileEntries.map((info) => info.hash);
+    const hashes: string[] = allFileEntries.map((info) => info.hash);
 
     // Query Modrinth API
-    const versionData = await getVersionsFromHashes(hashes);
+    const versionData: Record<string, VersionResponseItem> = await getVersionsFromHashes(hashes);
 
     logm.info(styleText(["dim"], "Found version information for:"));
     logm.info(
@@ -134,10 +129,10 @@ export async function generateLockfile(workingDir, options = {}) {
     );
 
     // Create lockfile
-    const lockfile = createLockfile(allFileEntries, versionData);
+    const lockfile: Lockfile = createLockfile(allFileEntries, versionData);
 
     // Write lockfile
-    const outputPath = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
+    const outputPath: string = path.join(workingDir, config.MODPACK_LOCKFILE_NAME);
     if (options.dryRun) {
         logm.debug(config.dryRunText(config.MODPACK_LOCKFILE_NAME, outputPath));
     } else {
