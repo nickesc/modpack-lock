@@ -9,12 +9,12 @@
  */
 
 export interface Options {
-    dryRun: boolean;
-    quiet: boolean;
-    silent: boolean;
-    gitignore: boolean;
-    readme: boolean;
-    licenseFile: boolean;
+    dryRun?: boolean;
+    quiet?: boolean;
+    silent?: boolean;
+    gitignore?: boolean;
+    readme?: boolean;
+    licenseFile?: boolean;
 }
 /**
  * Contains options for the initialization of the modpack files.
@@ -37,24 +37,24 @@ export interface Options {
  * @property {boolean} _init - Internal boolean added to indicate options come from the `init` command.
  */
 
-export interface InitOptions {
-    folder: string;
-    noninteractive: boolean;
-    addLicense: boolean;
-    addGitignore: boolean;
-    addReadme: boolean;
-    name: string;
-    version: string;
-    id: string;
-    description: string;
-    author: string;
-    projectUrl: string;
-    sourceUrl: string;
-    license: string;
-    modloader: string;
-    targetModloaderVersion: string;
-    targetMinecraftVersion: string;
-    _init: boolean;
+export interface InitOptions extends Options {
+    folder?: string;
+    noninteractive?: boolean;
+    addLicense?: boolean;
+    addGitignore?: boolean;
+    addReadme?: boolean;
+    name?: string;
+    version?: string;
+    id?: string;
+    description?: string;
+    author?: string;
+    projectUrl?: string;
+    sourceUrl?: string;
+    license?: string;
+    modloader?: string;
+    targetModloaderVersion?: string;
+    targetMinecraftVersion?: string;
+    _init?: boolean;
 }
 
 /**
@@ -64,8 +64,8 @@ export interface InitOptions {
  * @property {boolean} _run - Internal boolean added to indicate options come from the `run` command.
  */
 
-export interface RunOptions {
-    folder: string;
-    debug: boolean;
-    _run: boolean;
+export interface RunOptions extends Options {
+    folder?: string;
+    debug?: boolean;
+    _run?: boolean;
 }
