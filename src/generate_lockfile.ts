@@ -11,6 +11,7 @@ import type {
     InitOptions,
     VersionResponseItem,
     DependencyCategory,
+    LockfileDependencyEntry,
 } from "./types/index.js";
 
 /**
@@ -66,8 +67,8 @@ function createLockfile(fileEntries: ContentFile[], versionData: Record<string, 
 /**
  * Write lockfile to disk
  */
-async function writeLockfile(lockfile, outputPath) {
-    const content = JSON.stringify(lockfile, null, 2);
+async function writeLockfile(lockfile: Lockfile, outputPath: string): Promise<void> {
+    const content: string = JSON.stringify(lockfile, null, 2);
     await fs.writeFile(outputPath, content, "utf-8");
     logm.generated(config.MODPACK_LOCKFILE_NAME, outputPath);
 }
@@ -153,7 +154,7 @@ export async function generateLockfile(workingDir: string, options: Options | In
  * Print a summary of the lockfile contents
  * @param {Lockfile} lockfile - The lockfile object
  */
-export function printLockfileSummary(lockfile) {
+export function printLockfileSummary(lockfile: Lockfile): void {
     logm.header("Lockfile Summary");
 
     if (lockfile.total === 0) {
@@ -161,9 +162,12 @@ export function printLockfileSummary(lockfile) {
         return;
     }
 
-    for (const [category, entries] of Object.entries(lockfile.dependencies)) {
-        const withVersion = entries.filter((e) => e.version !== null).length;
-        const withoutVersion = entries.length - withVersion;
+    for (const [category, entries] of Object.entries(lockfile.dependencies) as [
+        DependencyCategory,
+        LockfileDependencyEntry[],
+    ][]) {
+        const withVersion: number = entries.filter((e) => e.version !== null).length;
+        const withoutVersion: number = entries.length - withVersion;
         logm.info(
             styleText(["bold"], `${category}:`),
             entries.length,
