@@ -2,12 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import * as config from "./config/index.js";
 import {logm} from "./logger.js";
-
-/**
- * @typedef {import('./config/types.js').Options} Options
- * @typedef {import('./config/types.js').InitOptions} InitOptions
- * @typedef {import('./config/types.js').Lockfile} Lockfile
- */
+import type {Lockfile, Options, InitOptions} from "./types/index.js";
 
 /**
  * Generate .gitignore rules for files not hosted on Modrinth and write them to .gitignore file
@@ -15,11 +10,15 @@ import {logm} from "./logger.js";
  * @param {string} workingDir - The working directory
  * @param {Options | InitOptions} options - The options object
  */
-export async function generateGitignoreRules(lockfile, workingDir, options = {}) {
+export async function generateGitignoreRules(
+    lockfile: Lockfile,
+    workingDir: string,
+    options: Options | InitOptions = {},
+) {
     logm.quietFromOptions(options);
 
-    const rules = [];
-    const exceptions = [];
+    const rules: string[] = [];
+    const exceptions: string[] = [];
 
     // Base ignore patterns for each category
     for (const category of config.DEPENDENCY_CATEGORIES) {
@@ -42,37 +41,37 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
         rules.push(...exceptions);
     }
 
-    const rulesContent = rules.join("\n");
-    const gitignorePath = path.join(workingDir, config.GITIGNORE_NAME);
+    const rulesContent: string = rules.join("\n");
+    const gitignorePath: string = path.join(workingDir, config.GITIGNORE_NAME);
 
     // Read existing .gitignore file if it exists
-    let existingContent = "";
+    let existingContent: string = "";
     try {
         existingContent = await fs.readFile(gitignorePath, "utf-8");
-    } catch (error) {
+    } catch (error: any) {
         // File doesn't exist, that's okay - we'll create it
-        if (error.code !== "ENOENT") {
+        if (error?.code !== "ENOENT") {
             logm.warn(`Could not read ${config.GITIGNORE_NAME} file: ${error.message}`);
             return;
         }
     }
 
     // Find markers in existing content
-    const startMarkerIndex = existingContent.indexOf(config.GITIGNORE_START_MARKER);
-    const endMarkerIndex = existingContent.indexOf(config.GITIGNORE_END_MARKER);
+    const startMarkerIndex: number = existingContent.indexOf(config.GITIGNORE_START_MARKER);
+    const endMarkerIndex: number = existingContent.indexOf(config.GITIGNORE_END_MARKER);
 
-    let newContent;
+    let newContent: string;
 
     if (startMarkerIndex !== -1 && endMarkerIndex !== -1 && endMarkerIndex > startMarkerIndex) {
         // Both markers exist, replace content between them
-        const beforeSection = existingContent.substring(0, startMarkerIndex);
-        const afterSection = existingContent.substring(endMarkerIndex + config.GITIGNORE_END_MARKER.length);
+        const beforeSection: string = existingContent.substring(0, startMarkerIndex);
+        const afterSection: string = existingContent.substring(endMarkerIndex + config.GITIGNORE_END_MARKER.length);
 
         // Remove trailing newlines from before section and leading newlines from after section
-        const beforeTrimmed = beforeSection.replace(/\n+$/, "");
-        const afterTrimmed = afterSection.replace(/^\n+/, "");
+        const beforeTrimmed: string = beforeSection.replace(/\n+$/, "");
+        const afterTrimmed: string = afterSection.replace(/^\n+/, "");
 
-        const parts = [beforeTrimmed];
+        const parts: string[] = [beforeTrimmed];
         if (beforeTrimmed) parts.push(""); // Add separator if there's content before
         parts.push(config.GITIGNORE_START_MARKER, rulesContent, config.GITIGNORE_END_MARKER);
         if (afterTrimmed) {
@@ -83,7 +82,7 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
         newContent = parts.join("\n");
     } else if (startMarkerIndex !== -1 || endMarkerIndex !== -1) {
         // Only one marker exists, append to end
-        const trimmed = existingContent.replace(/\n+$/, "");
+        const trimmed: string = existingContent.replace(/\n+$/, "");
         newContent = [trimmed, "", config.GITIGNORE_START_MARKER, rulesContent, config.GITIGNORE_END_MARKER].join("\n");
     } else {
         // No markers exist, append to end
@@ -92,7 +91,7 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
             newContent = [config.GITIGNORE_START_MARKER, rulesContent, config.GITIGNORE_END_MARKER].join("\n");
         } else {
             // File has content, append with newline
-            const trimmed = existingContent.replace(/\n+$/, "");
+            const trimmed: string = existingContent.replace(/\n+$/, "");
             newContent = [trimmed, "", config.GITIGNORE_START_MARKER, rulesContent, config.GITIGNORE_END_MARKER].join(
                 "\n",
             );
@@ -106,7 +105,7 @@ export async function generateGitignoreRules(lockfile, workingDir, options = {})
         try {
             await fs.writeFile(gitignorePath, newContent, "utf-8");
             logm.generated(config.GITIGNORE_NAME, gitignorePath);
-        } catch (error) {
+        } catch (error: any) {
             logm.warn(`Could not write ${config.GITIGNORE_NAME} file: ${error.message}`);
         }
     }
