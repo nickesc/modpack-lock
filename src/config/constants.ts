@@ -1,5 +1,5 @@
 import pkg from "../../package.json" with {type: "json"};
-import type {DependencyCategory, ModpackInfo} from "../types/index.js";
+import type {DependencyCategory, MinecraftVersionType, ModpackInfo} from "../types/index.js";
 
 /** Author username */
 export const AUTHOR_USERNAME: string = "nickesc";
@@ -26,7 +26,7 @@ export const DEPENDENCY_CATEGORIES: DependencyCategory[] = [
 ];
 
 /** Minecraft version types */
-export const MINECRAFT_VERSION_TYPES: string[] = [
+export const MINECRAFT_VERSION_TYPE_ORDER: MinecraftVersionType[] = [
     "release", //
     "alpha",
     "beta",

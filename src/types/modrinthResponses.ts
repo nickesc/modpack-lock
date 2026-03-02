@@ -64,9 +64,11 @@ export type ProjectResponseItem = {
     monetization_status?: string;
 };
 
+export type MinecraftVersionType = "release" | "alpha" | "beta" | "snapshot";
+
 export type MinecraftVersionResponseItem = {
     version: string;
-    version_type: string;
+    version_type: MinecraftVersionType;
     date: string;
     major: boolean;
 };

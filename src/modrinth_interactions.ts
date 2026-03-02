@@ -159,8 +159,8 @@ export async function getMinecraftVersions(): Promise<Choice[]> {
             //sort by version type (in the order of the MINECRAFT_VERSION_TYPES array)
             json.sort((a, b) => {
                 return (
-                    config.MINECRAFT_VERSION_TYPES.indexOf(a.version_type) -
-                    config.MINECRAFT_VERSION_TYPES.indexOf(b.version_type)
+                    config.MINECRAFT_VERSION_TYPE_ORDER.indexOf(a.version_type) -
+                    config.MINECRAFT_VERSION_TYPE_ORDER.indexOf(b.version_type)
                 );
             });
             return json.map((version) => ({
