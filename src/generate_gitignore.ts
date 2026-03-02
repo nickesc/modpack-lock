@@ -14,7 +14,7 @@ export async function generateGitignoreRules(
     lockfile: Lockfile,
     workingDir: string,
     options: Options | InitOptions = {},
-) {
+): Promise<void> {
     logm.quietFromOptions(options);
 
     const rules: string[] = [];

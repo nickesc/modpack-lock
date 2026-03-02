@@ -169,7 +169,11 @@ function generateCategoryReadme(
  * @param {string} workingDir - The working directory
  * @param {Options | InitOptions} options - The options object
  */
-export async function generateReadmeFiles(lockfile: Lockfile, workingDir: string, options: Options | InitOptions = {}) {
+export async function generateReadmeFiles(
+    lockfile: Lockfile,
+    workingDir: string,
+    options: Options | InitOptions = {},
+): Promise<void> {
     logm.quietFromOptions(options);
 
     // Collect unique project IDs and author IDs from version data
