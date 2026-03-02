@@ -1,10 +1,18 @@
 import * as config from "./config/index.js";
 import {logm} from "./logger.js";
+import type {Choice} from "prompts";
+import type {
+    VersionResponseItem,
+    ProjectResponseItem,
+    MinecraftVersionResponseItem,
+    ModloaderResponseItem,
+    UserResponseItem,
+} from "./types/index.js";
 
 /**
  * Split an array into chunks of specified size
  */
-function chunkArray(array, size) {
+function chunkArray(array: any[], size: number) {
     const chunks = [];
     for (let i = 0; i < array.length; i += size) {
         chunks.push(array.slice(i, i + size));
@@ -15,7 +23,7 @@ function chunkArray(array, size) {
 /**
  * Query Modrinth API for version information from hashes
  */
-export async function getVersionsFromHashes(hashes) {
+export async function getVersionsFromHashes(hashes: string[]): Promise<Record<string, VersionResponseItem>> {
     if (hashes.length === 0) {
         return {};
     }
@@ -38,23 +46,27 @@ export async function getVersionsFromHashes(hashes) {
             throw new Error(`Modrinth API error (${response.status}): ${errorText}`);
         }
 
-        return await response.json();
-    } catch (error) {
-        logm.error(`Error fetching version information from hashes: ${error.message}`);
-        throw error;
+        return (await response.json()) as Record<string, VersionResponseItem>;
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            logm.error(`Error fetching version information from hashes: ${error.message}`);
+            throw error;
+        } else {
+            throw new Error(`Unknown error fetching version information from hashes`);
+        }
     }
 }
 
 /**
  * Fetch multiple projects by their IDs in batches
  */
-export async function getProjects(projectIds) {
+export async function getProjects(projectIds: string[]): Promise<ProjectResponseItem[]> {
     if (projectIds.length === 0) {
         return [];
     }
 
-    const chunks = chunkArray(projectIds, config.BATCH_SIZE);
-    const results = [];
+    const chunks: string[][] = chunkArray(projectIds, config.BATCH_SIZE);
+    const results: ProjectResponseItem[] = [];
 
     for (const chunk of chunks) {
         try {
@@ -70,11 +82,15 @@ export async function getProjects(projectIds) {
                 throw new Error(`Modrinth API error (${response.status}): ${errorText}`);
             }
 
-            const data = await response.json();
+            const data = (await response.json()) as ProjectResponseItem[];
             results.push(...data);
-        } catch (error) {
-            logm.error(`Error fetching projects: ${error.message}`);
-            throw error;
+        } catch (error: any) {
+            if (error instanceof Error) {
+                logm.error(`Error fetching projects: ${error.message}`);
+                throw error;
+            } else {
+                throw new Error(`Unknown error fetching projects`);
+            }
         }
     }
 
@@ -84,13 +100,13 @@ export async function getProjects(projectIds) {
 /**
  * Fetch multiple users by their IDs in batches
  */
-export async function getUsers(userIds) {
+export async function getUsers(userIds: string[]): Promise<UserResponseItem[]> {
     if (userIds.length === 0) {
         return [];
     }
 
-    const chunks = chunkArray(userIds, config.BATCH_SIZE);
-    const results = [];
+    const chunks: string[][] = chunkArray(userIds, config.BATCH_SIZE);
+    const results: UserResponseItem[] = [];
 
     for (const chunk of chunks) {
         try {
@@ -106,11 +122,15 @@ export async function getUsers(userIds) {
                 throw new Error(`Modrinth API error (${response.status}): ${errorText}`);
             }
 
-            const data = await response.json();
+            const data = (await response.json()) as UserResponseItem[];
             results.push(...data);
-        } catch (error) {
-            logm.error(`Error fetching users: ${error.message}`);
-            throw error;
+        } catch (error: any) {
+            if (error instanceof Error) {
+                logm.error(`Error fetching users: ${error.message}`);
+                throw error;
+            } else {
+                throw new Error(`Unknown error fetching users`);
+            }
         }
     }
 
@@ -121,7 +141,7 @@ export async function getUsers(userIds) {
  * Fetch Minecraft versions from Modrinth
  * @returns {Promise<Array<Object>>} The Minecraft versions
  */
-export async function getMinecraftVersions() {
+export async function getMinecraftVersions(): Promise<Choice[]> {
     try {
         const url = config.MODRINTH_MINECRAFT_VERSIONS_ENDPOINT;
         const response = await fetch(url, {
@@ -134,7 +154,7 @@ export async function getMinecraftVersions() {
             throw new Error(`Modrinth API error (${response.status}): ${errorText}`);
         }
 
-        const json = await response.json();
+        const json = (await response.json()) as MinecraftVersionResponseItem[];
         if (json) {
             //sort by version type (in the order of the MINECRAFT_VERSION_TYPES array)
             json.sort((a, b) => {
@@ -143,9 +163,12 @@ export async function getMinecraftVersions() {
                     config.MINECRAFT_VERSION_TYPES.indexOf(b.version_type)
                 );
             });
-            return json.map((version) => ({title: version.version, value: version.version}));
+            return json.map((version) => ({
+                title: version.version,
+                value: version.version,
+            })) as Choice[];
         } else {
-            throw new Error();
+            throw new Error("Could not fetch Minecraft versions");
         }
     } catch {
         logm.warn(`Could not fetch Minecraft versions. Using fallbacks.`);
@@ -155,9 +178,9 @@ export async function getMinecraftVersions() {
 
 /**
  * Fetch Modloaders from Modrinth
- * @returns {Promise<Array<Object>>} The Modloaders
+ * @returns the modloaders
  */
-export async function getModloaders() {
+export async function getModloaders(): Promise<Choice[]> {
     try {
         const url = config.MODRINTH_MODLOADERS_ENDPOINT;
         const response = await fetch(url, {
@@ -170,11 +193,14 @@ export async function getModloaders() {
             throw new Error(`Modrinth API error (${response.status}): ${errorText}`);
         }
 
-        const json = await response.json();
+        const json = (await response.json()) as ModloaderResponseItem[];
         if (json) {
-            return json.map((loader) => ({title: loader.name, value: loader.name}));
+            return json.map((loader) => ({
+                title: loader.name,
+                value: loader.name,
+            }));
         } else {
-            throw new Error();
+            throw new Error("Could not fetch Modloaders");
         }
     } catch {
         logm.warn(`Could not fetch Modloaders. Using fallbacks.`);
