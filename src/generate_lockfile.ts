@@ -4,7 +4,14 @@ import {getVersionsFromHashes} from "./modrinth_interactions.js";
 import {getScanDirectories, scanDirectory} from "./directory_scanning.js";
 import * as config from "./config/index.js";
 import {logm, styleText} from "./logger.js";
-import type {ContentFile, Lockfile, Options, InitOptions, VersionResponseItem} from "./types/index.js";
+import type {
+    ContentFile,
+    Lockfile,
+    Options,
+    InitOptions,
+    VersionResponseItem,
+    DependencyCategory,
+} from "./types/index.js";
 
 /**
  * Create empty lockfile structure
@@ -22,13 +29,13 @@ function createEmptyLockfile(): Lockfile {
 /**
  * Create lockfile structure from file info and version data
  */
-function createLockfile(fileEntries, versionData) {
-    const lockfile = createEmptyLockfile();
+function createLockfile(fileEntries: ContentFile[], versionData: Record<string, VersionResponseItem>): Lockfile {
+    const lockfile: Lockfile = createEmptyLockfile();
 
     logm.newline();
     // Organize by category
     for (const fileInfo of fileEntries) {
-        const version = versionData[fileInfo.hash];
+        const version: VersionResponseItem | undefined = versionData[fileInfo.hash];
 
         lockfile.dependencies[fileInfo.category] ||= [];
 
@@ -41,14 +48,14 @@ function createLockfile(fileEntries, versionData) {
             logm.warn(`File ${fileInfo.path} not found on Modrinth`);
         }
 
-        lockfile.dependencies[fileInfo.category].push(entry);
+        lockfile.dependencies[fileInfo.category]?.push(entry);
     }
 
     logm.header("Generating Lockfile");
 
     // Calculate counts for each category
     for (const [category, entries] of Object.entries(lockfile.dependencies)) {
-        lockfile.counts[category] = entries.length;
+        lockfile.counts[category as DependencyCategory] = entries.length;
     }
 
     lockfile.total = fileEntries.length;
