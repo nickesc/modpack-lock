@@ -20,12 +20,7 @@ export type Lockfile = {
     version: string;
     generated: string;
     total: number;
-    counts: {
-        mods?: number;
-        resourcepacks?: number;
-        datapacks?: number;
-        shaderpacks?: number;
-    };
+    counts: Partial<Record<LockfileDependencyCategory, number>>;
     dependencies: {
         mods?: LockfileDependencyEntry[];
         resourcepacks?: LockfileDependencyEntry[];
