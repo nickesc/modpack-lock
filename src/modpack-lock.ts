@@ -6,13 +6,7 @@ import generateLicense from "./generate_license.js";
 import {logm} from "./logger.js";
 import {promptUserForInfo} from "./modpack_info.js";
 import {getModpackInfo, getLockfile} from "./directory_scanning.js";
-
-/**
- * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
- * @typedef {import('./config/types.js').Options} Options
- * @typedef {import('./config/types.js').InitOptions} InitOptions
- * @typedef {import('./config/types.js').Lockfile} Lockfile
- */
+import type {ModpackInfo, Options, InitOptions, Lockfile} from "./types/index.js";
 
 /**
  * @license MIT
@@ -27,10 +21,14 @@ import {getModpackInfo, getLockfile} from "./directory_scanning.js";
  * @param {Options | InitOptions } options - The options object
  * @returns {Promise<Lockfile>} The lockfile object
  */
-async function generateModpackFiles(modpackInfo, workingDir, options = {}) {
+async function generateModpackFiles(
+    modpackInfo: ModpackInfo,
+    workingDir: string,
+    options: Options | InitOptions = {},
+): Promise<Lockfile> {
     logm.quietFromOptions(options);
 
-    const lockfile = await generateLockfile(workingDir, options);
+    const lockfile: Lockfile = await generateLockfile(workingDir, options);
 
     await generateJson(modpackInfo, lockfile, workingDir, options);
 
