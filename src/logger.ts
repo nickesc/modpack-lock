@@ -1,5 +1,6 @@
-import { styleText } from "node:util";
-import type { InspectColor } from "node:util";
+import {styleText} from "node:util";
+import type {InspectColor} from "node:util";
+import type {InitOptions, Options} from "./types/index.js";
 
 class Logger {
     /**
@@ -40,7 +41,7 @@ class Logger {
         this.silentConsole = silent;
     }
 
-    quietFromOptions(options: { silent: boolean, quiet: boolean }) {
+    quietFromOptions(options: InitOptions | Options) {
         if (options.silent) {
             this.quietConsole = true;
             this.silentConsole = true;
