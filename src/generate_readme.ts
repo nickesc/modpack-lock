@@ -10,7 +10,7 @@ import type {
     Lockfile,
     ProjectResponseItem,
     UserResponseItem,
-    DependencyCategory,
+    LockfileDependencyEntry,
     ContentDirectory,
 } from "./types/index.js";
 
@@ -19,7 +19,7 @@ import type {
  */
 function generateCategoryReadme(
     category: string,
-    entries: DependencyCategory[],
+    entries: LockfileDependencyEntry[],
     projectsMap: Record<string, ProjectResponseItem>,
     usersMap: Record<string, UserResponseItem>,
 ): string {
