@@ -6,7 +6,7 @@ import generateLicense from "./generate_license.js";
 import {logm} from "./logger.js";
 import {promptUserForInfo} from "./modpack_info.js";
 import {getModpackInfo, getLockfile} from "./directory_scanning.js";
-import type {ModpackInfo, Options, InitOptions, Lockfile} from "./types/index.js";
+import type {Jsonfile, Options, InitOptions, Lockfile} from "./types/index.js";
 
 /**
  * @license MIT
@@ -16,13 +16,13 @@ import type {ModpackInfo, Options, InitOptions, Lockfile} from "./types/index.js
 
 /**
  * Generate the modpack files (lockfile, JSON, and optionally license, gitignore, and readme)
- * @param {ModpackInfo} modpackInfo - The modpack information
+ * @param {Jsonfile} modpackInfo - The modpack information
  * @param {string} workingDir - The directory to generate the files in
  * @param {Options | InitOptions } options - The options object
  * @returns {Promise<Lockfile>} The lockfile object
  */
 async function generateModpackFiles(
-    modpackInfo: ModpackInfo,
+    modpackInfo: Jsonfile,
     workingDir: string,
     options: Options | InitOptions = {},
 ): Promise<Lockfile> {

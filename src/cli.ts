@@ -13,7 +13,7 @@ import {getModpackInfo} from "./directory_scanning.js";
 import * as config from "./config/index.js";
 import pkg from "../package.json" with {type: "json"};
 import {logm, styleText} from "./logger.js";
-import type {ModpackInfo, Options, InitOptions, Lockfile} from "./types/index.js";
+import type {Jsonfile, Options, InitOptions, Lockfile, ModpackInfo} from "./types/index.js";
 
 const modpackLock = new Command("modpack-lock");
 
@@ -21,13 +21,14 @@ const modpackLock = new Command("modpack-lock");
  * Merge modpack info with priority: options > existingInfo > defaults
  * Preserves all fields from existingInfo
  */
-function mergeModpackInfo(existingInfo: ModpackInfo | null, options: InitOptions, defaults: ModpackInfo): ModpackInfo {
-    const mergedInfo: ModpackInfo = {
+function mergeModpackInfo(existingInfo: Jsonfile | null, options: InitOptions, defaults: ModpackInfo): Jsonfile {
+    const mergedInfo: Jsonfile = {
         ...defaults,
         ...(existingInfo ?? {}),
     };
 
-    for (const [key, defaultValue] of Object.entries(defaults) as [keyof ModpackInfo, string][]) {
+    for (const key of config.MODPACK_INFO_FIELDS) {
+        const defaultValue = defaults[key];
         mergedInfo[key] = options[key] || existingInfo?.[key] || defaultValue;
     }
 

@@ -3,7 +3,7 @@ import path from "path";
 import {getLicenseText} from "./github_interactions.js";
 import * as config from "./config/index.js";
 import {logm} from "./logger.js";
-import type {ModpackInfo, Options, InitOptions, Lockfile} from "./types/index.js";
+import type {Jsonfile, Options, InitOptions} from "./types/index.js";
 
 async function writeLicense(licenseText: string, outputPath: string) {
     await fs.writeFile(path.join(outputPath, config.MODPACK_LICENSE_NAME), licenseText, "utf-8");
@@ -12,14 +12,14 @@ async function writeLicense(licenseText: string, outputPath: string) {
 
 /**
  * Write a license to a file
- * @param {ModpackInfo} modpackInfo - The modpack information
+ * @param {Jsonfile} modpackInfo - The modpack information
  * @param {string} workingDir - The path to write the license to
  * @param {InitOptions} options - The initialization options object
  * @param {string} licenseTextOverride - The license text to override the default license text with
  * @returns {Promise<string> | null} The license text or null if the license text could not be generated
  */
 export default async function generateLicense(
-    modpackInfo: ModpackInfo,
+    modpackInfo: Jsonfile,
     workingDir: string,
     options: Options | InitOptions = {},
     licenseTextOverride: string | null = null,

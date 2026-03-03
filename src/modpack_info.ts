@@ -3,11 +3,7 @@ import slugify from "slugify";
 import * as config from "./config/index.js";
 import {getLicenseList, getLicenseText} from "./github_interactions.js";
 import {getMinecraftVersions, getModloaders} from "./modrinth_interactions.js";
-import type {InitOptions, ModpackInfo} from "./types/index.js";
-
-/**
- * @typedef {import('./config/types.js').ModpackInfo} ModpackInfo
- */
+import type {InitOptions, Jsonfile} from "./types/index.js";
 
 /**
  * Capitalizes a string
@@ -107,10 +103,10 @@ function fileGenerationConfirm(name: string, message: string, showPrompt: boolea
 
 /**
  * Get user input for modpack information
- * @param {ModpackInfo} defaults - The initial/default modpack information
- * @returns {Promise<ModpackInfo>} The modpack information from the user
+ * @param {Jsonfile} defaults - The initial/default modpack information
+ * @returns {Promise<Jsonfile>} The modpack information from the user
  */
-export async function promptUserForInfo(defaults: ModpackInfo) {
+export async function promptUserForInfo(defaults: Jsonfile) {
     const licenseList = await getLicenseList();
     const minecraftVersions = await getMinecraftVersions();
     const modloaders = await getModloaders();
@@ -172,11 +168,11 @@ export async function promptUserForInfo(defaults: ModpackInfo) {
 
 /**
  * Prompt the user about adding the license text to the modpack
- * @param {ModpackInfo} modpackInfo - The modpack information
+ * @param {Jsonfile} modpackInfo - The modpack information
  * @param {InitOptions} defaults - The default options
  * @returns {Promise<Object>} The answers from the user
  */
-export async function promptUserAboutOptionalFiles(modpackInfo: ModpackInfo, defaults: InitOptions) {
+export async function promptUserAboutOptionalFiles(modpackInfo: Jsonfile, defaults: InitOptions) {
     const licenseText = await getLicenseText(modpackInfo.license);
     const answers = await prompts(
         [

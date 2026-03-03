@@ -3,13 +3,13 @@ import path from "path";
 import {getProjects} from "./modrinth_interactions.js";
 import * as config from "./config/index.js";
 import {logm} from "./logger.js";
-import type {ModpackInfo, Lockfile, Jsonfile, Options, InitOptions, DependencyCategory} from "./types/index.js";
+import type {Lockfile, Jsonfile, Options, InitOptions, DependencyCategory} from "./types/index.js";
 
 /**
  * Create a JSON object from the modpack information and dependencies
  */
 function createModpackJson(
-    modpackInfo: ModpackInfo, //
+    modpackInfo: Jsonfile,
     dependencies: Record<DependencyCategory, string[]>,
 ): Jsonfile {
     return {
@@ -29,14 +29,14 @@ async function writeJson(jsonObject: Jsonfile, outputPath: string): Promise<void
 
 /**
  * Generate a modpack.json file
- * @param {ModpackInfo} modpackInfo - The modpack information
+ * @param {Jsonfile} modpackInfo - The modpack information
  * @param {Lockfile} lockfile - The lockfile
  * @param {string} workingDir - The path to write the JSON object to
  * @param {Options | InitOptions} options - The options object
  * @returns {Promise<Lockfile>} The JSON file's object
  */
 export default async function generateJson(
-    modpackInfo: ModpackInfo,
+    modpackInfo: Jsonfile,
     lockfile: Lockfile,
     workingDir: string,
     options: Options | InitOptions = {},
@@ -45,7 +45,7 @@ export default async function generateJson(
 
     // Validate modpack info
     for (const field of config.MODPACK_INFO_REQUIRED_FIELDS) {
-        if (!modpackInfo[field as keyof ModpackInfo]) {
+        if (!modpackInfo[field]) {
             throw new Error(`Modpack info is missing required field: ${field}`);
         }
     }

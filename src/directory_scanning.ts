@@ -3,7 +3,7 @@ import crypto from "crypto";
 import path from "path";
 import * as config from "./config/index.js";
 import {logm} from "./logger.js";
-import type {ModpackInfo, Lockfile} from "./types/index.js";
+import type {Lockfile, Jsonfile} from "./types/index.js";
 import type {ContentDirectory} from "./types/index.js";
 import type {ContentFile} from "./types/index.js";
 
@@ -100,9 +100,9 @@ async function getJsonFile(directoryPath: string, filename: string): Promise<any
 /**
  * Get the modpack info from the JSON file if it exists
  * @param {string} directoryPath - The path to the directory to scan
- * @returns {Promise<ModpackInfo | null>} The modpack info JSON object if the file exists, otherwise null
+ * @returns {Promise<Jsonfile | null>} The modpack info JSON object if the file exists, otherwise null
  */
-export async function getModpackInfo(directoryPath: string): Promise<ModpackInfo | null> {
+export async function getModpackInfo(directoryPath: string): Promise<Jsonfile | null> {
     return getJsonFile(directoryPath, config.MODPACK_JSON_NAME);
 }
 
