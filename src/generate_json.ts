@@ -26,11 +26,11 @@ async function writeJson(jsonObject: Jsonfile, outputPath: string): Promise<void
 
 /**
  * Generate a modpack.json file
- * @param {Jsonfile} modpackInfo - The modpack information
- * @param {Lockfile} lockfile - The lockfile
- * @param {string} workingDir - The path to write the JSON object to
- * @param {Options | InitOptions} options - The options object
- * @returns {Promise<Lockfile>} The JSON file's object
+ * @param modpackInfo - The modpack information
+ * @param lockfile - The lockfile
+ * @param workingDir - The path to write the JSON object to
+ * @param options - The options object
+ * @returns The JSON file's object
  */
 export default async function generateJson(
     modpackInfo: Jsonfile,

@@ -6,9 +6,9 @@ import type {Lockfile, Options, InitOptions} from "./types/index.js";
 
 /**
  * Generate .gitignore rules for files not hosted on Modrinth and write them to .gitignore file
- * @param {Lockfile} lockfile - The lockfile object
- * @param {string} workingDir - The working directory
- * @param {Options | InitOptions} options - The options object
+ * @param lockfile - The lockfile object
+ * @param workingDir - The working directory
+ * @param options - The options object
  */
 export async function generateGitignoreRules(
     lockfile: Lockfile,

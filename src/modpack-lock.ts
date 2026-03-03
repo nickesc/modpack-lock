@@ -26,10 +26,10 @@ import type {
 
 /**
  * Generate the modpack files (lockfile, JSON, and optionally license, gitignore, and readme)
- * @param {Jsonfile} modpackInfo - The modpack information
- * @param {string} workingDir - The directory to generate the files in
- * @param {Options | InitOptions } options - The options object
- * @returns {Promise<Lockfile>} The lockfile object
+ * @param modpackInfo - The modpack information
+ * @param workingDir - The directory to generate the files in
+ * @param options - The options object
+ * @returns The lockfile object
  */
 async function generateModpackFiles(
     modpackInfo: Jsonfile,

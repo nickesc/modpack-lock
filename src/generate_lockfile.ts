@@ -75,9 +75,9 @@ async function writeLockfile(lockfile: Lockfile, outputPath: string): Promise<vo
 
 /**
  * Generate the lockfile
- * @param {string} workingDir - The working directory
- * @param {Options | InitOptions} options - The options object
- * @returns {Lockfile} The lockfile object
+ * @param workingDir - The working directory
+ * @param options - The options object
+ * @returns The lockfile object
  */
 export async function generateLockfile(workingDir: string, options: Options | InitOptions = {}): Promise<Lockfile> {
     logm.quietFromOptions(options);
@@ -152,7 +152,7 @@ export async function generateLockfile(workingDir: string, options: Options | In
 
 /**
  * Print a summary of the lockfile contents
- * @param {Lockfile} lockfile - The lockfile object
+ * @param lockfile - The lockfile object
  */
 export function printLockfileSummary(lockfile: Lockfile): void {
     logm.header("Lockfile Summary");

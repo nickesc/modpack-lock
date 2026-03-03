@@ -139,7 +139,7 @@ export async function getUsers(userIds: string[]): Promise<UserResponseItem[]> {
 
 /**
  * Fetch Minecraft versions from Modrinth
- * @returns {Promise<Array<Object>>} The Minecraft versions
+ * @returns The Minecraft versions
  */
 export async function getMinecraftVersions(): Promise<Choice[]> {
     try {
@@ -178,7 +178,7 @@ export async function getMinecraftVersions(): Promise<Choice[]> {
 
 /**
  * Fetch Modloaders from Modrinth
- * @returns the modloaders
+ * @returns The modloaders
  */
 export async function getModloaders(): Promise<Choice[]> {
     try {

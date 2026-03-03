@@ -12,11 +12,11 @@ async function writeLicense(licenseText: string, outputPath: string) {
 
 /**
  * Write a license to a file
- * @param {Jsonfile} modpackInfo - The modpack information
- * @param {string} workingDir - The path to write the license to
- * @param {InitOptions} options - The initialization options object
- * @param {string} licenseTextOverride - The license text to override the default license text with
- * @returns {Promise<string> | null} The license text or null if the license text could not be generated
+ * @param modpackInfo - The modpack information
+ * @param workingDir - The path to write the license to
+ * @param options - The initialization options object
+ * @param licenseTextOverride - The license text to override the default license text with
+ * @returns The license text or null if the license text could not be generated
  */
 export default async function generateLicense(
     modpackInfo: Jsonfile,

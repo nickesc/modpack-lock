@@ -166,9 +166,9 @@ function generateCategoryReadme(
 
 /**
  * Generate the README.md files for each category
- * @param {Lockfile} lockfile - The lockfile object
- * @param {string} workingDir - The working directory
- * @param {Options | InitOptions} options - The options object
+ * @param lockfile - The lockfile object
+ * @param workingDir - The working directory
+ * @param options - The options object
  */
 export async function generateReadmeFiles(
     lockfile: Lockfile,

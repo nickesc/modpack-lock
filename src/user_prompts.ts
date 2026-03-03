@@ -111,8 +111,8 @@ function fileGenerationConfirm(name: FileOptionPrompts | "other", message: strin
 
 /**
  * Get user input for modpack information
- * @param {Jsonfile} defaults - The initial/default modpack information
- * @returns {Promise<Jsonfile>} The modpack information from the user
+ * @param defaults - The initial/default modpack information
+ * @returns The modpack information from the user
  */
 export async function promptUserForInfo(defaults: Jsonfile): Promise<prompts.Answers<keyof ModpackInfo>> {
     const licenseList = await getLicenseList();
@@ -176,9 +176,9 @@ export async function promptUserForInfo(defaults: Jsonfile): Promise<prompts.Ans
 
 /**
  * Prompt the user about adding the license text to the modpack
- * @param {Jsonfile} modpackInfo - The modpack information
- * @param {InitOptions} defaults - The default options
- * @returns {Promise<Object>} The answers from the user
+ * @param modpackInfo - The modpack information
+ * @param defaults - The default options
+ * @returns The answers from the user
  */
 export async function promptUserAboutOptionalFiles(
     modpackInfo: Jsonfile,

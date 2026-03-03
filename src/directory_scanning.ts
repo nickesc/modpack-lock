@@ -9,8 +9,8 @@ import type {ContentFile} from "./types/index.js";
 
 /**
  * Get the directories to scan for modpack files
- * @param {string} directoryPath - The path to the directory to scan
- * @returns {ContentDirectory[]} The directories to scan
+ * @param directoryPath - The path to the directory to scan
+ * @returns The directories to scan
  */
 export function getScanDirectories(directoryPath: string): ContentDirectory[] {
     const scanDirectories: ContentDirectory[] = [];
@@ -99,8 +99,8 @@ async function getJsonFile(directoryPath: string, filename: string): Promise<any
 
 /**
  * Get the modpack info from the JSON file if it exists
- * @param {string} directoryPath - The path to the directory to scan
- * @returns {Promise<Jsonfile | null>} The modpack info JSON object if the file exists, otherwise null
+ * @param directoryPath - The path to the directory to scan
+ * @returns The modpack info JSON object if the file exists, otherwise null
  */
 export async function getModpackInfo(directoryPath: string): Promise<Jsonfile | null> {
     return getJsonFile(directoryPath, config.MODPACK_JSON_NAME);
