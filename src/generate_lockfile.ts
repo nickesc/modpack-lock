@@ -9,7 +9,7 @@ import type {
     Lockfile,
     Options,
     InitOptions,
-    VersionResponseItem,
+    ContentVersion,
     DependencyCategory,
     LockfileDependency,
 } from "./types/index.js";
@@ -30,13 +30,13 @@ function createEmptyLockfile(): Lockfile {
 /**
  * Create lockfile structure from file info and version data
  */
-function createLockfile(fileEntries: ContentFile[], versionData: Record<string, VersionResponseItem>): Lockfile {
+function createLockfile(fileEntries: ContentFile[], versionData: Record<string, ContentVersion>): Lockfile {
     const lockfile: Lockfile = createEmptyLockfile();
 
     logm.newline();
     // Organize by category
     for (const fileInfo of fileEntries) {
-        const version: VersionResponseItem | undefined = versionData[fileInfo.hash];
+        const version: ContentVersion | undefined = versionData[fileInfo.hash];
 
         lockfile.dependencies[fileInfo.category] ||= [];
 
@@ -125,7 +125,7 @@ export async function generateLockfile(workingDir: string, options: Options | In
     const hashes: string[] = allFileEntries.map((info) => info.hash);
 
     // Query Modrinth API
-    const versionData: Record<string, VersionResponseItem> = await getVersionsFromHashes(hashes);
+    const versionData: Record<string, ContentVersion> = await getVersionsFromHashes(hashes);
 
     logm.info(styleText(["dim"], "Found version information for:"));
     logm.info(

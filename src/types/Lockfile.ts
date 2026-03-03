@@ -1,4 +1,4 @@
-import type {VersionResponseItem} from "./index.js";
+import type {ContentVersion} from "./index.js";
 
 /**
  * Contains information about the modpack dependencies and their versions.
@@ -33,5 +33,5 @@ export type DependencyCategory = keyof Lockfile["dependencies"];
 
 export type LockfileDependency = {
     path: string;
-    version: VersionResponseItem | null;
+    version: ContentVersion | null;
 };

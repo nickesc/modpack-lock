@@ -5,7 +5,7 @@ export type DependencyResponseItem = {
     dependency_type: string;
 };
 
-export type VersionResponseItem = {
+export type ContentVersion = {
     id: string;
     project_id: string;
     author_id: string;

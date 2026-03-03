@@ -2,7 +2,7 @@ import * as config from "./config/index.js";
 import {logm} from "./logger.js";
 import type {Choice} from "prompts";
 import type {
-    VersionResponseItem,
+    ContentVersion,
     ProjectResponseItem,
     MinecraftVersionResponseItem,
     ModloaderResponseItem,
@@ -23,7 +23,7 @@ function chunkArray(array: any[], size: number) {
 /**
  * Query Modrinth API for version information from hashes
  */
-export async function getVersionsFromHashes(hashes: string[]): Promise<Record<string, VersionResponseItem>> {
+export async function getVersionsFromHashes(hashes: string[]): Promise<Record<string, ContentVersion>> {
     if (hashes.length === 0) {
         return {};
     }
@@ -46,7 +46,7 @@ export async function getVersionsFromHashes(hashes: string[]): Promise<Record<st
             throw new Error(`Modrinth API error (${response.status}): ${errorText}`);
         }
 
-        return (await response.json()) as Record<string, VersionResponseItem>;
+        return (await response.json()) as Record<string, ContentVersion>;
     } catch (error: unknown) {
         if (error instanceof Error) {
             logm.error(`Error fetching version information from hashes: ${error.message}`);
