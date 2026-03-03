@@ -3,7 +3,7 @@ import slugify from "slugify";
 import * as config from "./config/index.js";
 import {getLicenseList, getLicenseText} from "./github_interactions.js";
 import {getMinecraftVersions, getModloaders} from "./modrinth_interactions.js";
-import type {InitOptions, Jsonfile} from "./types/index.js";
+import type {FileOptionPrompts, InitOptions, Jsonfile, ModpackInfo} from "./types/index.js";
 
 /**
  * Capitalizes a string
@@ -25,7 +25,11 @@ function validateNotEmpty(value: string, field: string) {
 /**
  * Returns a required text prompt
  */
-function requiredText(name: string, message: string, initial: PromptObject["initial"]): PromptObject {
+function requiredText(
+    name: keyof ModpackInfo | "other",
+    message: string,
+    initial: PromptObject["initial"],
+): PromptObject {
     return {
         type: "text",
         name: name,
@@ -40,7 +44,11 @@ function requiredText(name: string, message: string, initial: PromptObject["init
 /**
  * Returns an optional text prompt
  */
-function optionalText(name: string, message: string, initial: PromptObject["initial"]): PromptObject {
+function optionalText(
+    name: keyof ModpackInfo | "other",
+    message: string,
+    initial: PromptObject["initial"],
+): PromptObject {
     return {
         type: "text",
         name: name,
@@ -65,7 +73,7 @@ async function getOtherAnswer(value: string, message: string, initial: PromptObj
  * Returns a required autocomplete prompt with a fallback to the other option
  */
 function requiredAutocomplete(
-    name: string,
+    name: keyof ModpackInfo | "other",
     message: string,
     initial: PromptObject["initial"],
     choices: Choice[],
@@ -92,7 +100,7 @@ function requiredAutocomplete(
 /**
  * Returns an confirmation prompt to generate an optional file
  */
-function fileGenerationConfirm(name: string, message: string, showPrompt: boolean): PromptObject {
+function fileGenerationConfirm(name: FileOptionPrompts | "other", message: string, showPrompt: boolean): PromptObject {
     return {
         type: showPrompt ? "confirm" : null,
         name: name,
@@ -106,11 +114,11 @@ function fileGenerationConfirm(name: string, message: string, showPrompt: boolea
  * @param {Jsonfile} defaults - The initial/default modpack information
  * @returns {Promise<Jsonfile>} The modpack information from the user
  */
-export async function promptUserForInfo(defaults: Jsonfile) {
+export async function promptUserForInfo(defaults: Jsonfile): Promise<prompts.Answers<keyof ModpackInfo>> {
     const licenseList = await getLicenseList();
     const minecraftVersions = await getMinecraftVersions();
     const modloaders = await getModloaders();
-    let answers = await prompts(
+    let answers: prompts.Answers<keyof ModpackInfo> = await prompts(
         [
             requiredText("name", config.infoFields.name.prompt, defaults.name),
             requiredText(
@@ -172,9 +180,12 @@ export async function promptUserForInfo(defaults: Jsonfile) {
  * @param {InitOptions} defaults - The default options
  * @returns {Promise<Object>} The answers from the user
  */
-export async function promptUserAboutOptionalFiles(modpackInfo: Jsonfile, defaults: InitOptions) {
+export async function promptUserAboutOptionalFiles(
+    modpackInfo: Jsonfile,
+    defaults: InitOptions,
+): Promise<prompts.Answers<FileOptionPrompts>> {
     const licenseText = await getLicenseText(modpackInfo.license);
-    const answers = await prompts(
+    const answers: prompts.Answers<FileOptionPrompts> = await prompts(
         [
             fileGenerationConfirm(
                 "addLicense",
