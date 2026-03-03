@@ -13,9 +13,9 @@
   "license": "MIT",
   "author": "N. Escobar <nick@nickesc.io> (https://nickesc.github.io/)",
   "type": "module",
-  "main": "src/modpack-lock.js",
+  "main": "build/modpack-lock.js",
   "bin": {
-    "modpack-lock": "src/cli.js"
+    "modpack-lock": "build/cli.js"
   },
   "keywords": [
     "modrinth",
@@ -27,6 +27,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "build": "tsc",
     "test": "vitest --run",
     "start": "node src/cli.js",
     "docs": "typedoc",
@@ -36,7 +37,7 @@
     "README.md",
     "LICENSE",
     "package.json",
-    "src/**/*.js"
+    "build/**/*"
   ],
   "dependencies": {
     "commander": "^14.0.3",
