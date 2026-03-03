@@ -13,7 +13,8 @@ import {getModpackInfo} from "./directory_scanning.js";
 import * as config from "./config/index.js";
 import pkg from "../package.json" with {type: "json"};
 import {logm, styleText} from "./logger.js";
-import type {Jsonfile, Options, InitOptions, Lockfile, ModpackInfo} from "./types/index.js";
+import type {Jsonfile, Options, InitOptions, Lockfile, ModpackInfo, FileOptionPrompts} from "./types/index.js";
+import type prompts from "prompts";
 
 const modpackLock = new Command("modpack-lock");
 
@@ -202,7 +203,7 @@ modpackLock
             );
             logm.newline();
             try {
-                const defaults = {
+                const defaults: ModpackInfo = {
                     name: path.basename(currDir),
                     version: config.DEFAULT_MODPACK_VERSION,
                     id: "",
@@ -218,13 +219,16 @@ modpackLock
                 const mergedDefaults = mergeModpackInfo(existingInfo, options, defaults);
 
                 // prompt user for modpack information
-                const userAnswers = await promptUserForInfo(mergedDefaults);
+                const userAnswers: prompts.Answers<keyof ModpackInfo> = await promptUserForInfo(mergedDefaults);
 
                 // Preserve extra fields (e.g. scripts) from existing modpack.json
-                const modpackInfo = {...mergedDefaults, ...userAnswers};
+                const modpackInfo: Jsonfile = {...mergedDefaults, ...userAnswers};
 
                 // prompt user if they want to add the license text
-                const optionalFiles = await promptUserAboutOptionalFiles(modpackInfo, options);
+                const optionalFiles: prompts.Answers<FileOptionPrompts> = await promptUserAboutOptionalFiles(
+                    modpackInfo,
+                    options,
+                );
 
                 logm.newline();
 
@@ -232,7 +236,7 @@ modpackLock
                 options.readme = optionalFiles.addReadme;
                 options.gitignore = optionalFiles.addGitignore;
                 options.licenseFile = optionalFiles.addLicense;
-                const lockfile = await generateModpackFiles(modpackInfo, currDir, options);
+                const lockfile: Lockfile = await generateModpackFiles(modpackInfo, currDir, options);
 
                 printLockfileSummary(lockfile);
             } catch (error) {
