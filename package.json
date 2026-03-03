@@ -32,6 +32,7 @@
     "start": "tsx src/cli.ts",
     "docs": "typedoc",
     "modpack-lock": "tsx src/cli.ts",
+    "prepare": "npm run build"
   },
   "files": [
     "README.md",
