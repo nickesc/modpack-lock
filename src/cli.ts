@@ -3,7 +3,7 @@
 import {Command} from "commander";
 import slugify from "slugify";
 import path from "path";
-import {spawn} from "child_process";
+import {ChildProcess, spawn} from "child_process";
 import {generateLockfile, printLockfileSummary} from "./generate_lockfile.js";
 import {generateReadmeFiles} from "./generate_readme.js";
 import {generateGitignoreRules} from "./generate_gitignore.js";
@@ -13,7 +13,15 @@ import {getModpackInfo} from "./directory_scanning.js";
 import * as config from "./config/index.js";
 import pkg from "../package.json" with {type: "json"};
 import {logm, styleText} from "./logger.js";
-import type {Jsonfile, Options, InitOptions, Lockfile, ModpackInfo, FileOptionPrompts} from "./types/index.js";
+import type {
+    Jsonfile,
+    Options,
+    InitOptions,
+    Lockfile,
+    ModpackInfo,
+    FileOptionPrompts,
+    RunOptions,
+} from "./types/index.js";
 import type prompts from "prompts";
 
 const modpackLock = new Command("modpack-lock");
@@ -257,15 +265,15 @@ modpackLock
     .helpOption("-h, --help", `display help for ${pkg.name} run`)
     .allowExcessArguments(true)
     .allowUnknownOption(true)
-    .action(async (script, options, command) => {
+    .action(async (script: string, options: RunOptions, command: Command) => {
         options._run = true;
         try {
             if (options.debug) {
                 logm.debug("COMMAND:", command);
             }
 
-            const currDir = options.folder || process.cwd();
-            const modpackInfo = await getModpackInfo(currDir);
+            const currDir: string = options.folder || process.cwd();
+            const modpackInfo: Jsonfile | null = await getModpackInfo(currDir);
 
             // verify neccecary files and information exist
             if (!modpackInfo) {
@@ -279,9 +287,9 @@ modpackLock
             }
 
             // build the full command
-            const scriptCommand = modpackInfo.scripts[script];
-            const args = command.args ? command.args.slice(1) : [];
-            const fullCommand = `${scriptCommand} ${args.join(" ")}`;
+            const scriptCommand: string = modpackInfo.scripts[script];
+            const args: string[] = command.args ? command.args.slice(1) : [];
+            const fullCommand: string = `${scriptCommand} ${args.join(" ")}`;
 
             // debug logging
             if (options.debug) {
@@ -294,15 +302,15 @@ modpackLock
             }
 
             // spawn the command
-            const child = spawn(fullCommand, [], {
+            const child: ChildProcess = spawn(fullCommand, [], {
                 shell: true,
                 stdio: "inherit",
                 cwd: currDir,
             });
 
             // preserve exit code on completion
-            const exitCode = await new Promise<number>((resolve) => {
-                child.on("close", (code) => {
+            const exitCode: number = await new Promise<number>((resolve) => {
+                child.on("close", (code: number) => {
                     resolve(code || 0);
                 });
             });
