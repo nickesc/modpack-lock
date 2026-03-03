@@ -15,6 +15,7 @@ export interface Options {
     gitignore?: boolean;
     readme?: boolean;
     licenseFile?: boolean;
+    path?: string;
 }
 /**
  * Contains options for the initialization of the modpack files.
