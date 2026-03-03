@@ -17,6 +17,14 @@ export const MODPACK_INFO_REQUIRED_FIELDS: (keyof ModpackInfo)[] = [
     "targetMinecraftVersion",
 ];
 
+export const MODPACK_INFO_FIELDS: (keyof ModpackInfo)[] = [
+    ...MODPACK_INFO_REQUIRED_FIELDS, //
+    "projectUrl",
+    "sourceUrl",
+    "license",
+    "targetModloaderVersion",
+];
+
 /** Dependency categories, corresponds to folders in Minecraft profile */
 export const DEPENDENCY_CATEGORIES: DependencyCategory[] = [
     "mods", //
