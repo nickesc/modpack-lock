@@ -288,13 +288,13 @@ modpackLock
             });
 
             // preserve exit code on completion
-            const exitCode = await new Promise((resolve) => {
+            const exitCode = await new Promise<number>((resolve) => {
                 child.on("close", (code) => {
                     resolve(code || 0);
                 });
             });
             process.exitCode = exitCode;
-        } catch (error) {
+        } catch (error: any) {
             logm.error(error.message);
             process.exitCode = 1;
         }
