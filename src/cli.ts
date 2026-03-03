@@ -52,15 +52,15 @@ modpackLock
     .optionsGroup(config.headings.information)
     .helpOption("-h, --help", `display help for ${pkg.name}`)
     .version(pkg.version, "-V")
-    .action(async (options) => {
+    .action(async (options: Options) => {
         try {
-            const currDir = options.path || process.cwd();
+            const currDir: string = options.path || process.cwd();
 
             logm.quietFromOptions(options);
 
-            const modpackInfo = await getModpackInfo(currDir);
+            const modpackInfo: Jsonfile | null = await getModpackInfo(currDir);
             if (modpackInfo) {
-                const lockfile = await generateModpackFiles(modpackInfo, currDir, options);
+                const lockfile: Lockfile = await generateModpackFiles(modpackInfo, currDir, options);
                 printLockfileSummary(lockfile);
             } else {
                 // Warn if license option is passed but no modpack.json exists
@@ -71,7 +71,7 @@ modpackLock
                 }
 
                 // Generate lockfile
-                const lockfile = await generateLockfile(currDir, options);
+                const lockfile: Lockfile = await generateLockfile(currDir, options);
 
                 if (options.gitignore || options.readme) {
                     logm.header("Generating Optional Files");
