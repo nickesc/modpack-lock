@@ -6,7 +6,17 @@ import generateLicense from "./generate_license.js";
 import {logm} from "./logger.js";
 import {promptUserForInfo} from "./user_prompts.js";
 import {getModpackInfo, getLockfile} from "./directory_scanning.js";
-import type {Jsonfile, Options, InitOptions, Lockfile} from "./types/index.js";
+import type {
+    Jsonfile,
+    Options,
+    InitOptions,
+    Lockfile,
+    ModpackInfo,
+    DependencyCategory,
+    LockfileDependency,
+    ContentVersion,
+    ContentVersionDependency,
+} from "./types/index.js";
 
 /**
  * @license MIT
@@ -64,4 +74,15 @@ export {
     getModpackInfo,
     getLockfile,
     promptUserForInfo,
+};
+export type {
+    Lockfile, //
+    ModpackInfo,
+    Jsonfile,
+    Options,
+    InitOptions,
+    DependencyCategory,
+    LockfileDependency,
+    ContentVersion,
+    ContentVersionDependency,
 };
