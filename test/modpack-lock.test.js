@@ -29,7 +29,7 @@ const __dirname = path.dirname(__filename);
 const WORKSPACE_ZIP = path.resolve(__dirname, "workspace.zip");
 const LOCKFILE_NAME = "modpack.lock";
 const JSON_NAME = "modpack.json";
-const CLI_PATH = path.resolve(__dirname, "../src/cli.js");
+const CLI_PATH = path.resolve(__dirname, "../src/cli.ts");
 
 const DEPENDENCY_CATEGORIES = ["mods", "resourcepacks", "shaderpacks", "datapacks"];
 
@@ -123,7 +123,7 @@ async function scanWorkspaceFiles(workspaceDir) {
  */
 async function runCli(args = [], options = {}) {
     try {
-        const {stdout, stderr} = await execFileAsync("node", [CLI_PATH, ...args], options);
+        const {stdout, stderr} = await execFileAsync("tsx", [CLI_PATH, ...args], options);
         return {stdout, stderr, exitCode: 0};
     } catch (error) {
         return {
