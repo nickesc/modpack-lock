@@ -973,5 +973,25 @@ describe("CLI", () => {
             const json = await readModpackJson(existingJsonWorkspace);
             expect(json.name).toBe("Existing Pack");
         });
+
+        it("fails with an informative error when existing modpack.json is missing required fields", async () => {
+            const existingJsonWorkspace = await extractWorkspaceFixture();
+
+            // Missing author, modloader, targetMinecraftVersion
+            const modpackInfo = {
+                name: "Incomplete Pack",
+                version: "1.0.0",
+                id: "incomplete-pack",
+            };
+
+            await fs.writeFile(path.join(existingJsonWorkspace, JSON_NAME), JSON.stringify(modpackInfo, null, 2));
+
+            const result = await runCli(["--path", existingJsonWorkspace]);
+
+            expect(result.exitCode).toBe(1);
+            expect(result.stderr).toContain("author");
+            expect(result.stderr).toContain("modloader");
+            expect(result.stderr).toContain("targetMinecraftVersion");
+        });
     });
 });
