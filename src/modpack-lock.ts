@@ -4,7 +4,7 @@ import {generateGitignoreRules} from "./generate_gitignore.js";
 import generateJson from "./generate_json.js";
 import generateLicense from "./generate_license.js";
 import {logm} from "./logger.js";
-import {promptUserForInfo} from "./modpack_info.js";
+import {promptUserForInfo} from "./user_prompts.js";
 import {getModpackInfo, getLockfile} from "./directory_scanning.js";
 import type {Jsonfile, Options, InitOptions, Lockfile} from "./types/index.js";
 

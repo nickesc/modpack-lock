@@ -8,7 +8,7 @@ import {generateLockfile, printLockfileSummary} from "./generate_lockfile.js";
 import {generateReadmeFiles} from "./generate_readme.js";
 import {generateGitignoreRules} from "./generate_gitignore.js";
 import {generateModpackFiles} from "./modpack-lock.js";
-import {promptUserForInfo, promptUserAboutOptionalFiles} from "./modpack_info.js";
+import {promptUserForInfo, promptUserAboutOptionalFiles} from "./user_prompts.js";
 import {getModpackInfo} from "./directory_scanning.js";
 import * as config from "./config/index.js";
 import pkg from "../package.json" with {type: "json"};
