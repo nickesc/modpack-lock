@@ -1,4 +1,4 @@
-import type {DependencyCategory} from "./Lockfile.js";
+import type {DependencyCategory} from "./index.js";
 
 export type ContentDirectory = {
     name: DependencyCategory;
