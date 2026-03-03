@@ -8,10 +8,7 @@ import type {Lockfile, Jsonfile, Options, InitOptions, DependencyCategory} from 
 /**
  * Create a JSON object from the modpack information and dependencies
  */
-function createModpackJson(
-    modpackInfo: Jsonfile,
-    dependencies: Record<DependencyCategory, string[]>,
-): Jsonfile {
+function createModpackJson(modpackInfo: Jsonfile, dependencies: Record<DependencyCategory, string[]>): Jsonfile {
     return {
         ...modpackInfo,
         dependencies: dependencies,
@@ -44,10 +41,15 @@ export default async function generateJson(
     logm.quietFromOptions(options);
 
     // Validate modpack info
+    const missingFields: string[] = [];
     for (const field of config.MODPACK_INFO_REQUIRED_FIELDS) {
         if (!modpackInfo[field]) {
-            throw new Error(`Modpack info is missing required field: ${field}`);
+            missingFields.push(field);
         }
+    }
+
+    if (missingFields.length > 0) {
+        throw new Error(`Modpack info is missing required fields: ${missingFields.join(", ")}`);
     }
 
     //TODO: consider changing these to partial records and only initializing the categories that are present in the lockfile
