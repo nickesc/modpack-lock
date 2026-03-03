@@ -120,52 +120,60 @@ modpackLock
     .option("--targetMinecraftVersion <targetMinecraftVersion>", config.infoFields.targetMinecraftVersion.option)
     .optionsGroup(config.headings.information)
     .helpOption("-h, --help", `display help for ${pkg.name} init`)
-    .action(async (options) => {
+    .action(async (options: InitOptions) => {
         options._init = true;
-        const currDir = options.folder || process.cwd();
+        const currDir: string = options.folder || process.cwd();
 
-        let existingInfo = await getModpackInfo(currDir);
+        let existingInfo: Jsonfile | null = await getModpackInfo(currDir);
 
         if (options.noninteractive) {
             logm.quiet();
-            if (
-                (!options.author && !existingInfo?.author) ||
-                (!options.modloader && !existingInfo?.modloader) ||
-                (!options.targetMinecraftVersion && !existingInfo?.targetMinecraftVersion)
-            ) {
-                logm.error("Must provide options for required fields");
+            const defaultName: string = path.basename(currDir);
+
+            const author: string = options.author || existingInfo?.author || "";
+            const modloader: string = options.modloader || existingInfo?.modloader || "";
+            const targetMinecraftVersion: string =
+                options.targetMinecraftVersion || existingInfo?.targetMinecraftVersion || "";
+
+            if (!author || !modloader || !targetMinecraftVersion) {
+                logm.error(
+                    `Must provide options for required fields:`,
+                    styleText(
+                        ["bold"],
+                        `${author ? "" : "author"}$ {modloader ? "" : "modloader"} ${targetMinecraftVersion ? "" : "targetMinecraftVersion"}`,
+                    ),
+                );
                 process.exitCode = 1;
                 return;
-            } else {
-                const defaultName = path.basename(currDir);
-                const defaults = {
-                    name: defaultName,
-                    version: config.DEFAULT_MODPACK_VERSION,
-                    id: defaultName,
-                    description: "",
-                    author: options.author, // Required, no default
-                    projectUrl: "",
-                    sourceUrl: "",
-                    license: "",
-                    modloader: options.modloader, // Required, no default
-                    targetModloaderVersion: "",
-                    targetMinecraftVersion: options.targetMinecraftVersion, // Required, no default
-                };
+            }
 
-                const modpackInfo = mergeModpackInfo(existingInfo, options, defaults);
-                modpackInfo.id = slugify(modpackInfo.id, config.SLUGIFY_OPTIONS);
+            const defaults: ModpackInfo = {
+                name: defaultName,
+                version: config.DEFAULT_MODPACK_VERSION,
+                id: defaultName,
+                description: "",
+                author: author, // Required, no default
+                projectUrl: "",
+                sourceUrl: "",
+                license: "",
+                modloader: modloader, // Required, no default
+                targetModloaderVersion: "",
+                targetMinecraftVersion: targetMinecraftVersion, // Required, no default
+            };
 
-                options.readme = options.addReadme;
-                options.gitignore = options.addGitignore;
-                options.licenseFile = options.addLicense;
+            const modpackInfo: Jsonfile = mergeModpackInfo(existingInfo, options, defaults);
+            modpackInfo.id = slugify(modpackInfo.id, config.SLUGIFY_OPTIONS);
 
-                // generate the modpack files
-                try {
-                    await generateModpackFiles(modpackInfo, currDir, options);
-                } catch (error) {
-                    logm.error(error);
-                    process.exitCode = 1;
-                }
+            options.readme = options.addReadme || false;
+            options.gitignore = options.addGitignore || false;
+            options.licenseFile = options.addLicense || false;
+
+            // generate the modpack files
+            try {
+                await generateModpackFiles(modpackInfo, currDir, options);
+            } catch (error) {
+                logm.error(error);
+                process.exitCode = 1;
             }
         } else {
             logm.info(logm.label("modpack-lock"), styleText(["bold", "italic", "blueBright"], "init"));
