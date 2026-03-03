@@ -10,3 +10,5 @@ modpack.lock
 modpack.json
 
 coverage/
+
+build/
