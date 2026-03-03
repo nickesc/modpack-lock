@@ -10,7 +10,7 @@ import type {
     Lockfile,
     ProjectResponseItem,
     UserResponseItem,
-    LockfileDependencyEntry,
+    LockfileDependency,
     ContentDirectory,
     DependencyCategory,
 } from "./types/index.js";
@@ -20,7 +20,7 @@ import type {
  */
 function generateCategoryReadme(
     category: DependencyCategory,
-    entries: LockfileDependencyEntry[],
+    entries: LockfileDependency[],
     projectsMap: Record<string, ProjectResponseItem>,
     usersMap: Record<string, UserResponseItem>,
 ): string {
@@ -219,7 +219,7 @@ export async function generateReadmeFiles(
     // Generate README for each category
     for (const [category, entries] of Object.entries(lockfile.dependencies) as [
         DependencyCategory,
-        LockfileDependencyEntry[],
+        LockfileDependency[],
     ][]) {
         if (entries.length === 0) {
             continue;

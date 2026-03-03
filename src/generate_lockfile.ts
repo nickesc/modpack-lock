@@ -11,7 +11,7 @@ import type {
     InitOptions,
     VersionResponseItem,
     DependencyCategory,
-    LockfileDependencyEntry,
+    LockfileDependency,
 } from "./types/index.js";
 
 /**
@@ -164,7 +164,7 @@ export function printLockfileSummary(lockfile: Lockfile): void {
 
     for (const [category, entries] of Object.entries(lockfile.dependencies) as [
         DependencyCategory,
-        LockfileDependencyEntry[],
+        LockfileDependency[],
     ][]) {
         const withVersion: number = entries.filter((e) => e.version !== null).length;
         const withoutVersion: number = entries.length - withVersion;

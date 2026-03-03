@@ -22,16 +22,16 @@ export type Lockfile = {
     total: number;
     counts: Partial<Record<DependencyCategory, number>>;
     dependencies: {
-        mods?: LockfileDependencyEntry[];
-        resourcepacks?: LockfileDependencyEntry[];
-        datapacks?: LockfileDependencyEntry[];
-        shaderpacks?: LockfileDependencyEntry[];
+        mods?: LockfileDependency[];
+        resourcepacks?: LockfileDependency[];
+        datapacks?: LockfileDependency[];
+        shaderpacks?: LockfileDependency[];
     };
 };
 
 export type DependencyCategory = keyof Lockfile["dependencies"];
 
-export type LockfileDependencyEntry = {
+export type LockfileDependency = {
     path: string;
     version: VersionResponseItem | null;
 };
