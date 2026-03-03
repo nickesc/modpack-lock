@@ -1,17 +1,7 @@
 import type {DependencyCategory} from "./Lockfile.js";
+import type {ModpackInfo} from "./index.js";
 
-export type Jsonfile = {
-    name: string;
-    version: string;
-    id: string;
-    description: string;
-    author: string;
-    projectUrl: string;
-    sourceUrl: string;
-    license: string;
-    modloader: string;
-    targetModloaderVersion: string;
-    targetMinecraftVersion: string;
+export type Jsonfile = ModpackInfo & {
     dependencies: Record<DependencyCategory, string[]>;
     scripts?: {
         [key: string]: string;
