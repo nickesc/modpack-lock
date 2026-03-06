@@ -6,6 +6,7 @@
  * @property gitignore - Whether to generate a .gitignore file
  * @property readme - Whether to generate README.md files
  * @property licenseFile - Whether to generate a license file
+ * @property path - The modpack root directory
  */
 export interface Options {
     dryRun?: boolean;
