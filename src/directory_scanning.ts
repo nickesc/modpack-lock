@@ -100,7 +100,7 @@ async function getJsonFile(directoryPath: string, filename: string): Promise<any
 /**
  * Get the modpack info from the JSON file if it exists
  * @param directoryPath - The path to the directory to scan
- * @returns The modpack info JSON object if the file exists, otherwise null
+ * @returns The Jsonfile object if the file exists, otherwise null
  */
 export async function getModpackInfo(directoryPath: string): Promise<Jsonfile | null> {
     return getJsonFile(directoryPath, config.MODPACK_JSON_NAME);
@@ -109,7 +109,7 @@ export async function getModpackInfo(directoryPath: string): Promise<Jsonfile | 
 /**
  * Get the lockfile file if it exists
  * @param {string} directoryPath - The path to the directory to scan
- * @returns {Promise<Lockfile | null>} The JSON object if the file exists, otherwise null
+ * @returns {Promise<Lockfile | null>} The Lockfile object if the file exists, otherwise null
  */
 export async function getLockfile(directoryPath: string): Promise<Lockfile | null> {
     return getJsonFile(directoryPath, config.MODPACK_LOCKFILE_NAME);
