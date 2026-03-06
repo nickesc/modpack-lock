@@ -21,7 +21,9 @@ function chunkArray(array: any[], size: number) {
 }
 
 /**
- * Query Modrinth API for version information from hashes
+ * Fetch version information for multiple file hashes from the Modrinth API
+ * @param hashes - An array of hashes to fetch version information for
+ * @returns An object with the version information for each hash
  */
 export async function getVersionsFromHashes(hashes: string[]): Promise<Record<string, ContentVersion>> {
     if (hashes.length === 0) {
@@ -58,7 +60,9 @@ export async function getVersionsFromHashes(hashes: string[]): Promise<Record<st
 }
 
 /**
- * Fetch multiple projects by their IDs in batches
+ * Fetch multiple projects by their IDs from the Modrinth API
+ * @param projectIds - An array of project IDs to fetch
+ * @returns An array of project objects
  */
 export async function getProjects(projectIds: string[]): Promise<ProjectResponseItem[]> {
     if (projectIds.length === 0) {
@@ -98,7 +102,9 @@ export async function getProjects(projectIds: string[]): Promise<ProjectResponse
 }
 
 /**
- * Fetch multiple users by their IDs in batches
+ * Fetch multiple users by their IDs from the Modrinth API
+ * @param userIds - An array of user IDs to fetch
+ * @returns An array of user information objects
  */
 export async function getUsers(userIds: string[]): Promise<UserResponseItem[]> {
     if (userIds.length === 0) {
@@ -138,8 +144,8 @@ export async function getUsers(userIds: string[]): Promise<UserResponseItem[]> {
 }
 
 /**
- * Fetch Minecraft versions from Modrinth
- * @returns The Minecraft versions
+ * Fetch Minecraft versions from the Modrinth API
+ * @returns An array of Minecraft versions for use with a prompt
  */
 export async function getMinecraftVersions(): Promise<Choice[]> {
     try {
@@ -177,8 +183,8 @@ export async function getMinecraftVersions(): Promise<Choice[]> {
 }
 
 /**
- * Fetch Modloaders from Modrinth
- * @returns The modloaders
+ * Fetch modloaders from the Modrinth API
+ * @returns An array of modloaders for use with a prompt
  */
 export async function getModloaders(): Promise<Choice[]> {
     try {
