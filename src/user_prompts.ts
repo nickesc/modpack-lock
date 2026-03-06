@@ -181,12 +181,12 @@ export async function promptUserForInfo(defaults: Jsonfile): Promise<prompts.Ans
 /**
  * Prompt the user about adding the license text to the modpack
  * @param modpackInfo - The modpack information
- * @param defaults - The default options
+ * @param options - The default options
  * @returns The answers from the user
  */
 export async function promptUserAboutOptionalFiles(
     modpackInfo: Jsonfile,
-    defaults: InitOptions,
+    options: InitOptions,
 ): Promise<prompts.Answers<OptionalFileOptions>> {
     const licenseText = await getLicenseText(modpackInfo.license);
     const answers: prompts.Answers<OptionalFileOptions> = await prompts(
@@ -194,26 +194,26 @@ export async function promptUserAboutOptionalFiles(
             fileGenerationConfirm(
                 "addLicense",
                 `${config.fileFields.addLicense.prompt}?`,
-                licenseText && defaults.addLicense === undefined ? true : false,
+                licenseText && options.addLicense === undefined ? true : false,
             ),
             fileGenerationConfirm(
                 "addReadme",
                 `${config.fileFields.addReadme.prompt}?`,
-                defaults.addReadme === undefined,
+                options.addReadme === undefined,
             ),
             fileGenerationConfirm(
                 "addGitignore",
                 `${config.fileFields.addGitignore.prompt}?`,
-                defaults.addGitignore === undefined,
+                options.addGitignore === undefined,
             ),
         ],
         config.PROMPTS_OPTIONS,
     );
 
     answers.addLicense =
-        answers.addLicense === undefined ? (licenseText ? defaults.addLicense : false) : answers.addLicense;
-    answers.addReadme = answers.addReadme === undefined ? defaults.addReadme : answers.addReadme;
-    answers.addGitignore = answers.addGitignore === undefined ? defaults.addGitignore : answers.addGitignore;
+        answers.addLicense === undefined ? (licenseText ? options.addLicense : false) : answers.addLicense;
+    answers.addReadme = answers.addReadme === undefined ? options.addReadme : answers.addReadme;
+    answers.addGitignore = answers.addGitignore === undefined ? options.addGitignore : answers.addGitignore;
 
     return answers;
 }
