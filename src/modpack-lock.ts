@@ -15,7 +15,7 @@ import type {
     DependencyCategory,
     LockfileDependency,
     ContentVersion,
-    ContentVersionDependency,
+    VersionDependency,
 } from "./types/index.js";
 
 /**
@@ -26,7 +26,7 @@ import type {
 
 /**
  * Generate the modpack files (lockfile, JSON, and optionally license, gitignore, and readme)
- * @param modpackInfo - The modpack information
+ * @param modpackInfo - The Jsonfile object containing the modpack information
  * @param workingDir - The directory to generate the files in
  * @param options - The options object
  * @returns The lockfile object
@@ -84,5 +84,5 @@ export type {
     DependencyCategory,
     LockfileDependency,
     ContentVersion,
-    ContentVersionDependency,
+    VersionDependency,
 };

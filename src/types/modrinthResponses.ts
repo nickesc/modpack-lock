@@ -1,4 +1,4 @@
-export type ContentVersionDependency = {
+export type VersionDependency = {
     version_id: string;
     project_id: string;
     file_name: string;
@@ -22,7 +22,7 @@ export type ContentVersion = {
     version_type?: string;
     status?: string;
     requested_status?: string | null;
-    dependencies?: ContentVersionDependency[];
+    dependencies?: VersionDependency[];
 };
 
 export type ProjectResponseItem = {
