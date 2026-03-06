@@ -36,11 +36,19 @@ class Logger {
     silentConsole = false;
     lastLogWasNewline = false;
 
+    /**
+     * Set the quiet console flag. When set, only errors and warnings are logged to the console.
+     * @param silent - Whether to also set the silent console flag. When set, no console output is logged.
+     */
     quiet(silent: boolean = false) {
         this.quietConsole = true;
         this.silentConsole = silent;
     }
 
+    /**
+     * Set the quiet console flag based on the options object.
+     * @param options - The options object containing the quiet and silent flags.
+     */
     quietFromOptions(options: InitOptions | Options) {
         if (options.silent) {
             this.quietConsole = true;
@@ -50,7 +58,13 @@ class Logger {
         }
     }
 
-    styleArgs(style: InspectColor[] | null, args: any[]) {
+    /**
+     * Style the arguments with the given style.
+     * @param style - The style to apply to the arguments.
+     * @param args - The arguments to style.
+     * @returns The styled arguments.
+     */
+    styleArgs(style: InspectColor[] | undefined, args: any[]): any[] | "" {
         if (!style) {
             return args;
         }
@@ -86,6 +100,11 @@ class Logger {
         this.lastLogWasNewline = true;
     }
 
+    /**
+     * Log a message indicating that a file was generated.
+     * @param desc - The description of the file that was generated.
+     * @param outputPath - The path to the file that was generated.
+     */
     generated(desc: string, outputPath: string) {
         if (this.quietConsole) {
             return;
@@ -100,6 +119,9 @@ class Logger {
         this.lastLogWasNewline = false;
     }
 
+    /**
+     * Log a newline. Only logs a newline if the last log was not a newline.
+     */
     newline() {
         if (this.quietConsole) {
             return;
@@ -114,7 +136,7 @@ class Logger {
     /**
      * Log a message.
      * @param message - The message to log.
-     * @param otherMessages - The other messages to log.
+     * @param otherMessages - Other messages to log.
      */
     log(message: any, ...otherMessages: any[]) {
         if (this.quietConsole) {
@@ -127,7 +149,7 @@ class Logger {
     /**
      * Log an info message.
      * @param message - The message to log.
-     * @param otherMessages - The other messages to log.
+     * @param otherMessages - Other messages to log.
      */
     info(message: any, ...otherMessages: any[]) {
         if (this.quietConsole) {
@@ -140,7 +162,7 @@ class Logger {
     /**
      * Log a debug message.
      * @param message - The message to log.
-     * @param otherMessages - The other messages to log.
+     * @param otherMessages - Other messages to log.
      */
     debug(message: any, ...otherMessages: any[]) {
         if (this.silentConsole) {
@@ -156,7 +178,7 @@ class Logger {
     /**
      * Log a warning message.
      * @param message - The message to log.
-     * @param otherMessages - The other messages to log.
+     * @param otherMessages - Other messages to log.
      */
     warn(message: any, ...otherMessages: any[]) {
         if (this.silentConsole) {
@@ -172,7 +194,7 @@ class Logger {
     /**
      * Log an error message.
      * @param message - The message to log.
-     * @param otherMessages - The other messages to log.
+     * @param otherMessages - Other messages to log.
      */
     error(message: any, ...otherMessages: any[]) {
         if (this.silentConsole) {
