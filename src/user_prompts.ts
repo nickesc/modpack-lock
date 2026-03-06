@@ -3,7 +3,7 @@ import slugify from "slugify";
 import * as config from "./config/index.js";
 import {getLicenseList, getLicenseText} from "./github_interactions.js";
 import {getMinecraftVersions, getModloaders} from "./modrinth_interactions.js";
-import type {FileOptionPrompts, InitOptions, Jsonfile, ModpackInfo} from "./types/index.js";
+import type {OptionalFileOptions, InitOptions, Jsonfile, ModpackInfo} from "./types/index.js";
 
 /**
  * Capitalizes a string
@@ -100,7 +100,11 @@ function requiredAutocomplete(
 /**
  * Returns an confirmation prompt to generate an optional file
  */
-function fileGenerationConfirm(name: FileOptionPrompts | "other", message: string, showPrompt: boolean): PromptObject {
+function fileGenerationConfirm(
+    name: OptionalFileOptions | "other",
+    message: string,
+    showPrompt: boolean,
+): PromptObject {
     return {
         type: showPrompt ? "confirm" : null,
         name: name,
@@ -183,9 +187,9 @@ export async function promptUserForInfo(defaults: Jsonfile): Promise<prompts.Ans
 export async function promptUserAboutOptionalFiles(
     modpackInfo: Jsonfile,
     defaults: InitOptions,
-): Promise<prompts.Answers<FileOptionPrompts>> {
+): Promise<prompts.Answers<OptionalFileOptions>> {
     const licenseText = await getLicenseText(modpackInfo.license);
-    const answers: prompts.Answers<FileOptionPrompts> = await prompts(
+    const answers: prompts.Answers<OptionalFileOptions> = await prompts(
         [
             fileGenerationConfirm(
                 "addLicense",

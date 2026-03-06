@@ -19,7 +19,7 @@ import type {
     InitOptions,
     Lockfile,
     ModpackInfo,
-    FileOptionPrompts,
+    OptionalFileOptions,
     RunOptions,
 } from "./types/index.js";
 import type prompts from "prompts";
@@ -233,7 +233,7 @@ modpackLock
                 const modpackInfo: Jsonfile = {...mergedDefaults, ...userAnswers};
 
                 // prompt user if they want to add the license text
-                const optionalFiles: prompts.Answers<FileOptionPrompts> = await promptUserAboutOptionalFiles(
+                const optionalFiles: prompts.Answers<OptionalFileOptions> = await promptUserAboutOptionalFiles(
                     modpackInfo,
                     options,
                 );

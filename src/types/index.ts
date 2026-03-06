@@ -5,4 +5,4 @@ export type * from "./options.js";
 export type * from "./modrinthResponses.js";
 export type * from "./githubResponses.js";
 export type * from "./contentFiles.js";
-export type * from "./FileOptionPrompts.js";
+export type * from "./OptionalFileOptions.js";
