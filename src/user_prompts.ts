@@ -58,7 +58,7 @@ function optionalText(
 }
 
 /**
- * Get an other answer from the user
+ * Get the value of an "other" answer from the user
  */
 async function getOtherAnswer(value: string, message: string, initial: PromptObject["initial"]) {
     if (value && value !== config.OTHER_OPTION.value) {
@@ -70,7 +70,7 @@ async function getOtherAnswer(value: string, message: string, initial: PromptObj
 }
 
 /**
- * Returns a required autocomplete prompt with a fallback to the other option
+ * Returns a required autocomplete prompt with a fallback to the "other" option
  */
 function requiredAutocomplete(
     name: keyof ModpackInfo | "other",
@@ -98,7 +98,7 @@ function requiredAutocomplete(
 }
 
 /**
- * Returns an confirmation prompt to generate an optional file
+ * Returns a confirmation prompt to generate an optional file
  */
 function fileGenerationConfirm(
     name: OptionalFileOptions | "other",
@@ -114,9 +114,9 @@ function fileGenerationConfirm(
 }
 
 /**
- * Get user input for modpack information
- * @param defaults - The initial/default modpack information
- * @returns The modpack information from the user
+ * Prompt the user for modpack information
+ * @param defaults - The default modpack information, used as the initial value for each prompt
+ * @returns The answers to the prompts from the user
  */
 export async function promptUserForInfo(defaults: Jsonfile): Promise<prompts.Answers<keyof ModpackInfo>> {
     const licenseList = await getLicenseList();
@@ -180,7 +180,7 @@ export async function promptUserForInfo(defaults: Jsonfile): Promise<prompts.Ans
 
 /**
  * Prompt the user about adding the license text to the modpack
- * @param modpackInfo - The modpack information
+ * @param modpackInfo - The Jsonfile object containing the modpack information
  * @param options - The default options
  * @returns The answers from the user
  */
