@@ -5,16 +5,8 @@ import type {ContentVersion} from "./index.js";
  * @property version - The version of the lockfile
  * @property generated - The date and time the lockfile was generated
  * @property total - The total number of files in the modpack
- * @property counts - An object containing the number of files in each category
- * @property counts.mods - The number of mods in the modpack
- * @property counts.resourcepacks - The number of resourcepacks in the modpack
- * @property counts.datapacks - The number of datapacks in the modpack
- * @property counts.shaderpacks - The number of shaderpacks in the modpack
- * @property dependencies - An object containing all dependency version information
- * @property dependencies.mods - An array with version information for each mod
- * @property dependencies.resourcepacks - An array with version information for each resourcepack
- * @property dependencies.datapacks - An array with version information for each datapack
- * @property dependencies.shaderpacks - An array with version information for each shaderpack
+ * @property counts - An object containing the number of files in each dependency category
+ * @property dependencies - An object containing arrays with all the modpack's dependencies and their version information
  */
 export type Lockfile = {
     version: string;
