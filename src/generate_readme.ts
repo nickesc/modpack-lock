@@ -165,7 +165,7 @@ function generateCategoryReadme(
 }
 
 /**
- * Generate the README.md files for each category
+ * Generate README.md files for each category
  * @param lockfile - The lockfile object
  * @param workingDir - The working directory
  * @param options - The options object
