@@ -8,7 +8,7 @@ import type {LicenseResponseItem, LicenseTextResponse} from "./types/index.js";
  * @param featured - If the fetch should be limited to featured licenses
  * @returns The list of licenses for use in a prompt
  */
-export async function getLicenseList(featured: boolean = false) {
+export async function getLicenseList(featured: boolean = false): Promise<Choice[]> {
     try {
         const url: string = featured ? config.GITHUB_FEATURED_LICENSES_ENDPOINT : config.GITHUB_LICENSES_ENDPOINT;
         const response = await fetch(url, {
