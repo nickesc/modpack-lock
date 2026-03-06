@@ -48,7 +48,7 @@ export async function getLicenseList(featured: boolean = false): Promise<Choice[
 
 /**
  * Fetch specific license information from GitHub
- * @param spdxId - The SPDX ID of the license
+ * @param spdxId - The SPDX ID of the license to fetch
  * @returns The license text
  */
 export async function getLicenseText(spdxId: string): Promise<string | null> {
