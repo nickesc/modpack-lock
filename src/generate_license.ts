@@ -28,6 +28,9 @@ export default async function generateLicense(
 
     try {
         const spdxId = modpackInfo.license;
+        if (!spdxId) {
+            throw new Error("License ID is required to generate a license file");
+        }
 
         let licenseText = licenseTextOverride || (await getLicenseText(spdxId));
         if (!licenseText) {
@@ -36,12 +39,16 @@ export default async function generateLicense(
 
         licenseText = licenseText.replace("[year]", String(new Date().getFullYear()));
         licenseText = licenseText.replace("{{year}}", String(new Date().getFullYear()));
-        licenseText = licenseText.replace("[fullname]", modpackInfo.author);
-        licenseText = licenseText.replace("{{fullname}}", modpackInfo.author);
-        licenseText = licenseText.replace("[organization]", modpackInfo.author);
-        licenseText = licenseText.replace("{{organization}}", modpackInfo.author);
-        licenseText = licenseText.replace("[project]", modpackInfo.name);
-        licenseText = licenseText.replace("{{project}}", modpackInfo.name);
+        if (modpackInfo.author) {
+            licenseText = licenseText.replace("[fullname]", modpackInfo.author);
+            licenseText = licenseText.replace("{{fullname}}", modpackInfo.author);
+            licenseText = licenseText.replace("[organization]", modpackInfo.author);
+            licenseText = licenseText.replace("{{organization}}", modpackInfo.author);
+        }
+        if (modpackInfo.name) {
+            licenseText = licenseText.replace("[project]", modpackInfo.name);
+            licenseText = licenseText.replace("{{project}}", modpackInfo.name);
+        }
 
         if (options.dryRun) {
             logm.debug(
