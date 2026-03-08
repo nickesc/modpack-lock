@@ -1,18 +1,15 @@
 import {logm} from "../logger.js";
+import type {Options as slugifyOptions} from "@sindresorhus/slugify";
 
 /** Options for slugify */
-export const SLUGIFY_OPTIONS: {
-    lower: boolean;
-    strict: boolean;
-    separator: string;
-    locale: string;
-    trim: boolean;
-} = {
-    lower: true,
-    strict: true,
+export const SLUGIFY_OPTIONS: slugifyOptions = {
+    lowercase: true,
     separator: "-",
     locale: "en",
-    trim: true,
+    transliterate: true,
+    preserveTrailingDash: false,
+    preserveLeadingUnderscore: false,
+    decamelize: false,
 };
 
 /** Options for prompts */

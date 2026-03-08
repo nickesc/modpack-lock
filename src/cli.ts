@@ -1,7 +1,7 @@
 #!/usr/bin/env NODE_OPTIONS=--no-warnings node
 
 import {Command} from "commander";
-import slugify from "slugify";
+import slugify from "@sindresorhus/slugify";
 import path from "path";
 import {ChildProcess, spawn} from "child_process";
 import {generateLockfile, printLockfileSummary} from "./generate_lockfile.js";

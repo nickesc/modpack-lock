@@ -1,5 +1,5 @@
 import prompts, {type Choice, type InitialReturnValue, type PromptObject} from "prompts";
-import slugify from "slugify";
+import slugify from "@sindresorhus/slugify";
 import * as config from "./config/index.js";
 import {getLicenseList, getLicenseText} from "./github_interactions.js";
 import {getMinecraftVersions, getModloaders} from "./modrinth_interactions.js";
