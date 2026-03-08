@@ -1047,5 +1047,26 @@ describe("CLI", () => {
             expect(result.stderr).not.toContain("targetMinecraftVersion");
             expect(result.stderr).not.toContain("targetMinecraftVersion");
         });
+
+        it("fills and slugifies id during noninteractive init when existing modpack.json is missing it", async () => {
+            const existingJsonWorkspace = await extractWorkspaceFixture();
+
+            const modpackInfo = {
+                name: "Incomplete Pack",
+                version: "1.0.0",
+                author: "Test Author",
+                modloader: "fabric",
+                targetMinecraftVersion: "1.21.1",
+            };
+
+            await fs.writeFile(path.join(existingJsonWorkspace, JSON_NAME), JSON.stringify(modpackInfo, null, 2));
+
+            const result = await runCli(["init", "--noninteractive", "--folder", existingJsonWorkspace]);
+
+            expect(result.exitCode).toBe(0);
+
+            const json = await readModpackJson(existingJsonWorkspace);
+            expect(json.id).toBe("incomplete-pack");
+        });
     });
 });

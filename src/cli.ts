@@ -149,7 +149,7 @@ modpackLock
                     `Must provide options for required fields:`,
                     styleText(
                         ["bold"],
-                        `${author ? "" : "author"}$ ${modloader ? "" : "modloader"} ${targetMinecraftVersion ? "" : "targetMinecraftVersion"}`,
+                        `${author ? "" : "author"} ${modloader ? "" : "modloader"} ${targetMinecraftVersion ? "" : "targetMinecraftVersion"}`,
                     ),
                 );
                 process.exitCode = 1;
@@ -159,7 +159,7 @@ modpackLock
             const defaults: ModpackInfo = {
                 name: defaultName,
                 version: config.DEFAULT_MODPACK_VERSION,
-                id: defaultName,
+                id: "", // Required, defaults after merge if not provided
                 description: "",
                 author: author, // Required, no default
                 projectUrl: "",
@@ -171,7 +171,7 @@ modpackLock
             };
 
             const modpackInfo: Jsonfile = mergeModpackInfo(existingInfo, options, defaults);
-            modpackInfo.id = slugify(modpackInfo.id, config.SLUGIFY_OPTIONS);
+            modpackInfo.id = slugify(modpackInfo.id || modpackInfo.name || defaultName, config.SLUGIFY_OPTIONS);
 
             options.readme = options.addReadme || false;
             options.gitignore = options.addGitignore || false;
