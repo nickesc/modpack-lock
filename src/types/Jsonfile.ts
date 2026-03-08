@@ -6,8 +6,8 @@ import type {DependencyCategory, ModpackInfo} from "./index.js";
  * @property scripts - The scripts of the modpack
  * @property [key: string] - Any other properties of the modpack
  */
-export type Jsonfile = ModpackInfo & {
-    dependencies?: Record<DependencyCategory, string[]>;
+export type Jsonfile = Partial<ModpackInfo> & {
+    dependencies?: Partial<Record<DependencyCategory, string[]>>;
     scripts?: {
         [key: string]: string;
     };
