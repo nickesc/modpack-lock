@@ -188,7 +188,7 @@ export async function promptUserAboutOptionalFiles(
     modpackInfo: Jsonfile,
     options: InitOptions,
 ): Promise<prompts.Answers<OptionalFileOptions>> {
-    const licenseText = await getLicenseText(modpackInfo.license);
+    const licenseText = modpackInfo.license ? await getLicenseText(modpackInfo.license) : null;
     const answers: prompts.Answers<OptionalFileOptions> = await prompts(
         [
             fileGenerationConfirm(
