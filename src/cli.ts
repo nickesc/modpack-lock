@@ -149,7 +149,7 @@ modpackLock
                     `Must provide options for required fields:`,
                     styleText(
                         ["bold"],
-                        `${author ? "" : "author"}$ {modloader ? "" : "modloader"} ${targetMinecraftVersion ? "" : "targetMinecraftVersion"}`,
+                        `${author ? "" : "author"}$ ${modloader ? "" : "modloader"} ${targetMinecraftVersion ? "" : "targetMinecraftVersion"}`,
                     ),
                 );
                 process.exitCode = 1;
