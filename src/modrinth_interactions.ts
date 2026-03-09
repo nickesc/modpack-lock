@@ -41,6 +41,7 @@ export async function getVersionsFromHashes(hashes: string[]): Promise<Record<st
                 hashes: hashes,
                 algorithm: "sha1",
             }),
+            signal: AbortSignal.timeout(config.MODRINTH_API_TIMEOUT),
         });
 
         if (!response.ok) {
@@ -79,6 +80,7 @@ export async function getProjects(projectIds: string[]): Promise<ProjectResponse
                 headers: {
                     "User-Agent": config.PACKAGE_USER_AGENT,
                 },
+                signal: AbortSignal.timeout(config.MODRINTH_API_TIMEOUT),
             });
 
             if (!response.ok) {
@@ -121,6 +123,7 @@ export async function getUsers(userIds: string[]): Promise<UserResponseItem[]> {
                 headers: {
                     "User-Agent": config.PACKAGE_USER_AGENT,
                 },
+                signal: AbortSignal.timeout(config.MODRINTH_API_TIMEOUT),
             });
 
             if (!response.ok) {
@@ -154,6 +157,7 @@ export async function getMinecraftVersions(): Promise<Choice[]> {
             headers: {
                 "User-Agent": config.PACKAGE_USER_AGENT,
             },
+            signal: AbortSignal.timeout(config.MODRINTH_API_TIMEOUT),
         });
         if (!response.ok) {
             const errorText = await response.text();
@@ -193,6 +197,7 @@ export async function getModloaders(): Promise<Choice[]> {
             headers: {
                 "User-Agent": config.PACKAGE_USER_AGENT,
             },
+            signal: AbortSignal.timeout(config.MODRINTH_API_TIMEOUT),
         });
         if (!response.ok) {
             const errorText = await response.text();

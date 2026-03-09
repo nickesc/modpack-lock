@@ -7,6 +7,9 @@ export const PACKAGE_USER_AGENT: string = `${constants.AUTHOR_USERNAME}/${pkg.na
 /** Modrinth API base URL */
 export const MODRINTH_API_BASE: string = "https://api.modrinth.com/v2";
 
+/** Default timeout for Modrinth API requests */
+export const MODRINTH_API_TIMEOUT: number = 1000;
+
 /** Modrinth version files endpoint */
 export const MODRINTH_VERSION_FILES_ENDPOINT: string = `${MODRINTH_API_BASE}/version_files`;
 
@@ -35,7 +38,8 @@ export const GITHUB_LICENSES_ENDPOINT: string = `${GITHUB_API_BASE}/licenses`;
 export const GITHUB_FEATURED_LICENSES_ENDPOINT: string = `${GITHUB_LICENSES_ENDPOINT}?featured=true`;
 
 /** GitHub license endpoint */
-export const GITHUB_LICENSE_ENDPOINT: (license: string) => string = (license) => `${GITHUB_API_BASE}/licenses/${license}`;
+export const GITHUB_LICENSE_ENDPOINT: (license: string) => string = (license) =>
+    `${GITHUB_API_BASE}/licenses/${license}`;
 
 /** GitHub Accept request header */
 export const GITHUB_ACCEPT_HEADER: string = "application/vnd.github+json";
