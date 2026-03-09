@@ -14,7 +14,7 @@
   "objectWrap": "preserve",
   "bracketSameLine": false,
   "singleAttributePerLine": false,
-  "parser": "babel",
+  "parser": "typescript",
   "overrides": [
     {
       "files": [

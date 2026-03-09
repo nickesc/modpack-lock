@@ -1,0 +1,248 @@
+import fs from "fs/promises";
+import path from "path";
+import {getProjects, getUsers} from "./modrinth_interactions.js";
+import {getScanDirectories} from "./directory_scanning.js";
+import * as config from "./config/index.js";
+import {logm, styleText} from "./logger.js";
+import type {
+    Options,
+    InitOptions,
+    Lockfile,
+    ProjectResponseItem,
+    UserResponseItem,
+    LockfileDependency,
+    ContentDirectory,
+    DependencyCategory,
+} from "./types/index.js";
+
+/**
+ * Generate README.md content for a category
+ */
+function generateCategoryReadme(
+    category: DependencyCategory,
+    entries: LockfileDependency[],
+    projectsMap: Record<string, ProjectResponseItem>,
+    usersMap: Record<string, UserResponseItem>,
+): string {
+    const categoryTitle: string = category.charAt(0).toUpperCase() + category.slice(1);
+    const lines: string[] = [
+        `# ${categoryTitle}`,
+        "",
+        "| Name | Author | Version | Dependencies | Dependents |",
+        "|-|-|-|-|-|",
+    ];
+
+    // Map category to Modrinth URL path segment
+    const categoryPathMap: Record<string, string> = {};
+    for (const cat of config.DEPENDENCY_CATEGORIES) {
+        categoryPathMap[cat] = cat === "shaderpacks" ? "shader" : cat.toLowerCase().slice(0, -1);
+    }
+    const categoryPath: string = categoryPathMap[category] || "project";
+
+    // Build a set of project_ids present in this category for filtering dependencies
+    const categoryProjectIds: Set<string> = new Set();
+
+    for (const entry of entries) {
+        if (entry.version && entry.version.project_id) {
+            categoryProjectIds.add(entry.version.project_id);
+        }
+    }
+
+    for (const entry of entries) {
+        const version = entry.version;
+        let nameCell: string;
+        let authorCell: string;
+        let versionCell: string;
+        let dependenciesCell: string;
+        let dependentsCell: string;
+
+        if (version && version.project_id) {
+            const project = projectsMap[version.project_id];
+            const author = version.author_id ? usersMap[version.author_id] : null;
+
+            // Name column with icon and link
+            if (project) {
+                const projectName: string = project.title || project.slug || "Unknown";
+                const projectSlug: string = project.slug || project.id;
+                const projectUrl = `https://modrinth.com/${categoryPath}/${projectSlug}`;
+
+                if (project.icon_url) {
+                    nameCell = `<img alt="Icon" src="${project.icon_url}" height="20px"> [${projectName}](${projectUrl})`;
+                } else {
+                    nameCell = `[${projectName}](${projectUrl})`;
+                }
+            } else {
+                // Project not found, use filename
+                const fileName: string = path.basename(entry.path);
+                nameCell = fileName;
+            }
+
+            // Author column with avatar and link
+            if (author) {
+                const authorName: string = author.username || "Unknown";
+                const authorUrl = `https://modrinth.com/user/${authorName}`;
+
+                if (author.avatar_url) {
+                    authorCell = `<img alt="Avatar" src="${author.avatar_url}" height="20px"> [${authorName}](${authorUrl})`;
+                } else {
+                    authorCell = `[${authorName}](${authorUrl})`;
+                }
+            } else {
+                authorCell = "Unknown";
+            }
+
+            // Version column
+            versionCell = version.version_number || "Unknown";
+
+            // Dependencies column - only show dependencies that are present in this category
+            if (version.dependencies && Array.isArray(version.dependencies) && version.dependencies.length > 0) {
+                const dependencyLinks: string[] = [];
+                for (const dep of version.dependencies) {
+                    if (dep.project_id && categoryProjectIds.has(dep.project_id)) {
+                        const depProject = projectsMap[dep.project_id];
+                        if (depProject) {
+                            const depProjectName: string = depProject.title || depProject.slug || "Unknown";
+                            const depProjectSlug: string = depProject.slug || depProject.id;
+                            const depUrl = `https://modrinth.com/${categoryPath}/${depProjectSlug}`;
+                            if (depProject.icon_url) {
+                                dependencyLinks.push(
+                                    `<a href="${depUrl}"><img alt="${depProjectName}" src="${depProject.icon_url}" height="20px"></a>`,
+                                );
+                            } else {
+                                dependencyLinks.push(`[${depProjectName}](${depUrl})`);
+                            }
+                        }
+                    }
+                }
+                dependenciesCell = dependencyLinks.length > 0 ? dependencyLinks.join(" ") : "-";
+            } else {
+                dependenciesCell = "-";
+            }
+
+            // Dependents column - find all entries in the same category that depend on this project
+            const dependents: string[] = [];
+            for (const catEntry of entries) {
+                // Skip if this is the same entry (same project_id)
+                if (catEntry.version && catEntry.version.project_id === version.project_id) {
+                    continue;
+                }
+                if (catEntry.version && catEntry.version.dependencies && Array.isArray(catEntry.version.dependencies)) {
+                    const hasDependency = catEntry.version.dependencies.some(
+                        (dep) => dep.project_id === version.project_id,
+                    );
+                    if (hasDependency) {
+                        const depProject = projectsMap[catEntry.version.project_id];
+                        if (depProject) {
+                            const depProjectName: string = depProject.title || depProject.slug || "Unknown";
+                            const depProjectSlug: string = depProject.slug || depProject.id;
+                            const depUrl = `https://modrinth.com/${categoryPath}/${depProjectSlug}`;
+                            if (depProject.icon_url) {
+                                dependents.push(
+                                    `<a href="${depUrl}"><img alt="${depProjectName}" src="${depProject.icon_url}" height="20px"></a>`,
+                                );
+                            } else {
+                                dependents.push(`[${depProjectName}](${depUrl})`);
+                            }
+                        }
+                    }
+                }
+            }
+            dependentsCell = dependents.length > 0 ? dependents.join(" ") : "-";
+        } else {
+            // File not found on Modrinth
+            const fileName: string = path.basename(entry.path);
+            nameCell = fileName;
+            authorCell = "Unknown";
+            versionCell = "-";
+            dependenciesCell = "-";
+            dependentsCell = "-";
+        }
+
+        lines.push(`| ${nameCell} | ${authorCell} | ${versionCell} | ${dependenciesCell} | ${dependentsCell} |`);
+    }
+
+    return lines.join("\n") + "\n";
+}
+
+/**
+ * Generate README.md files for each category
+ * @param lockfile - The lockfile object
+ * @param workingDir - The working directory
+ * @param options - The options object
+ */
+export async function generateReadmeFiles(
+    lockfile: Lockfile,
+    workingDir: string,
+    options: Options | InitOptions = {},
+): Promise<void> {
+    logm.quietFromOptions(options);
+
+    // Collect unique project IDs and author IDs from version data
+    const projectIds = new Set<string>();
+    const authorIds = new Set<string>();
+
+    for (const entries of Object.values(lockfile.dependencies)) {
+        for (const entry of entries) {
+            if (entry.version && entry.version.project_id) {
+                projectIds.add(entry.version.project_id);
+            }
+            if (entry.version && entry.version.author_id) {
+                authorIds.add(entry.version.author_id);
+            }
+        }
+    }
+
+    // Fetch projects and users in parallel
+    logm.newline();
+    logm.info(styleText(["dim"], "Fetching metadata for:"));
+    logm.info(
+        styleText(["dim"], " └─"),
+        styleText(["yellow"], `${projectIds.size} project(s)`),
+        styleText(["dim"], "and"),
+        styleText(["yellow"], `${authorIds.size} user(s)`),
+    );
+    logm.newline();
+
+    const [projects, users] = await Promise.all([getProjects(Array.from(projectIds)), getUsers(Array.from(authorIds))]);
+
+    // Map projects and users to their IDs
+    const projectsMap: Record<string, ProjectResponseItem> = {};
+    for (const project of projects) {
+        projectsMap[project.id] = project;
+    }
+
+    const usersMap: Record<string, UserResponseItem> = {};
+    for (const user of users) {
+        usersMap[user.id] = user;
+    }
+
+    // Generate README for each category
+    for (const [category, entries] of Object.entries(lockfile.dependencies) as [
+        DependencyCategory,
+        LockfileDependency[],
+    ][]) {
+        if (entries.length === 0) {
+            continue;
+        }
+
+        const readmeContent: string = generateCategoryReadme(category, entries, projectsMap, usersMap);
+        const categoryDir: ContentDirectory | undefined = getScanDirectories(workingDir).find(
+            (d) => d.name === category,
+        );
+
+        if (categoryDir) {
+            const readmePath = path.join(categoryDir.path, config.README_NAME);
+
+            if (options.dryRun) {
+                logm.debug(config.dryRunText(config.README_NAME, readmePath));
+            } else {
+                try {
+                    await fs.writeFile(readmePath, readmeContent, "utf-8");
+                    logm.generated(config.README_NAME, readmePath);
+                } catch (error: any) {
+                    logm.warn(`Could not write ${config.README_NAME} file to ${readmePath}: ${error.message}`);
+                }
+            }
+        }
+    }
+}

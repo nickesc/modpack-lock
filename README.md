@@ -59,6 +59,7 @@ Options:
   -d, --dry-run           Dry-run mode - no files will be written
 
 GENERATION
+  -l, --licenseFile       Add the LICENSE file to the modpack
   -g, --gitignore         Update the .gitignore file to ignore content hosted on Modrinth
   -r, --readme            Generate README.md files for each category
 
@@ -71,7 +72,7 @@ INFORMATION
   -h, --help              display help for modpack-lock
 
 Commands:
-  init [options]          This utility will walk you through creating a modpack.json file. It only covers the most common items, and tries to guess sensible defaults.
+  init [options]          Initialize a modpack with a modpack.json file and a modpack.lock lockfile.
   run [options] <script>  Run a script defined in the modpack.json file's 'scripts' field
 ```
 
@@ -100,7 +101,7 @@ The interactive mode will prompt you for each field. Set their initial values us
 ```text
 Usage: modpack-lock init [options]
 
-This utility will walk you through creating a modpack.json file. It only covers the most common items, and tries to guess sensible defaults.
+Initialize a modpack with a modpack.json file and a modpack.lock lockfile.
 
 Options:
   -f, --folder <path>                                Path to the modpack directory
@@ -110,17 +111,17 @@ Options:
   --add-readme                                       Generate README.md files for each category
 
 MODPACK INFORMATION
-  --name <name>                                      Modpack name; defaults to the directory name
-  --version <version>                                Modpack version; defaults to 1.0.0
-  --id <id>                                          Modpack slug/ID; defaults to the directory name slugified
-  --description <description>                        Modpack description
-  --author <author>                                  Modpack author; required
-  --projectUrl <projectUrl>                          Modpack URL; defaults to a guessed Modrinth project URL
-  --sourceUrl <sourceUrl>                            Modpack source code URL; defaults to a guessed GitHub repository URL
-  --license <license>                                Modpack license, popular licenses fetched from GitHub; defaults to MIT in interactive mode
-  --modloader <modloader>                            Modpack modloader, list of loaders fetched from Modrinth; required
-  --targetModloaderVersion <targetModloaderVersion>  Target modloader version
-  --targetMinecraftVersion <targetMinecraftVersion>  Target Minecraft version, list of versions fetched from Modrinth; required
+  --name <name>                                      The name of the modpack; defaults to the directory name
+  --version <version>                                The modpack version; defaults to 1.0.0
+  --id <id>                                          The modpack's slug/ID; defaults to the directory name slugified
+  --description <description>                        A description of the modpack
+  --author <author>                                  The author of the modpack; required
+  --projectUrl <projectUrl>                          The project's homepage URL; defaults to a guessed Modrinth project URL
+  --sourceUrl <sourceUrl>                            The project's source code URL; defaults to a guessed GitHub repository URL
+  --license <license>                                The modpack's license; popular licenses are fetched from GitHub; defaults to mit in interactive mode
+  --modloader <modloader>                            The modpack's modloader; a list of loaders is fetched from Modrinth; required
+  --targetModloaderVersion <targetModloaderVersion>  The target modloader version
+  --targetMinecraftVersion <targetMinecraftVersion>  The target Minecraft version; a list of versions is fetched from Modrinth; required
 
 INFORMATION
   -h, --help                                         display help for modpack-lock init
@@ -255,7 +256,7 @@ The JSON file contains your modpack metadata and a dependency list:
 > datapacks/*.zip
 > shaderpacks/*.zip
 > */**/*.disabled
-> 
+>
 > ## Exceptions
 > !mods/example.jar
 > # modpack-lock:end

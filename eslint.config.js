@@ -4,7 +4,7 @@ import {defineConfig} from "eslint/config";
 
 export default defineConfig([
     {
-        files: ["**/*.{js,mjs,cjs}"],
+        files: ["**/*.{ts}", "test/**/*.{ts,js}"],
         plugins: {js},
         extends: ["js/recommended"],
         languageOptions: {globals: globals.node},
