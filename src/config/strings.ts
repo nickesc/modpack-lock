@@ -22,47 +22,47 @@ export const infoFields: {
 } = {
     name: {
         prompt: "modpack name",
-        option: "Modpack name; defaults to the directory name",
+        option: "The name of the modpack; defaults to the directory name",
     },
     version: {
         prompt: "modpack version",
-        option: `Modpack version; defaults to ${defaults.DEFAULT_MODPACK_VERSION}`,
+        option: `The modpack version; defaults to ${defaults.DEFAULT_MODPACK_VERSION}`,
     },
     id: {
         prompt: "modpack slug/ID",
-        option: "Modpack slug/ID; defaults to the directory name slugified",
+        option: "The modpack's slug/ID; defaults to the directory name slugified",
     },
     description: {
         prompt: "modpack description",
-        option: "Modpack description",
+        option: "A description of the modpack",
     },
     author: {
         prompt: "modpack author",
-        option: "Modpack author; required",
+        option: "The author of the modpack; required",
     },
     projectUrl: {
         prompt: "modpack URL",
-        option: "Modpack URL; defaults to a guessed Modrinth project URL",
+        option: "The project's homepage URL; defaults to a guessed Modrinth project URL",
     },
     sourceUrl: {
         prompt: "modpack source code URL",
-        option: "Modpack source code URL; defaults to a guessed GitHub repository URL",
+        option: "The project's source code URL; defaults to a guessed GitHub repository URL",
     },
     license: {
         prompt: "modpack license",
-        option: `Modpack license, popular licenses fetched from GitHub; defaults to ${defaults.DEFAULT_MODPACK_LICENSE} in interactive mode`,
+        option: `The modpack's license; popular licenses are fetched from GitHub; defaults to ${defaults.DEFAULT_MODPACK_LICENSE} in interactive mode`,
     },
     modloader: {
         prompt: "modpack modloader",
-        option: "Modpack modloader, list of loaders fetched from Modrinth; required",
+        option: "The modpack's modloader; a list of loaders is fetched from Modrinth; required",
     },
     targetModloaderVersion: {
         prompt: "target modloader version",
-        option: "Target modloader version",
+        option: "The target modloader version",
     },
     targetMinecraftVersion: {
         prompt: "target Minecraft version",
-        option: "Target Minecraft version, list of versions fetched from Modrinth; required",
+        option: "The target Minecraft version; a list of versions is fetched from Modrinth; required",
     },
 };
 
