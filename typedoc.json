@@ -1,6 +1,6 @@
 {
-  "tsconfig": "typedoc.ts.json",
-  "entryPoints": ["src/modpack-lock.js"],
+  "tsconfig": "tsconfig.json",
+  "entryPoints": ["src/modpack-lock.ts"],
   "readme": "README.md",
   "out": "docs",
   "darkHighlightTheme": "github-dark",

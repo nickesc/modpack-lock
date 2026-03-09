@@ -13,9 +13,9 @@
   "license": "MIT",
   "author": "N. Escobar <nick@nickesc.io> (https://nickesc.github.io/)",
   "type": "module",
-  "main": "src/modpack-lock.js",
+  "main": "build/modpack-lock.js",
   "bin": {
-    "modpack-lock": "src/cli.js"
+    "modpack-lock": "build/cli.js"
   },
   "keywords": [
     "modrinth",
@@ -27,30 +27,36 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "build": "tsc",
     "test": "vitest --run",
-    "start": "node src/cli.js",
+    "start": "tsx src/cli.ts",
     "docs": "typedoc",
-    "modpack-lock": "node src/cli.js"
+    "modpack-lock": "tsx src/cli.ts",
+    "prepare": "npm run build"
   },
   "files": [
     "README.md",
     "LICENSE",
     "package.json",
-    "src/**/*.js"
+    "build/**/*"
   ],
   "dependencies": {
+    "@sindresorhus/slugify": "^3.0.0",
     "commander": "^14.0.3",
     "prompts": "^2.4.2",
     "slugify": "^1.6.6"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/node": "^25.3.3",
+    "@types/prompts": "^2.4.9",
     "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^10.0.0",
-    "eslint-plugin-jsdoc": "^62.7.1",
     "globals": "^17.3.0",
+    "tsx": "^4.21.0",
     "typedoc": "^0.28.17",
     "typedoc-github-theme": "^0.3.1",
+    "typescript": "^5.9.3",
     "unzipper": "^0.12.3",
     "vitest": "^4.0.16"
   }
