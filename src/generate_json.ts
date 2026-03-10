@@ -3,12 +3,41 @@ import path from "path";
 import {getProjects} from "./modrinth_interactions.js";
 import * as config from "./config/index.js";
 import {logm} from "./logger.js";
-import type {Lockfile, Jsonfile, Options, InitOptions, DependencyCategory} from "./types/index.js";
+import type {Lockfile, Jsonfile, Options, InitOptions, DependencyCategory, DependencyMap} from "./types/index.js";
+
+/**
+ * Normalize dependencies from the legacy array-of-strings format to the
+ * current versioned-object format. Passes through objects unchanged.
+ * @param dependencies - The raw dependencies object from modpack.json
+ * @returns Normalized dependencies with {@link DependencyMap} entries per category
+ */
+export function normalizeDependencies(
+    dependencies: Jsonfile["dependencies"] | null,
+): Partial<Record<DependencyCategory, DependencyMap>> {
+    if (!dependencies || typeof dependencies !== "object") return {};
+
+    const normalized: Partial<Record<DependencyCategory, DependencyMap>> = {};
+    for (const [key, entries] of Object.entries(dependencies)) {
+        const category = key as DependencyCategory;
+        if (Array.isArray(entries)) {
+            const map: DependencyMap = {};
+            for (const entry of entries) {
+                map[entry] = "*";
+            }
+            normalized[category] = map;
+        } else if (typeof entries === "object" && entries !== null) {
+            normalized[category] = entries as DependencyMap;
+        } else {
+            normalized[category] = {};
+        }
+    }
+    return normalized;
+}
 
 /**
  * Create a JSON object from the modpack information and dependencies
  */
-function createModpackJson(modpackInfo: Jsonfile, dependencies: Record<DependencyCategory, string[]>): Jsonfile {
+function createModpackJson(modpackInfo: Jsonfile, dependencies: Record<DependencyCategory, DependencyMap>): Jsonfile {
     return {
         ...modpackInfo,
         dependencies: dependencies,
@@ -32,7 +61,7 @@ async function writeJson(jsonObject: Jsonfile, outputPath: string): Promise<void
  * @param options - The options object
  * @returns The JSON file's object
  */
-export default async function generateJson(
+export async function generateJson(
     modpackInfo: Jsonfile,
     lockfile: Lockfile,
     workingDir: string,
@@ -59,24 +88,26 @@ export default async function generateJson(
         datapacks: new Set(),
         shaderpacks: new Set(),
     };
-    const packDependencies: Record<DependencyCategory, string[]> = {
-        mods: [],
-        resourcepacks: [],
-        datapacks: [],
-        shaderpacks: [],
+    const versionNumbers: Record<string, string> = {};
+    const packDependencies: Record<DependencyCategory, DependencyMap> = {
+        mods: {},
+        resourcepacks: {},
+        datapacks: {},
+        shaderpacks: {},
     };
 
-    // Collect project IDs from lockfile
+    // Collect project IDs and version numbers from lockfile
     if (lockfile)
         if (lockfile.dependencies) {
             for (const category of config.DEPENDENCY_CATEGORIES) {
                 if (lockfile.dependencies[category]) {
-                    // TODO: consider initializing the categories with an empty array/set here
+                    // TODO: consider initializing the categories with an empty object/set here
                     for (const entry of lockfile.dependencies[category]) {
                         if (entry.version && entry.version.project_id) {
                             projectIds[category].add(entry.version.project_id);
+                            versionNumbers[entry.version.project_id] = entry.version.version_number || "*";
                         } else {
-                            packDependencies[category].push(entry.path);
+                            packDependencies[category][entry.path] = "*";
                         }
                     }
                 }
@@ -97,12 +128,12 @@ export default async function generateJson(
                 }
             }
 
-            // Add projects to dependencies by category
+            // Add projects to dependencies by category with their version numbers
             for (const category of config.DEPENDENCY_CATEGORIES) {
                 for (const projectId of projectIds[category]) {
                     const projectSlug: string | undefined = projectsMap[projectId];
                     if (projectSlug) {
-                        packDependencies[category].push(projectSlug);
+                        packDependencies[category][projectSlug] = versionNumbers[projectId] || "*";
                     }
                 }
             }

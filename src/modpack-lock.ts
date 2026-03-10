@@ -1,13 +1,14 @@
 import {generateLockfile} from "./generate_lockfile.js";
 import {generateReadmeFiles} from "./generate_readme.js";
 import {generateGitignoreRules} from "./generate_gitignore.js";
-import generateJson from "./generate_json.js";
+import {generateJson, normalizeDependencies} from "./generate_json.js";
 import generateLicense from "./generate_license.js";
 import {logm} from "./logger.js";
 import {promptUserForInfo} from "./user_prompts.js";
 import {getModpackInfo, getLockfile} from "./directory_scanning.js";
 import type {
     Jsonfile,
+    DependencyMap,
     Options,
     InitOptions,
     Lockfile,
@@ -67,6 +68,7 @@ async function generateModpackFiles(
 export {
     generateModpackFiles,
     generateJson,
+    normalizeDependencies,
     generateLockfile,
     generateGitignoreRules,
     generateReadmeFiles,
@@ -79,6 +81,7 @@ export type {
     Lockfile, //
     ModpackInfo,
     Jsonfile,
+    DependencyMap,
     Options,
     InitOptions,
     DependencyCategory,
