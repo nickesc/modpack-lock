@@ -8,7 +8,7 @@ export const PACKAGE_USER_AGENT: string = `${constants.AUTHOR_USERNAME}/${pkg.na
 export const MODRINTH_API_BASE: string = "https://api.modrinth.com/v2";
 
 /** Default timeout for Modrinth API requests */
-export const MODRINTH_API_TIMEOUT: number = 1000;
+export const MODRINTH_API_TIMEOUT: number = 3000;
 
 /** Modrinth version files endpoint */
 export const MODRINTH_VERSION_FILES_ENDPOINT: string = `${MODRINTH_API_BASE}/version_files`;
