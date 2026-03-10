@@ -12,6 +12,7 @@ import unzipper from "unzipper";
 import {
     generateModpackFiles,
     generateJson,
+    normalizeDependencies,
     generateLockfile,
     generateGitignoreRules,
     generateReadmeFiles,
@@ -715,8 +716,68 @@ old content here
 
             const result = await generateJson(modpackInfo, jsonLockfile, jsonWorkspace);
 
-            const allDeps = Object.values(result.dependencies).flat();
+            const allDeps = Object.values(result.dependencies).flatMap((obj) => Object.keys(obj));
             expect(allDeps.length).toBeGreaterThan(0);
+        });
+
+        it("dependencies use versioned object format", async () => {
+            const jsonWorkspace = await extractWorkspaceFixture();
+            const jsonLockfile = await generateLockfile(jsonWorkspace);
+
+            const modpackInfo = {
+                name: "Test Modpack",
+                version: "1.0.0",
+                id: "test-modpack",
+                author: "Test Author",
+                modloader: "fabric",
+                targetMinecraftVersion: "1.21.1",
+            };
+
+            const result = await generateJson(modpackInfo, jsonLockfile, jsonWorkspace);
+
+            for (const [, categoryDeps] of Object.entries(result.dependencies)) {
+                expect(typeof categoryDeps).toBe("object");
+                expect(Array.isArray(categoryDeps)).toBe(false);
+
+                for (const [name, version] of Object.entries(categoryDeps)) {
+                    expect(typeof name).toBe("string");
+                    expect(typeof version).toBe("string");
+                    expect(name.length).toBeGreaterThan(0);
+                    expect(version.length).toBeGreaterThan(0);
+                }
+            }
+        });
+
+        it("Modrinth content has specific version numbers, non-Modrinth uses '*'", async () => {
+            const jsonWorkspace = await extractWorkspaceFixture();
+            const jsonLockfile = await generateLockfile(jsonWorkspace);
+
+            const modpackInfo = {
+                name: "Test Modpack",
+                version: "1.0.0",
+                id: "test-modpack",
+                author: "Test Author",
+                modloader: "fabric",
+                targetMinecraftVersion: "1.21.1",
+            };
+
+            const result = await generateJson(modpackInfo, jsonLockfile, jsonWorkspace);
+
+            const allEntries = Object.values(result.dependencies).flatMap((obj) => Object.entries(obj));
+            const modrinthEntries = allEntries.filter(([, v]) => v !== "*");
+            const nonModrinthEntries = allEntries.filter(([, v]) => v === "*");
+
+            expect(modrinthEntries.length).toBeGreaterThan(0);
+            expect(nonModrinthEntries.length).toBeGreaterThan(0);
+
+            for (const [name, version] of modrinthEntries) {
+                expect(name).not.toContain("/");
+                expect(version).not.toBe("*");
+            }
+
+            for (const [name] of nonModrinthEntries) {
+                expect(name).toContain("/");
+            }
         });
 
         it("throws error when required fields are missing", async () => {
@@ -750,6 +811,58 @@ old content here
 
             const written = await readModpackJson(jsonWorkspace);
             expect(written.name).toBe("Test Modpack");
+        });
+    });
+
+    describe("normalizeDependencies", () => {
+        it("converts legacy array format to versioned object format", () => {
+            const legacy = {
+                mods: ["fabric-api", "projector", "mods/x.jar"],
+                resourcepacks: ["neighborhood-dark"],
+            };
+
+            const result = normalizeDependencies(legacy);
+
+            expect(result.mods).toEqual({
+                "fabric-api": "*",
+                projector: "*",
+                "mods/x.jar": "*",
+            });
+            expect(result.resourcepacks).toEqual({
+                "neighborhood-dark": "*",
+            });
+        });
+
+        it("passes through versioned object format unchanged", () => {
+            const current = {
+                mods: {"fabric-api": "0.141.2+1.21.11", "mods/x.jar": "*"},
+                resourcepacks: {"neighborhood-dark": "1.1.0"},
+            };
+
+            const result = normalizeDependencies(current);
+
+            expect(result).toEqual(current);
+        });
+
+        it("handles null and undefined input", () => {
+            expect(normalizeDependencies(null)).toEqual({});
+            expect(normalizeDependencies(undefined)).toEqual({});
+        });
+
+        it("handles empty dependencies", () => {
+            expect(normalizeDependencies({})).toEqual({});
+        });
+
+        it("handles mixed legacy and current formats across categories", () => {
+            const mixed = {
+                mods: ["fabric-api"],
+                resourcepacks: {"neighborhood-dark": "1.1.0"},
+            };
+
+            const result = normalizeDependencies(mixed);
+
+            expect(result.mods).toEqual({"fabric-api": "*"});
+            expect(result.resourcepacks).toEqual({"neighborhood-dark": "1.1.0"});
         });
     });
 

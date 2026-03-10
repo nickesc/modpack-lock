@@ -172,6 +172,7 @@ For programmatic usage, `modpack-lock` exports these functions:
 - `getModpackInfo()`
 - `getLockfile()`
 - `generateJson()`
+- `normalizeDependencies()`
 - `generateGitignoreRules()`
 - `generateReadmeFiles()`
 - `generateLicense()`
@@ -233,10 +234,14 @@ The JSON file contains your modpack metadata and a dependency list:
     "example": "echo 'example script'"
   },
   "dependencies": {
-    "mods": [ ... ],
-    "resourcepacks": [ ... ],
-    "datapacks": [ ... ],
-    "shaderpacks": [ ... ]
+    "mods": {
+      "fabric-api": "0.141.2+1.21.11",
+      "example-mod": "1.2.3",
+      "mods/local-mod.jar": "*"
+    },
+    "resourcepacks": { ... },
+    "datapacks": { ... },
+    "shaderpacks": { ... }
   }
 }
 ```
